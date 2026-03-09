@@ -1,0 +1,23 @@
+# WhateverOPS — Docker Compose for self-hosting
+# Usage: docker compose up -d
+# Docs:  docs/06-Development/SETUP.md
+
+services:
+  whateverops:
+    build: .
+    container_name: whateverops
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - FRONTEND_URL=http://localhost:3000
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 5s
+      start-period: 10s
+      retries: 3

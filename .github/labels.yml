@@ -45,3 +45,43 @@
 - name: duplicate
   color: 'cfd3d7'
   description: This issue or pull request already exists
+
+- name: frontend
+  color: '61dafb'
+  description: Changes to the React frontend
+
+- name: backend
+  color: 'e36209'
+  description: Changes to the Hono backend
+
+- name: tests
+  color: 'fbca04'
+  description: Test additions or changes
+
+- name: shared-types
+  color: '1d76db'
+  description: Changes to shared type packages
+
+- name: dependencies
+  color: '0366d6'
+  description: Dependency updates
+
+- name: release
+  color: '28a745'
+  description: Release-related changes
+
+- name: 'size/S'
+  color: 'c2e0c6'
+  description: 'Small PR: <100 lines changed'
+
+- name: 'size/M'
+  color: 'fef2c0'
+  description: 'Medium PR: 100-500 lines changed'
+
+- name: 'size/L'
+  color: 'f9d0c4'
+  description: 'Large PR: 500+ lines changed'
+
+- name: stale
+  color: 'ededed'
+  description: Inactive issue or PR marked for closure

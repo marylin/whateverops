@@ -1,0 +1,39 @@
+name: Deploy Smoke Test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    name: Health Check
+    runs-on: ubuntu-latest
+    # Wait for Railway deploy to propagate
+    steps:
+      - name: Wait for deploy
+        run: sleep 60
+
+      - name: Check backend health
+        if: env.RAILWAY_HEALTH_URL != ''
+        env:
+          RAILWAY_HEALTH_URL: ${{ vars.RAILWAY_HEALTH_URL }}
+        run: |
+          STATUS=$(curl -sf --max-time 10 "$RAILWAY_HEALTH_URL" || echo "UNREACHABLE")
+          if [ "$STATUS" = "UNREACHABLE" ]; then
+            echo "::warning::Backend health check failed — $RAILWAY_HEALTH_URL unreachable"
+            exit 1
+          fi
+          echo "Backend healthy: $STATUS"
+
+      - name: Check frontend
+        if: env.VERCEL_URL != ''
+        env:
+          VERCEL_URL: ${{ vars.VERCEL_URL }}
+        run: |
+          STATUS=$(curl -sf --max-time 10 -o /dev/null -w "%{http_code}" "$VERCEL_URL" || echo "000")
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Frontend returned HTTP $STATUS — $VERCEL_URL"
+            exit 1
+          fi
+          echo "Frontend healthy: HTTP $STATUS"

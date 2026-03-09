@@ -1,0 +1,23 @@
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: 'frontend/**'
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/**'
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: 'tests/**'
+
+shared-types:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/**'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: 'docs/**'
+
+integration:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/src/integrations/**'
