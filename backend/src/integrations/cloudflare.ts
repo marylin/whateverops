@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'cloudflare' as const
 export const INTEGRATION_NAME = 'Cloudflare'
@@ -51,10 +52,10 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       headers,
       signal: AbortSignal.timeout(10_000),
     }),
-    fetch(
-      `${base}/zones/${config.zoneId}/analytics/dashboard?since=${since}&continuous=true`,
-      { headers, signal: AbortSignal.timeout(10_000) },
-    ),
+    fetch(`${base}/zones/${config.zoneId}/analytics/dashboard?since=${since}&continuous=true`, {
+      headers,
+      signal: AbortSignal.timeout(10_000),
+    }),
   ])
 
   if (!zoneRes.ok) throw new Error(`Cloudflare API error: ${zoneRes.status}`)
@@ -105,7 +106,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey + config.zoneId)
+  const hash = quickHash(config.apiKey + config.zoneId)
     .toString(36)
     .slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`

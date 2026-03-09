@@ -66,6 +66,7 @@ export function Dashboard() {
               status={panel.status}
               cached={panel.cached}
               lastUpdated={panel.lastUpdated}
+              ttl={panel.ttl}
               wide={panel.id === 'stripe'}
               error={panel.error}
               onRetry={refresh}
@@ -79,7 +80,8 @@ export function Dashboard() {
           <div className="mt-6 text-center">
             <p className="text-[10px] text-gray-700">
               {data.configured} of {data.total} integrations configured
-              {data.lastRefresh && ` · Last refresh: ${new Date(data.lastRefresh).toLocaleTimeString()}`}
+              {data.lastRefresh &&
+                ` · Last refresh: ${new Date(data.lastRefresh).toLocaleTimeString()}`}
             </p>
           </div>
         )}

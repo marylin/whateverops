@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'github' as const
 export const INTEGRATION_NAME = 'GitHub'
@@ -107,7 +108,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey + config.owner + config.repo)
+  const hash = quickHash(config.apiKey + config.owner + config.repo)
     .toString(36)
     .slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`

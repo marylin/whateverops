@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'supabase-management' as const
 export const INTEGRATION_NAME = 'Supabase'
@@ -81,7 +82,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey + config.projectRef)
+  const hash = quickHash(config.apiKey + config.projectRef)
     .toString(36)
     .slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`

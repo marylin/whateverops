@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'stripe' as const
 export const INTEGRATION_NAME = 'Stripe'
@@ -126,9 +127,7 @@ export function parsePanel(raw: RawData): PanelData {
 
   // MRR delta: subs created in last 30 days minus canceled
   const newSubs30d = activeSubs.filter((s) => s.created > thirtyDaysAgo)
-  const canceledSubs30d = subs.filter(
-    (s) => s.canceled_at && s.canceled_at > thirtyDaysAgo,
-  )
+  const canceledSubs30d = subs.filter((s) => s.canceled_at && s.canceled_at > thirtyDaysAgo)
 
   const newMrr = newSubs30d.reduce((sum, s) => sum + (s.plan?.amount ?? 0), 0)
   const lostMrr = canceledSubs30d.reduce((sum, s) => sum + (s.plan?.amount ?? 0), 0)
@@ -139,9 +138,7 @@ export function parsePanel(raw: RawData): PanelData {
   ).length
 
   const charges = raw.recentCharges ?? []
-  const failedCharges24h = charges.filter(
-    (c) => c.status === 'failed' && c.created > oneDayAgo,
-  )
+  const failedCharges24h = charges.filter((c) => c.status === 'failed' && c.created > oneDayAgo)
 
   return {
     mrr: Math.round(mrr) / 100,
@@ -164,7 +161,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey).toString(36).slice(0, 8)
+  const hash = quickHash(config.apiKey).toString(36).slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`
 }
 

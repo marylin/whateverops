@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'railway' as const
 export const INTEGRATION_NAME = 'Railway'
@@ -123,7 +124,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey).toString(36).slice(0, 8)
+  const hash = quickHash(config.apiKey).toString(36).slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`
 }
 

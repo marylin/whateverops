@@ -9,6 +9,28 @@ most reasonable path and document your choice in the commit message.
 
 ---
 
+## 🔄 CONTEXT MANAGEMENT (AUTO)
+
+When your context window reaches ~80% full:
+
+1. Finish the current task completely
+2. Run `bun run typecheck && bun run lint` — fix any errors
+3. Commit everything with a detailed message:
+   `wip(phase-N): [task name] — context compacting, resuming next session`
+4. Update `docs/05-Plans/PROGRESS.md` — mark current task status accurately
+5. Update `docs/05-Plans/CURRENT-PHASE.md`:
+   - Set **Active Task** to the next pending task
+   - Log any decisions made in **Decisions Made**
+6. Run `/compact` to compress context
+7. After compacting, immediately run `/resume` to continue
+
+On `/resume` with a fresh context:
+
+1. Read `CLAUDE.md` (this file)
+2. Read `docs/05-Plans/CURRENT-PHASE.md` — find Active Task
+3. Read `docs/05-Plans/PROGRESS.md` — confirm last committed task
+4. Continue from the next ⏳ Pending task — no questions, no recap
+
 ## 🧠 PROJECT CONTEXT
 
 **WhateverOPS** — unified ops dashboard for solo developer-founders.
@@ -17,20 +39,22 @@ Anthropic, OpenAI, Supabase ×2, Resend, Stripe, Sentry, Cloudflare, Replit)
 into one real-time view.
 
 ### Stack
-| Layer | Tech | Host |
-|-------|------|------|
-| Frontend | React 18 + Vite + TypeScript + Tailwind | Vercel |
-| Backend | Hono.js on Bun | Railway |
-| Cache | In-memory → Upstash Redis (Phase 2+) | Upstash |
-| Database | Neon PostgreSQL + Drizzle ORM (Phase 4+) | Neon |
-| Auth | Lucia Auth v3 + Arctic (Phase 4+) | Railway |
-| Email | Resend + React Email | Resend |
-| Storage | Supabase Storage (Phase 4+) | Supabase |
-| Automation | n8n self-hosted | Railway |
-| Payments | Stripe Checkout + Portal (Phase 5+) | Stripe |
-| Monitoring | Sentry + BetterStack (Phase 5+) | SaaS |
+
+| Layer      | Tech                                     | Host     |
+| ---------- | ---------------------------------------- | -------- |
+| Frontend   | React 18 + Vite + TypeScript + Tailwind  | Vercel   |
+| Backend    | Hono.js on Bun                           | Railway  |
+| Cache      | In-memory → Upstash Redis (Phase 2+)     | Upstash  |
+| Database   | Neon PostgreSQL + Drizzle ORM (Phase 4+) | Neon     |
+| Auth       | Lucia Auth v3 + Arctic (Phase 4+)        | Railway  |
+| Email      | Resend + React Email                     | Resend   |
+| Storage    | Supabase Storage (Phase 4+)              | Supabase |
+| Automation | n8n self-hosted                          | Railway  |
+| Payments   | Stripe Checkout + Portal (Phase 5+)      | Stripe   |
+| Monitoring | Sentry + BetterStack (Phase 5+)          | SaaS     |
 
 ### Monorepo layout
+
 ```
 /
 ├── frontend/                   React + Vite SPA
@@ -96,6 +120,7 @@ into one real-time view.
 ## 📋 SLASH COMMANDS
 
 ### `/plan [request]`
+
 1. Read `CURRENT-PHASE.md` + relevant `PHASE-N-PLAN.md`
 2. Break request into tasks (S/M/L)
 3. Write plan to `CURRENT-PHASE.md` under `## Pending Plan`
@@ -104,7 +129,9 @@ into one real-time view.
 6. On `go`: execute each task → commit → update progress
 
 ### `/status [feature]`
+
 Output only:
+
 ```
 ✅ Done: [list]
 🔄 In Progress: [current]
@@ -114,11 +141,13 @@ Output only:
 ```
 
 ### `/resume [feature]`
+
 1. Read `PROGRESS.md` → find last completed task
 2. Read `CURRENT-PHASE.md` → find active task
 3. Continue from next pending task — no questions
 
 ### `/test [target]`
+
 1. Run: `unit` | `integration` | `e2e` | specific file
 2. Fix implementation failures silently
 3. Re-run until green
@@ -127,6 +156,7 @@ Output only:
 6. Report: `✅ 47/47 passing` or `❌ 3 failing — see tests/reports/`
 
 ### `/align`
+
 1. Audit structure vs this file
 2. Move misplaced files
 3. Fix broken imports
@@ -137,6 +167,7 @@ Output only:
 ## 🔄 GIT WORKFLOW
 
 ### Branch strategy
+
 ```
 main                           Production — PR merges only
 staging                        Pre-production integration
@@ -146,12 +177,14 @@ chore/[description]            Deps, tooling, maintenance
 ```
 
 ### Branch rules
+
 - Start any Phase N work → `git checkout -b feature/phase-N-[name]`
 - Any change touching > 1 file of core logic → branch
 - Any new integration → branch
 - Any schema change → branch
 
 ### Commit rules
+
 - **Commit after every completed task — never batch**
 - **Never ask for compound commit confirmation — just commit**
 - Only commit code that compiles without errors
@@ -164,8 +197,10 @@ chore/[description]            Deps, tooling, maintenance
 - Body: what changed + why (2–3 lines)
 
 ### PR rules
+
 Create PR when feature branch is complete. Use `.github/PULL_REQUEST_TEMPLATE.md`.
 Required before merge:
+
 - `bun run typecheck` → 0 errors
 - `bun run lint` → 0 errors
 - `bun test tests/unit/` → all passing
@@ -205,6 +240,7 @@ Save scan results → `tests/reports/security-[timestamp].md`
 Every integration: `backend/src/integrations/[name].ts`
 
 Must export exactly:
+
 ```typescript
 export const INTEGRATION_ID = 'name' as const
 export const INTEGRATION_NAME = 'Display Name'
@@ -213,10 +249,12 @@ export const DEFAULT_TTL = 60 // seconds
 export const CONFIG_SCHEMA = z.object({ apiKey: z.string().min(1) })
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
-export interface PanelData { /* typed panel data for frontend */ }
+export interface PanelData {
+  /* typed panel data for frontend */
+}
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData>
-export function parsePanel(raw: RawData): PanelData   // pure, no async
+export function parsePanel(raw: RawData): PanelData // pure, no async
 export function getCacheKey(config: IntegrationConfig): string
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error'
 ```
@@ -238,10 +276,11 @@ Current phase: Phase N
 Overall: X% complete
 
 ## Phase N
-| Task ID | Task | Status | Branch | Commit | Tests | Evidence |
-|---------|------|--------|--------|--------|-------|----------|
-| N.1 | name | ✅ Done | feature/phase-N | abc1234 | ✅ | link |
-| N.2 | name | 🔄 In Progress | feature/phase-N | — | ⏳ | — |
+
+| Task ID | Task | Status         | Branch          | Commit  | Tests | Evidence |
+| ------- | ---- | -------------- | --------------- | ------- | ----- | -------- |
+| N.1     | name | ✅ Done        | feature/phase-N | abc1234 | ✅    | link     |
+| N.2     | name | 🔄 In Progress | feature/phase-N | —       | ⏳    | —        |
 ```
 
 Icons: ✅ Done · 🔄 In Progress · ⏳ Pending · 🚫 Blocked · ❌ Failed · 🧪 Testing
@@ -254,19 +293,24 @@ Icons: ✅ Done · 🔄 In Progress · ⏳ Pending · 🚫 Blocked · ❌ Failed
 
 ```markdown
 # Current Phase: Phase N — [Name]
+
 Branch: feature/phase-N-[name]
 PMF Gate: [condition]
 
 ## Active Task
+
 [Task ID] — [name] (started [timestamp])
 
 ## Completed This Phase
+
 - [ID] [name] — [commit hash]
 
 ## Remaining
+
 - [ID] [name] — [S/M/L]
 
 ## Decisions Made
+
 - [decision + rationale]
 ```
 
@@ -275,6 +319,7 @@ PMF Gate: [condition]
 ## ⚙️ RULES
 
 ### Never
+
 - Commit `.env` or any file with real credentials
 - Hardcode API keys, secrets, or tokens in source
 - Commit code with TypeScript errors
@@ -282,6 +327,7 @@ PMF Gate: [condition]
 - Ask the user a question — decide and document
 
 ### Always
+
 - `bun run typecheck` before every commit
 - `bun run lint` before every commit
 - `bun test` before every PR
@@ -298,6 +344,7 @@ PMF Gate: [condition]
 On session start: read `CLAUDE.md` + `CURRENT-PHASE.md` + `PROGRESS.md`
 
 When context fills up:
+
 1. Complete current task
 2. Commit with full context in message body
 3. Update `PROGRESS.md` + `CURRENT-PHASE.md`

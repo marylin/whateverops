@@ -1,11 +1,13 @@
 import { type ReactNode } from 'react'
 import { StatusDot } from './StatusDot'
+import { StaleDot } from './StaleDot'
 
 interface PanelCardProps {
   title: string
   status: 'ok' | 'warn' | 'error' | 'loading' | 'offline'
   cached?: boolean
   lastUpdated?: string | null
+  ttl?: number
   wide?: boolean
   children: ReactNode
   onRetry?: () => void
@@ -47,6 +49,7 @@ export function PanelCard({
   status,
   cached,
   lastUpdated,
+  ttl,
   wide,
   children,
   onRetry,
@@ -127,6 +130,9 @@ export function PanelCard({
             <span className="text-[10px] px-1.5 py-0.5 bg-[#1E1E2E] text-gray-500 rounded">
               cached
             </span>
+          )}
+          {lastUpdated && ttl && (
+            <StaleDot lastUpdated={lastUpdated} ttl={ttl} error={error ?? null} />
           )}
           {lastUpdated && <span className="text-[10px] text-gray-600">{timeAgo(lastUpdated)}</span>}
         </div>

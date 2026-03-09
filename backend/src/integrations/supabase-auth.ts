@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'supabase-auth' as const
 export const INTEGRATION_NAME = 'Supabase Auth'
@@ -58,9 +59,7 @@ export function parsePanel(raw: RawData): PanelData {
   const oneDayAgo = now - 24 * 60 * 60 * 1000
 
   const users = raw.users ?? []
-  const recentSignups = users.filter(
-    (u) => new Date(u.created_at).getTime() > sevenDaysAgo,
-  ).length
+  const recentSignups = users.filter((u) => new Date(u.created_at).getTime() > sevenDaysAgo).length
   const activeRecently = users.filter(
     (u) => u.last_sign_in_at && new Date(u.last_sign_in_at).getTime() > oneDayAgo,
   ).length
@@ -73,7 +72,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey + config.projectRef)
+  const hash = quickHash(config.apiKey + config.projectRef)
     .toString(36)
     .slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`

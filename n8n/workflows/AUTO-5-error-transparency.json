@@ -1,8 +1,78 @@
 {
-  "name": "AUTO-5: Error Transparency",
-  "description": "Post transparency update when significant errors occur in production",
-  "nodes": [],
-  "connections": {},
+  "name": "AUTO-5: Error Transparency Post",
+  "description": "PostHog error spike OR Railway deploy fail → Claude transparency draft → Resend approval",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "error-alert",
+        "authentication": "headerAuth",
+        "headerAuth": {
+          "name": "x-webhook-secret",
+          "value": "={{$env.N8N_WEBHOOK_SECRET}}"
+        },
+        "responseMode": "onReceived",
+        "responseCode": 200
+      },
+      "name": "Error Alert Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $input.first().json;\nconst type = event.type || 'unknown';\nlet summary = '';\nlet severity = 'medium';\n\nif (type === 'posthog_error_spike') {\n  summary = `Error spike detected: ${event.error_count || 'N/A'} errors in the last hour (${event.error_type || 'mixed'} errors). Affected: ~${event.affected_users || 'unknown'} users.`;\n  severity = (event.error_count || 0) > 50 ? 'high' : 'medium';\n} else if (type === 'railway_deploy_fail') {\n  summary = `Deploy failed on ${event.service_name || 'unknown service'}. Error: ${event.error_message || 'unknown'}. Environment: ${event.environment || 'production'}.`;\n  severity = 'high';\n} else {\n  summary = `Alert: ${event.message || JSON.stringify(event).slice(0, 200)}`;\n}\n\nreturn [{ json: { summary, severity, type, raw: event } }];"
+      },
+      "name": "Parse Error Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{$env.ANTHROPIC_API_KEY}}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"claude-haiku-4-5-20251001\",\"max_tokens\":512,\"messages\":[{\"role\":\"user\",\"content\":\"Write a short transparency post (under 280 chars) about this production issue. Be honest, concise, and professional. Don't over-apologize but acknowledge the issue. Mention what we're doing about it.\\n\\nIssue: {{$json.summary}}\\nSeverity: {{$json.severity}}\\n\\nReturn just the post text.\"}]}"
+      },
+      "name": "Claude Transparency Draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.RESEND_FROM_EMAIL}}",
+        "toEmail": "={{$env.ADMIN_EMAIL}}",
+        "subject": "=Error transparency post — {{$node['Parse Error Event'].json.severity}} severity",
+        "htmlBody": "=<h2>Production Issue Detected</h2><p><strong>Type:</strong> {{$node['Parse Error Event'].json.type}}</p><p><strong>Severity:</strong> {{$node['Parse Error Event'].json.severity}}</p><p><strong>Summary:</strong> {{$node['Parse Error Event'].json.summary}}</p><h3>Draft transparency post:</h3><pre>{{$json.content[0].text}}</pre><p><a href='{{$env.N8N_BASE_URL}}/webhook/approve-post?id={{$executionId}}&type=transparency'>Approve & Post</a> | <a href='{{$env.N8N_BASE_URL}}/webhook/reject-post?id={{$executionId}}'>Skip (handle privately)</a></p>"
+      },
+      "name": "Send Approval Email",
+      "type": "n8n-nodes-base.resend",
+      "typeVersion": 1,
+      "position": [910, 300]
+    }
+  ],
+  "connections": {
+    "Error Alert Webhook": {
+      "main": [[{ "node": "Parse Error Event", "type": "main", "index": 0 }]]
+    },
+    "Parse Error Event": {
+      "main": [[{ "node": "Claude Transparency Draft", "type": "main", "index": 0 }]]
+    },
+    "Claude Transparency Draft": {
+      "main": [[{ "node": "Send Approval Email", "type": "main", "index": 0 }]]
+    }
+  },
   "active": false,
-  "settings": {}
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "automation" }, { "name": "social" }, { "name": "transparency" }]
 }

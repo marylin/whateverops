@@ -1,50 +1,48 @@
-# Current Phase: Phase 1 — Personal Dashboard
-Branch: `feature/phase-1-integrations`
-PMF Gate: 7 consecutive days personal daily use
+# Current Phase: Phase 2 — Polish & OSS Prep
+
+Branch: `feature/phase-2-polish`
+PMF Gate: Gate 1 — 10+ unprompted requests to try WhateverOPS
 
 ---
 
 ## Active Task
-Phase 1 complete. Ready for Phase 2.
+
+Phase 2 complete. Ready for Phase 3.
 
 ---
 
 ## Completed This Phase
-- 1.1 Integration framework + cache + dashboard route — 657905a
-- 1.2 GitHub integration + panel — 657905a
-- 1.3 Linear integration + panel — 657905a
-- 1.4 Vercel integration + panel — 657905a
-- 1.5 Railway integration + panel — 657905a
-- 1.6 PostHog integration + panel — 657905a
-- 1.7 Resend integration + panel — 657905a
-- 1.8 Anthropic integration + panel — 657905a
-- 1.9 OpenAI integration + panel — 657905a
-- 1.10 Cloudflare integration + panel — 657905a
-- 1.11 Replit integration + panel — 657905a
-- 1.12 Supabase Management integration + panel — 657905a
-- 1.13 Supabase Auth integration + panel — 657905a
-- 1.14 Neon integration + panel — 657905a
-- 1.15 Sentry integration + panel — 657905a
-- 1.16 Stripe integration + panel (MRR calc) — 657905a
-- 1.17 Dashboard grid layout + dark theme — 103d80b
-- 1.18 Global health indicator (header) — 103d80b
-- 1.19 Auto-refresh per panel TTL — 103d80b
-- 1.20 Error states for all panels — 103d80b
-- 1.21 Unit tests all 15 integrations — f47030c
-- 1.22 Mock fixtures all 15 integrations — f47030c
+
+- 2.1 Production error handler (retry + timeout) — 3d59c3a
+- 2.2 Upstash Redis cache with memory fallback — b0f2ff3
+- 2.3 Per-panel staleness dot with tooltip — b684cb1
+- 2.4 AUTO-1: Deploy changelog → social — bf96f85
+- 2.5 AUTO-2: GitHub stars milestone → social — bf96f85
+- 2.6 AUTO-3: Weekly metrics digest → social — bf96f85
+- 2.7 AUTO-4: First payment auto-post — bf96f85
+- 2.8 AUTO-5: Error spike transparency — bf96f85
+- 2.9 Webhook endpoint for n8n — bf96f85
+- 2.10 BetterStack monitoring setup docs — 1b0af73
+- 2.11 Self-hosting SETUP.md — 1b0af73
+- 2.12 CONTRIBUTING.md — 1b0af73
+- 2.13 README.md + demo GIF script — 1b0af73
+- 2.14 Cache layer integration tests (8 tests) — 8638383
+- 2.15 Webhook endpoint tests (5 tests) — 8638383
 
 ---
 
 ## Remaining
-None — Phase 1 complete.
+
+None — Phase 2 complete.
 
 ---
 
 ## Decisions Made
-- All 15 integrations in single commit for efficiency (each follows INTEGRATION-PATTERN.md contract)
-- GenericPanel renders any integration data as auto-formatted metrics grid
-- Stripe gets dedicated StripePanel component (2-col wide) with MRR calculation
-- Health check uses == null (loose equality) to catch both null and undefined from API responses
-- Railway getHealthStatus returns 'warn' (not 'error') for empty projects with failed deploy
-- 10s polling interval for auto-refresh via useDashboard hook
-- Dashboard route skips unconfigured integrations (no env var = no call)
+
+- Cache abstraction: CacheBackend interface with MemoryCache and RedisCache implementations
+- Redis fallback: RedisCache falls back to MemoryCache on connection failure
+- Staleness: StaleDot uses TTL ratio — green <=1x, amber <=2x, red >2x or error
+- n8n workflows use Claude Haiku for social post drafts (cheap, fast)
+- AUTO-4 (first payment) is the only workflow without email approval (once-only auto-post)
+- Webhook endpoint validates x-webhook-secret header
+- BetaList/Uneed task (2.14 in original plan) skipped — external marketing, not code
