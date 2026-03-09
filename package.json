@@ -8,6 +8,7 @@
     "test": "bun test tests/",
     "test:unit": "bun test tests/unit/",
     "test:integration": "bun test tests/integration/",
+    "test:e2e": "npx playwright test",
     "changelog": "bun run scripts/generate-changelog.ts",
     "load-test": "bun run scripts/load-test.ts",
     "typecheck": "pnpm -r typecheck",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
     "concurrently": "^9.1.2",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
