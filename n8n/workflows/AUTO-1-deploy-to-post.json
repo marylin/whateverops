@@ -1,8 +1,133 @@
 {
-  "name": "AUTO-1: Deploy to Post",
-  "description": "Automatically post to social media when a new deploy succeeds",
-  "nodes": [],
-  "connections": {},
+  "name": "AUTO-1: Deploy Changelog → Social",
+  "description": "Railway webhook → commit msg → Claude Haiku (3 drafts) → Resend approval → Buffer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "railway-deploy",
+        "authentication": "headerAuth",
+        "headerAuth": {
+          "name": "x-webhook-secret",
+          "value": "={{$env.N8N_WEBHOOK_SECRET}}"
+        },
+        "responseMode": "onReceived",
+        "responseCode": 200
+      },
+      "name": "Railway Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.status}}",
+              "operation": "equals",
+              "value2": "SUCCESS"
+            }
+          ]
+        }
+      },
+      "name": "Check Deploy Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{$env.ANTHROPIC_API_KEY}}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={\"model\":\"claude-haiku-4-5-20251001\",\"max_tokens\":1024,\"messages\":[{\"role\":\"user\",\"content\":\"Write 3 short social media post drafts (each under 280 chars) about this deploy. Be authentic, developer-friendly, not hype-y. Include what changed.\\n\\nDeploy info:\\n- Service: {{$json.service_name}}\\n- Commit: {{$json.commit_message}}\\n- Environment: {{$json.environment}}\\n\\nReturn as JSON array of 3 strings.\"}]}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Claude Generate Drafts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [690, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.RESEND_FROM_EMAIL}}",
+        "toEmail": "={{$env.ADMIN_EMAIL}}",
+        "subject": "Deploy post approval: {{$node['Railway Webhook'].json.service_name}}",
+        "htmlBody": "<h2>New deploy detected</h2><p><strong>Service:</strong> {{$node['Railway Webhook'].json.service_name}}</p><p><strong>Commit:</strong> {{$node['Railway Webhook'].json.commit_message}}</p><h3>Draft posts:</h3><pre>{{$json.content[0].text}}</pre><p><a href='{{$env.N8N_BASE_URL}}/webhook/approve-post?id={{$runId}}&draft=1'>Approve Draft 1</a> | <a href='{{$env.N8N_BASE_URL}}/webhook/approve-post?id={{$runId}}&draft=2'>Approve Draft 2</a> | <a href='{{$env.N8N_BASE_URL}}/webhook/approve-post?id={{$runId}}&draft=3'>Approve Draft 3</a></p>"
+      },
+      "name": "Send Approval Email",
+      "type": "n8n-nodes-base.resend",
+      "typeVersion": 1,
+      "position": [910, 200]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "approve-post",
+        "responseMode": "onReceived",
+        "responseData": "text",
+        "responseText": "Post approved! It will be published shortly."
+      },
+      "name": "Approval Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.bufferapp.com/1/updates/create.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer ={{$env.BUFFER_ACCESS_TOKEN}}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"text\": \"{{$json.query.selected_draft}}\", \"profile_ids\": [\"={{$env.BUFFER_PROFILE_ID}}\"]}"
+      },
+      "name": "Post to Buffer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [470, 500]
+    }
+  ],
+  "connections": {
+    "Railway Webhook": {
+      "main": [[{ "node": "Check Deploy Success", "type": "main", "index": 0 }]]
+    },
+    "Check Deploy Success": {
+      "main": [[{ "node": "Claude Generate Drafts", "type": "main", "index": 0 }], []]
+    },
+    "Claude Generate Drafts": {
+      "main": [[{ "node": "Send Approval Email", "type": "main", "index": 0 }]]
+    },
+    "Approval Webhook": {
+      "main": [[{ "node": "Post to Buffer", "type": "main", "index": 0 }]]
+    }
+  },
   "active": false,
-  "settings": {}
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [{ "name": "automation" }, { "name": "social" }]
 }
