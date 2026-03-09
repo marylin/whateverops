@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'sentry' as const
 export const INTEGRATION_NAME = 'Sentry'
@@ -57,7 +58,14 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     }),
   ])
 
-  if (!issuesRes.ok) throw new Error(`Sentry API error: ${issuesRes.status}`)
+  if (!issuesRes.ok)
+    throw new Error(
+      apiError(issuesRes.status, {
+        401: 'Authentication failed — check your SENTRY_AUTH_TOKEN',
+        403: 'Token lacks project:read scope — update at sentry.io → Settings → Auth Tokens',
+        404: 'Project not found — check SENTRY_ORG and SENTRY_PROJECT in .env',
+      }),
+    )
 
   const issues = (await issuesRes.json()) as RawData['latestIssues']
   const statsData = statsRes.ok ? ((await statsRes.json()) as Array<[number, number]>) : []

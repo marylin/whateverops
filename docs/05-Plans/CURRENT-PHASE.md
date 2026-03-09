@@ -1,48 +1,42 @@
-# Current Phase: Phase 2 — Polish & OSS Prep
+# Current Phase: Phase 3 — OSS Launch
 
-Branch: `feature/phase-2-polish`
-PMF Gate: Gate 1 — 10+ unprompted requests to try WhateverOPS
+Branch: `feature/phase-3-oss-launch`
+PMF Gate: Gate 2 — 20 confirmed self-hosted instances
 
 ---
 
 ## Active Task
 
-Phase 2 complete. Ready for Phase 3.
+Phase 3 complete. Ready for Phase 4.
 
 ---
 
 ## Completed This Phase
 
-- 2.1 Production error handler (retry + timeout) — 3d59c3a
-- 2.2 Upstash Redis cache with memory fallback — b0f2ff3
-- 2.3 Per-panel staleness dot with tooltip — b684cb1
-- 2.4 AUTO-1: Deploy changelog → social — bf96f85
-- 2.5 AUTO-2: GitHub stars milestone → social — bf96f85
-- 2.6 AUTO-3: Weekly metrics digest → social — bf96f85
-- 2.7 AUTO-4: First payment auto-post — bf96f85
-- 2.8 AUTO-5: Error spike transparency — bf96f85
-- 2.9 Webhook endpoint for n8n — bf96f85
-- 2.10 BetterStack monitoring setup docs — 1b0af73
-- 2.11 Self-hosting SETUP.md — 1b0af73
-- 2.12 CONTRIBUTING.md — 1b0af73
-- 2.13 README.md + demo GIF script — 1b0af73
-- 2.14 Cache layer integration tests (8 tests) — 8638383
-- 2.15 Webhook endpoint tests (5 tests) — 8638383
+- 3.1 README final — hero, badges, architecture diagram — 4334038
+- 3.2 Blog anchor article — launch post for Dev.to/HN/IH — e007008
+- 3.3 GitHub Discussions templates + pinned threads — c73305d
+- 3.4 CHANGELOG auto-gen script — e06fefd
+- 3.5 Railway always-on config — b38ba27
+- 3.6 Issue auto-labeler GitHub Action — c6e406b
+- 3.7 Load test script — 3256aae
+- 3.8 E2E Playwright tests (8 tests) — 3a4129e
+- 3.9 Self-hoster tracking log — 6e96faf
 
 ---
 
 ## Remaining
 
-None — Phase 2 complete.
+None — Phase 3 complete.
 
 ---
 
 ## Decisions Made
 
-- Cache abstraction: CacheBackend interface with MemoryCache and RedisCache implementations
-- Redis fallback: RedisCache falls back to MemoryCache on connection failure
-- Staleness: StaleDot uses TTL ratio — green <=1x, amber <=2x, red >2x or error
-- n8n workflows use Claude Haiku for social post drafts (cheap, fast)
-- AUTO-4 (first payment) is the only workflow without email approval (once-only auto-post)
-- Webhook endpoint validates x-webhook-secret header
-- BetaList/Uneed task (2.14 in original plan) skipped — external marketing, not code
+- Blog article targets Dev.to, HN, and Indie Hackers simultaneously
+- GitHub Discussions uses 3 categories: Ideas, Show & Tell, Q&A
+- CHANGELOG script uses Node-compatible import.meta.url (not Bun-only import.meta.dir)
+- Playwright uses dedicated test ports (3099/5199) to avoid conflicts
+- E2E tests mock API at browser level — no real API keys needed
+- Load test targets P99 < 5s as pass/fail criteria
+- Railway always-on uses numReplicas=1 + RAILWAY_RUN_AS_SERVICE env var

@@ -1,0 +1,104 @@
+name: Auto Label Issues
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-label based on title and body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = (issue.title || '').toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const text = `${title} ${body}`;
+
+            const labels = [];
+
+            // Bug detection
+            if (
+              title.startsWith('[bug]') ||
+              text.includes('bug') ||
+              text.includes('error') ||
+              text.includes('crash') ||
+              text.includes('broken') ||
+              text.includes('not working') ||
+              text.includes('fails') ||
+              text.includes('unexpected')
+            ) {
+              labels.push('bug');
+            }
+
+            // Feature request detection
+            if (
+              title.startsWith('[feature]') ||
+              title.startsWith('[idea]') ||
+              text.includes('feature request') ||
+              text.includes('would be nice') ||
+              text.includes('it would be great') ||
+              text.includes('suggestion')
+            ) {
+              labels.push('enhancement');
+            }
+
+            // Integration-related
+            const integrations = [
+              'github', 'linear', 'vercel', 'railway', 'posthog',
+              'resend', 'anthropic', 'openai', 'cloudflare', 'replit',
+              'supabase', 'neon', 'sentry', 'stripe'
+            ];
+            for (const name of integrations) {
+              if (text.includes(name)) {
+                labels.push('integration');
+                break;
+              }
+            }
+
+            // New integration request
+            if (
+              text.includes('new integration') ||
+              text.includes('add support for') ||
+              text.includes('integration request')
+            ) {
+              labels.push('new-integration');
+            }
+
+            // Question
+            if (
+              title.startsWith('[question]') ||
+              title.startsWith('[q&a]') ||
+              text.includes('how do i') ||
+              text.includes('how to') ||
+              text.includes('is it possible')
+            ) {
+              labels.push('question');
+            }
+
+            // Self-hosting
+            if (
+              text.includes('self-host') ||
+              text.includes('deploy') ||
+              text.includes('railway') ||
+              text.includes('docker')
+            ) {
+              labels.push('self-hosting');
+            }
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels,
+              });
+              console.log(`Added labels: ${labels.join(', ')}`);
+            } else {
+              console.log('No matching labels found');
+            }

@@ -20,6 +20,7 @@ coverage/
 tests/reports/
 playwright-report/
 test-results/
+tests/e2e/test-results/
 blob-report/
 
 # Logs
@@ -28,8 +29,10 @@ logs/
 
 # OS / Editor
 .DS_Store
+Thumbs.db
 .idea/
 .vscode/settings.json
+.claude/
 
 # Vercel / Railway
 .vercel

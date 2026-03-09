@@ -7,3 +7,9 @@ startCommand = "bun run src/index.ts"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
+numReplicas = 1
+
+[deploy.cron]
+# Disable Railway sleep — keep the service always on.
+# Railway sleeps idle services after 10 min by default.
+# Set RAILWAY_RUN_AS_SERVICE=true in Railway dashboard env vars as well.

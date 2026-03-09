@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'replit' as const
 export const INTEGRATION_NAME = 'Replit'
@@ -49,7 +50,11 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   if (!res.ok) {
     if (res.status === 401) return { repls: [], keyValid: false }
-    throw new Error(`Replit API error: ${res.status}`)
+    throw new Error(
+      apiError(res.status, {
+        403: 'Session expired — update REPLIT_SID with a fresh connect.sid cookie',
+      }),
+    )
   }
 
   const body = (await res.json()) as {

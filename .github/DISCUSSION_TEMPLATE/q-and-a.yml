@@ -1,0 +1,38 @@
+title: '[Q&A] '
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask a question about WhateverOPS — setup, configuration, integrations, self-hosting, or anything else.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What do you need help with?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Setup / Installation
+        - Integration configuration
+        - Self-hosting
+        - Cache / Redis
+        - n8n automations
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Any relevant details (OS, hosting provider, error messages, etc.)
+    validations:
+      required: false

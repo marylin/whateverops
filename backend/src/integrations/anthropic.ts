@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'anthropic' as const
 export const INTEGRATION_NAME = 'Anthropic'
@@ -34,7 +35,11 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   if (!res.ok) {
     if (res.status === 401) return { models: [], keyValid: false }
-    throw new Error(`Anthropic API error: ${res.status}`)
+    throw new Error(
+      apiError(res.status, {
+        403: 'API key lacks permissions — check key settings at console.anthropic.com',
+      }),
+    )
   }
 
   const body = (await res.json()) as { data?: Array<{ id?: string }> }

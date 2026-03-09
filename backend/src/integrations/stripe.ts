@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'stripe' as const
 export const INTEGRATION_NAME = 'Stripe'
@@ -67,7 +68,13 @@ async function stripeGet(
     signal: AbortSignal.timeout(10_000),
   })
 
-  if (!res.ok) throw new Error(`Stripe API error: ${res.status}`)
+  if (!res.ok)
+    throw new Error(
+      apiError(res.status, {
+        401: 'Authentication failed — check your STRIPE_SECRET_KEY (must start with sk_)',
+        403: 'Key lacks permissions — ensure you are using the correct Stripe secret key',
+      }),
+    )
   return res.json()
 }
 

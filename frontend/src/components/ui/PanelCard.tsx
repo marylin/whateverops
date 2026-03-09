@@ -58,18 +58,30 @@ export function PanelCard({
   const statusPage = getStatusPage(title)
 
   if (status === 'error' && error) {
+    const dashIdx = error.indexOf(' — ')
+    const errorTitle = dashIdx !== -1 ? error.slice(0, dashIdx) : error
+    const errorHint = dashIdx !== -1 ? error.slice(dashIdx + 3) : null
+
     return (
       <div
-        className={`bg-[#111118] border border-[#1E1E2E] rounded-xl p-5 ${wide ? 'md:col-span-2' : ''}`}
+        className={`bg-[#111118] border border-[#FF454520] rounded-xl p-5 ${wide ? 'md:col-span-2' : ''}`}
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <StatusDot status="error" />
             <h3 className="text-sm font-semibold text-white">{title}</h3>
           </div>
+          <span className="text-[10px] px-1.5 py-0.5 bg-[#FF454515] text-[#FF4545] rounded">
+            error
+          </span>
         </div>
         <div className="space-y-3">
-          <p className="text-sm text-[#FF4545]">{error}</p>
+          <div className="rounded-lg bg-[#FF454508] border border-[#FF454515] px-3 py-2.5">
+            <p className="text-sm text-[#FF6B6B] leading-relaxed">{errorTitle}</p>
+            {errorHint && (
+              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">{errorHint}</p>
+            )}
+          </div>
           {lastUpdated && (
             <p className="text-xs text-gray-500">Last success: {timeAgo(lastUpdated)}</p>
           )}

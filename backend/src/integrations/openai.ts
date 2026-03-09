@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'openai' as const
 export const INTEGRATION_NAME = 'OpenAI'
@@ -36,7 +37,12 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   if (!res.ok) {
     if (res.status === 401) return { models: [], keyValid: false }
-    throw new Error(`OpenAI API error: ${res.status}`)
+    throw new Error(
+      apiError(res.status, {
+        403: 'API key lacks permissions — check key at platform.openai.com',
+        429: 'Rate limited or quota exceeded — check usage at platform.openai.com',
+      }),
+    )
   }
 
   const body = (await res.json()) as { data?: Array<{ id?: string }> }

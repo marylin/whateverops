@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'resend' as const
 export const INTEGRATION_NAME = 'Resend'
@@ -42,7 +43,12 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     fetch(`${base}/api-keys`, { headers, signal: AbortSignal.timeout(10_000) }),
   ])
 
-  if (!domainsRes.ok) throw new Error(`Resend API error: ${domainsRes.status}`)
+  if (!domainsRes.ok)
+    throw new Error(
+      apiError(domainsRes.status, {
+        401: 'Authentication failed — check your RESEND_API_KEY',
+      }),
+    )
 
   const domainsBody = (await domainsRes.json()) as { data?: RawData['domains'] }
   const keysBody = keysRes.ok

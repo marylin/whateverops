@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'neon' as const
 export const INTEGRATION_NAME = 'Neon'
@@ -41,7 +42,13 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     signal: AbortSignal.timeout(10_000),
   })
 
-  if (!res.ok) throw new Error(`Neon API error: ${res.status}`)
+  if (!res.ok)
+    throw new Error(
+      apiError(res.status, {
+        400: 'Bad request — verify your NEON_API_KEY format in .env',
+        401: 'Authentication failed — regenerate key at console.neon.tech → Settings → API Keys',
+      }),
+    )
 
   const body = (await res.json()) as { projects?: RawData['projects'] }
   return { projects: body.projects ?? [] }

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'github' as const
 export const INTEGRATION_NAME = 'GitHub'
@@ -70,7 +71,14 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     }),
   ])
 
-  if (!repoRes.ok) throw new Error(`GitHub API error: ${repoRes.status}`)
+  if (!repoRes.ok)
+    throw new Error(
+      apiError(repoRes.status, {
+        401: 'Authentication failed — check your GITHUB_PAT',
+        403: 'Token lacks permissions — ensure repo scope is enabled',
+        404: 'Repository not found — check GITHUB_REPO_OWNER and GITHUB_REPO_NAME in .env',
+      }),
+    )
 
   const repo = (await repoRes.json()) as RawData['repo']
   const prData = prRes.ok ? ((await prRes.json()) as { total_count: number }) : { total_count: 0 }
