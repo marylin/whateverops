@@ -1,0 +1,8 @@
+{
+  "name": "AUTO-1: Deploy to Post",
+  "description": "Automatically post to social media when a new deploy succeeds",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {}
+}

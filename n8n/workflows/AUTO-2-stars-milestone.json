@@ -1,0 +1,8 @@
+{
+  "name": "AUTO-2: Stars Milestone",
+  "description": "Post celebration when GitHub stars hit milestones (100, 500, 1000, etc)",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {}
+}

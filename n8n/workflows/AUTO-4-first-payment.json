@@ -1,0 +1,8 @@
+{
+  "name": "AUTO-4: First Payment",
+  "description": "Post celebration when first payment is received via Stripe",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {}
+}

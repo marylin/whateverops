@@ -1,0 +1,8 @@
+{
+  "name": "AUTO-5: Error Transparency",
+  "description": "Post transparency update when significant errors occur in production",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {}
+}

@@ -1,0 +1,8 @@
+{
+  "name": "AUTO-3: Weekly Metrics",
+  "description": "Post weekly metrics summary (users, DAU, revenue) every Monday",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {}
+}
