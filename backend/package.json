@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
+    "@upstash/redis": "^1.36.3",
     "dotenv": "^17.3.1",
     "hono": "^4.7.4",
     "zod": "^4.3.6"
