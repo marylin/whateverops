@@ -80,6 +80,6 @@ export function getCacheKey(config: IntegrationConfig): string {
 }
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
-  if (raw.totalUsers === undefined) return 'error'
+  if (raw.totalUsers == null) return 'error'
   return 'ok'
 }

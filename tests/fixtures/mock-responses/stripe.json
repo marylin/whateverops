@@ -1,0 +1,26 @@
+{
+  "ok": {
+    "subscriptions": [
+      { "id": "sub_1", "status": "active", "plan": { "amount": 2900, "interval": "month", "currency": "usd" }, "created": 1709000000, "canceled_at": null },
+      { "id": "sub_2", "status": "active", "plan": { "amount": 9900, "interval": "year", "currency": "usd" }, "created": 1709500000, "canceled_at": null }
+    ],
+    "recentCharges": [
+      { "id": "ch_1", "amount": 2900, "currency": "usd", "status": "succeeded", "created": 1709900000, "description": "WhateverOPS Pro" },
+      { "id": "ch_2", "amount": 9900, "currency": "usd", "status": "succeeded", "created": 1709800000, "description": "WhateverOPS Annual" }
+    ],
+    "balance": 15000,
+    "currency": "usd"
+  },
+  "error": {
+    "subscriptions": null,
+    "recentCharges": [],
+    "balance": 0,
+    "currency": "usd"
+  },
+  "empty": {
+    "subscriptions": [],
+    "recentCharges": [],
+    "balance": 0,
+    "currency": "usd"
+  }
+}

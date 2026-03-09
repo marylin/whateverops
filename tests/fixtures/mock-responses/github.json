@@ -1,0 +1,38 @@
+{
+  "ok": {
+    "repo": {
+      "stargazers_count": 42,
+      "open_issues_count": 5,
+      "forks_count": 3,
+      "watchers_count": 42,
+      "language": "TypeScript",
+      "pushed_at": "2026-03-08T10:00:00Z",
+      "default_branch": "main"
+    },
+    "pullRequests": { "total_count": 2 },
+    "recentCommit": {
+      "sha": "abc1234",
+      "message": "feat: add dashboard",
+      "date": "2026-03-08T10:00:00Z",
+      "author": "dev"
+    }
+  },
+  "error": {
+    "repo": null,
+    "pullRequests": { "total_count": 0 },
+    "recentCommit": null
+  },
+  "empty": {
+    "repo": {
+      "stargazers_count": 0,
+      "open_issues_count": 0,
+      "forks_count": 0,
+      "watchers_count": 0,
+      "language": null,
+      "pushed_at": "2024-01-01T00:00:00Z",
+      "default_branch": "main"
+    },
+    "pullRequests": { "total_count": 0 },
+    "recentCommit": null
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "ok": {
+    "openIssues": 8,
+    "inProgressIssues": 3,
+    "completedThisCycle": 12,
+    "backlogCount": 15,
+    "teamName": "Engineering",
+    "activeCycleName": "Sprint 5",
+    "activeCycleProgress": 0.6
+  },
+  "error": {
+    "openIssues": null,
+    "inProgressIssues": null,
+    "completedThisCycle": 0,
+    "backlogCount": 0,
+    "teamName": "Unknown",
+    "activeCycleName": null,
+    "activeCycleProgress": null
+  },
+  "empty": {
+    "openIssues": 0,
+    "inProgressIssues": 0,
+    "completedThisCycle": 0,
+    "backlogCount": 0,
+    "teamName": "Engineering",
+    "activeCycleName": null,
+    "activeCycleProgress": null
+  }
+}

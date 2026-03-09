@@ -118,7 +118,7 @@ export function getCacheKey(config: IntegrationConfig): string {
 }
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
-  if (raw.openIssues === undefined && raw.inProgressIssues === undefined) return 'error'
+  if (raw.openIssues == null && raw.inProgressIssues == null) return 'error'
   if (raw.inProgressIssues > 10) return 'warn'
   return 'ok'
 }

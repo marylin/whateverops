@@ -1,0 +1,14 @@
+{
+  "ok": {
+    "models": ["gpt-4o", "gpt-4o-mini", "o1", "o3-mini"],
+    "keyValid": true
+  },
+  "error": {
+    "models": [],
+    "keyValid": false
+  },
+  "empty": {
+    "models": [],
+    "keyValid": true
+  }
+}

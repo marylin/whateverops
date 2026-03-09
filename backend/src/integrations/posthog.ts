@@ -77,6 +77,6 @@ export function getCacheKey(config: IntegrationConfig): string {
 }
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
-  if (raw.featureFlagsCount === undefined && raw.insightsCount === undefined) return 'error'
+  if (raw.featureFlagsCount == null && raw.insightsCount == null) return 'error'
   return 'ok'
 }

@@ -1,0 +1,17 @@
+{
+  "ok": {
+    "deployments": [
+      { "uid": "d1", "name": "my-app", "state": "READY", "created": 1709900400000, "url": "my-app-123.vercel.app", "meta": { "githubCommitMessage": "fix: typo" } },
+      { "uid": "d2", "name": "my-app", "state": "READY", "created": 1709814000000, "url": "my-app-122.vercel.app", "meta": {} }
+    ],
+    "projects": [{ "id": "p1", "name": "my-app" }, { "id": "p2", "name": "docs" }]
+  },
+  "error": {
+    "deployments": [{ "uid": "d1", "name": "my-app", "state": "ERROR", "created": 1709900400000, "url": null, "meta": {} }],
+    "projects": []
+  },
+  "empty": {
+    "deployments": [],
+    "projects": []
+  }
+}

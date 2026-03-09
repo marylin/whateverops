@@ -1,0 +1,20 @@
+{
+  "ok": {
+    "unresolvedIssues": 3,
+    "latestIssues": [
+      { "id": "i1", "title": "TypeError: undefined", "culprit": "app.js", "count": "42", "firstSeen": "2026-03-07T00:00:00Z", "lastSeen": "2026-03-08T10:00:00Z", "level": "error" },
+      { "id": "i2", "title": "ReferenceError", "culprit": "utils.js", "count": "5", "firstSeen": "2026-03-08T08:00:00Z", "lastSeen": "2026-03-08T09:00:00Z", "level": "warning" }
+    ],
+    "stats": { "events24h": 150 }
+  },
+  "error": {
+    "unresolvedIssues": 0,
+    "latestIssues": null,
+    "stats": { "events24h": 0 }
+  },
+  "empty": {
+    "unresolvedIssues": 0,
+    "latestIssues": [],
+    "stats": { "events24h": 0 }
+  }
+}

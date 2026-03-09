@@ -1,0 +1,23 @@
+{
+  "ok": {
+    "totals": {
+      "requests": 50000,
+      "bandwidth": 1073741824,
+      "threats": 12,
+      "cachedRequests": 35000,
+      "cachedBandwidth": 751619277
+    },
+    "zoneName": "example.com",
+    "zoneStatus": "active"
+  },
+  "error": {
+    "totals": { "requests": 0, "bandwidth": 0, "threats": 0, "cachedRequests": 0, "cachedBandwidth": 0 },
+    "zoneName": "",
+    "zoneStatus": "deactivated"
+  },
+  "empty": {
+    "totals": { "requests": 0, "bandwidth": 0, "threats": 0, "cachedRequests": 0, "cachedBandwidth": 0 },
+    "zoneName": "example.com",
+    "zoneStatus": "active"
+  }
+}

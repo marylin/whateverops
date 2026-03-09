@@ -1,0 +1,16 @@
+{
+  "ok": {
+    "domains": [
+      { "id": "d1", "name": "example.com", "status": "verified", "created_at": "2026-01-01T00:00:00Z" }
+    ],
+    "apiKeys": [{ "id": "k1", "name": "default" }]
+  },
+  "error": {
+    "domains": null,
+    "apiKeys": []
+  },
+  "empty": {
+    "domains": [],
+    "apiKeys": []
+  }
+}
