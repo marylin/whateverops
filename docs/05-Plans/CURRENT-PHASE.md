@@ -7,36 +7,42 @@ PMF Gate: Gate 1 — 10+ unprompted requests to try WhateverOPS
 
 ## Active Task
 
-2.1 — Production error handler (started 2026-03-09T06:00:00Z)
+Phase 2 complete. Ready for Phase 3.
 
 ---
 
 ## Completed This Phase
 
-(none yet)
+- 2.1 Production error handler (retry + timeout) — 3d59c3a
+- 2.2 Upstash Redis cache with memory fallback — b0f2ff3
+- 2.3 Per-panel staleness dot with tooltip — b684cb1
+- 2.4 AUTO-1: Deploy changelog → social — bf96f85
+- 2.5 AUTO-2: GitHub stars milestone → social — bf96f85
+- 2.6 AUTO-3: Weekly metrics digest → social — bf96f85
+- 2.7 AUTO-4: First payment auto-post — bf96f85
+- 2.8 AUTO-5: Error spike transparency — bf96f85
+- 2.9 Webhook endpoint for n8n — bf96f85
+- 2.10 BetterStack monitoring setup docs — 1b0af73
+- 2.11 Self-hosting SETUP.md — 1b0af73
+- 2.12 CONTRIBUTING.md — 1b0af73
+- 2.13 README.md + demo GIF script — 1b0af73
+- 2.14 Cache layer integration tests (8 tests) — 8638383
+- 2.15 Webhook endpoint tests (5 tests) — 8638383
 
 ---
 
 ## Remaining
 
-- 2.1 Production error handler — [M]
-- 2.2 Upstash Redis cache — [L]
-- 2.3 Per-panel staleness dot — [M]
-- 2.4 AUTO-1: deploy changelog → social — [M]
-- 2.5 AUTO-2: GitHub stars milestone → social — [M]
-- 2.6 AUTO-3: Weekly metrics digest → social — [M]
-- 2.7 AUTO-4: First payment auto-post — [S]
-- 2.8 AUTO-5: Error spike transparency — [M]
-- 2.9 Test email approval E2E — [S]
-- 2.10 BetterStack monitors + status page — [M]
-- 2.11 Self-hosting SETUP.md — [M]
-- 2.12 CONTRIBUTING.md — [S]
-- 2.13 Demo GIF + README embed — [M]
-- 2.14 Cache layer integration tests — [M]
-- 2.15 n8n webhook endpoint tests — [M]
+None — Phase 2 complete.
 
 ---
 
 ## Decisions Made
 
-(none yet)
+- Cache abstraction: CacheBackend interface with MemoryCache and RedisCache implementations
+- Redis fallback: RedisCache falls back to MemoryCache on connection failure
+- Staleness: StaleDot uses TTL ratio — green <=1x, amber <=2x, red >2x or error
+- n8n workflows use Claude Haiku for social post drafts (cheap, fast)
+- AUTO-4 (first payment) is the only workflow without email approval (once-only auto-post)
+- Webhook endpoint validates x-webhook-secret header
+- BetaList/Uneed task (2.14 in original plan) skipped — external marketing, not code
