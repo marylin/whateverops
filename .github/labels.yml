@@ -1,0 +1,47 @@
+# GitHub labels for WhateverOPS
+# Apply with: gh label create "name" --color "color" --description "desc"
+# Or use github-label-sync: npx github-label-sync --labels .github/labels.yml whateverops-dev/whateverops
+
+- name: bug
+  color: 'd73a4a'
+  description: Something isn't working
+
+- name: enhancement
+  color: 'a2eeef'
+  description: New feature or request
+
+- name: integration
+  color: '5319e7'
+  description: Related to a specific integration
+
+- name: new-integration
+  color: '7057ff'
+  description: Request for a new integration
+
+- name: question
+  color: 'd876e3'
+  description: Further information is requested
+
+- name: self-hosting
+  color: '0e8a16'
+  description: Related to self-hosting and deployment
+
+- name: good first issue
+  color: '7057ff'
+  description: Good for newcomers
+
+- name: help wanted
+  color: '008672'
+  description: Extra attention is needed
+
+- name: documentation
+  color: '0075ca'
+  description: Improvements or additions to documentation
+
+- name: wontfix
+  color: 'ffffff'
+  description: This will not be worked on
+
+- name: duplicate
+  color: 'cfd3d7'
+  description: This issue or pull request already exists
