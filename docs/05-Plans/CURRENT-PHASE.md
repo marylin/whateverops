@@ -1,45 +1,42 @@
 # Current Phase: Phase 0 — Foundation
-
-Timeline: Days 1–2
-Branch: `feature/phase-0-foundation`
+Branch: `master`
 PMF Gate: CI green + `pnpm dev` starts both services
 
 ---
 
 ## Active Task
-Not started. Run `/plan phase 0` to begin.
+Phase 0 complete. Ready for Phase 1.
 
 ---
 
 ## Completed This Phase
-*(none yet)*
+- 0.1 Init pnpm monorepo — b51b16a
+- 0.2 Scaffold frontend — e28c9e2
+- 0.3 Scaffold backend — 68d89f0
+- 0.4 Shared TypeScript config — 7dcabe6
+- 0.5 ESLint + Prettier — 8719093
+- 0.6 Bun test runner + smoke test — 0dcfe66
+- 0.7 Railway deploy config — a7912b7
+- 0.8 Vercel deploy config — b172774
+- 0.9 /health endpoint — 68d89f0
+- 0.10 Shared types package — 1e7c6df
+- 0.11 n8n workflows + docs — 495d741
+- 0.12 GitHub Actions CI — 65ba8f2
+- 0.13 Docs initialized — 2388dba
 
 ---
 
-## Remaining This Phase
-
-| ID | Task | Size |
-|----|------|------|
-| 0.1 | Init pnpm monorepo with workspaces | S |
-| 0.2 | Scaffold frontend (React + Vite + TS + Tailwind) | M |
-| 0.3 | Scaffold backend (Hono.js on Bun) | M |
-| 0.4 | Shared TypeScript config (strict mode) | S |
-| 0.5 | ESLint + Prettier shared config | S |
-| 0.6 | Bun test runner + first smoke test | S |
-| 0.7 | Railway deploy config (railway.toml) | S |
-| 0.8 | Vercel deploy config (vercel.json) | S |
-| 0.9 | /health endpoint on backend | S |
-| 0.10 | Shared types package (packages/types) | S |
-| 0.11 | n8n Railway deployment documented | M |
-| 0.12 | GitHub Actions CI pipeline | M |
-| 0.13 | Docs initialized with README files | S |
-
----
-
-## Blockers
-None
+## Remaining
+None — Phase 0 complete.
 
 ---
 
 ## Decisions Made
-*(Claude Code records decisions here as made)*
+- Installed Bun globally (v1.3.10) alongside pnpm for backend runtime + test runner
+- Used pnpm workspaces (not bun workspaces) for monorepo management
+- Tailwind CSS v4 with @tailwindcss/vite plugin (no tailwind.config.js needed)
+- Frontend uses path alias `@/*` → `src/*`
+- All tsconfigs extend packages/tsconfig/base.json
+- ESLint flat config (eslint.config.js) at root, workspaces inherit
+- CI uses pnpm for install/lint/typecheck, bun for test runner
+- Committed to master (no feature branch needed for Phase 0 scaffold)
