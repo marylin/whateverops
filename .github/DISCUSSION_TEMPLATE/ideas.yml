@@ -1,0 +1,40 @@
+title: '[Idea] '
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share your idea for WhateverOPS! New integrations, UI improvements, automation workflows — anything goes.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What's your idea?
+      description: Describe what you'd like to see in WhateverOPS.
+      placeholder: "I'd love a panel that shows..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: How would you use this feature in your workflow?
+      placeholder: 'As a solo founder, I need to...'
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - New integration
+        - UI/UX improvement
+        - Automation workflow
+        - Self-hosting
+        - Performance
+        - Other
+    validations:
+      required: true

@@ -1,0 +1,32 @@
+title: '[Show] '
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Show off your WhateverOPS setup! Screenshots, custom integrations, unique workflows — we want to see it.
+
+  - type: textarea
+    id: setup
+    attributes:
+      label: Your setup
+      description: Describe your WhateverOPS setup and what you're monitoring.
+      placeholder: "I'm using WhateverOPS to monitor..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: Drag and drop a screenshot of your dashboard (optional).
+    validations:
+      required: false
+
+  - type: textarea
+    id: tips
+    attributes:
+      label: Tips or tricks
+      description: Any tips for other users?
+    validations:
+      required: false
