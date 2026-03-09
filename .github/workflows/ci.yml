@@ -47,11 +47,27 @@ jobs:
 
       - name: Secret scan
         run: |
-          if grep -rn "sk_live\|sk_test_\|AKIA[0-9A-Z]\|-----BEGIN" \
-            --include="*.ts" --include="*.tsx" \
+          PATTERNS=(
+            "sk_live"
+            "sk_test_"
+            "AKIA[0-9A-Z]{16}"
+            "-----BEGIN"
+            "sbp_[a-zA-Z0-9]"
+            "eyJhbGciOi"
+            "neondb_[a-zA-Z0-9]"
+            "AUpx[a-zA-Z0-9]"
+            "ghp_[a-zA-Z0-9]"
+            "gho_[a-zA-Z0-9]"
+            "glpat-[a-zA-Z0-9]"
+            "xox[bpoas]-[a-zA-Z0-9]"
+            "re_[a-zA-Z0-9]{20,}"
+          )
+          GREP_PATTERN=$(IFS='|'; echo "${PATTERNS[*]}")
+          if grep -rPn "$GREP_PATTERN" \
+            --include="*.ts" --include="*.tsx" --include="*.js" \
             --exclude-dir=node_modules --exclude-dir=.git \
             frontend/src backend/src packages/; then
-            echo "Potential secret found in source"
+            echo "::error::Potential secret found in source code"
             exit 1
           fi
           echo "No hardcoded secrets found"
