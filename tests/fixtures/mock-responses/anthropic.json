@@ -1,0 +1,14 @@
+{
+  "ok": {
+    "models": ["claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
+    "keyValid": true
+  },
+  "error": {
+    "models": [],
+    "keyValid": false
+  },
+  "empty": {
+    "models": [],
+    "keyValid": true
+  }
+}

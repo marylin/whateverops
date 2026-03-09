@@ -1,0 +1,20 @@
+{
+  "ok": {
+    "activeUsers24h": 150,
+    "eventsToday": 3200,
+    "featureFlagsCount": 8,
+    "insightsCount": 12
+  },
+  "error": {
+    "activeUsers24h": null,
+    "eventsToday": null,
+    "featureFlagsCount": null,
+    "insightsCount": null
+  },
+  "empty": {
+    "activeUsers24h": 0,
+    "eventsToday": 0,
+    "featureFlagsCount": 0,
+    "insightsCount": 0
+  }
+}
