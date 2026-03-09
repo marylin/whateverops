@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError, graphQLError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'railway' as const
 export const INTEGRATION_NAME = 'Railway'
@@ -55,9 +56,15 @@ async function gql(apiKey: string, query: string, variables: Record<string, unkn
     body: JSON.stringify({ query, variables }),
     signal: AbortSignal.timeout(10_000),
   })
-  if (!res.ok) throw new Error(`Railway API error: ${res.status}`)
+  if (!res.ok)
+    throw new Error(
+      apiError(res.status, {
+        401: 'Token is invalid or expired — regenerate at railway.app → Account → Tokens',
+        403: 'Token lacks permissions — regenerate at railway.app → Account → Tokens',
+      }),
+    )
   const body = (await res.json()) as { data?: Record<string, unknown>; errors?: unknown[] }
-  if (body.errors) throw new Error(`Railway GraphQL error: ${JSON.stringify(body.errors)}`)
+  if (body.errors) throw new Error(graphQLError(body.errors))
   return body.data
 }
 

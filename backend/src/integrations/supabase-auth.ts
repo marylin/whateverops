@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'supabase-auth' as const
 export const INTEGRATION_NAME = 'Supabase Auth'
@@ -40,7 +41,13 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     signal: AbortSignal.timeout(10_000),
   })
 
-  if (!res.ok) throw new Error(`Supabase Auth API error: ${res.status}`)
+  if (!res.ok)
+    throw new Error(
+      apiError(res.status, {
+        401: 'Service key invalid — check SUPABASE_SERVICE_KEY in .env (must be the service_role key)',
+        404: 'Project not found — verify SUPABASE_URL in .env',
+      }),
+    )
 
   const body = (await res.json()) as {
     users?: RawData['users']

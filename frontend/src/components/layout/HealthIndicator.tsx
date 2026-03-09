@@ -15,12 +15,7 @@ const healthLabels = {
   error: 'Service issues detected',
 }
 
-export function HealthIndicator({
-  globalHealth,
-  panels,
-  configured,
-  total,
-}: HealthIndicatorProps) {
+export function HealthIndicator({ globalHealth, panels, configured, total }: HealthIndicatorProps) {
   const [showModal, setShowModal] = useState(false)
 
   return (
@@ -65,21 +60,22 @@ export function HealthIndicator({
                     <span className="text-sm text-white">{panel.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {panel.cached && (
-                      <span className="text-[10px] text-gray-600">cached</span>
-                    )}
+                    {panel.cached && <span className="text-[10px] text-gray-600">cached</span>}
                     {panel.error && (
-                      <span className="text-[10px] text-[#FF4545] max-w-[120px] truncate">
-                        {panel.error}
+                      <span
+                        className="text-[10px] text-[#FF4545] max-w-[180px] truncate"
+                        title={panel.error}
+                      >
+                        {panel.error.includes(' — ')
+                          ? panel.error.slice(0, panel.error.indexOf(' — '))
+                          : panel.error}
                       </span>
                     )}
                   </div>
                 </div>
               ))}
               {panels.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-4">
-                  No integrations configured
-                </p>
+                <p className="text-sm text-gray-500 text-center py-4">No integrations configured</p>
               )}
             </div>
           </div>

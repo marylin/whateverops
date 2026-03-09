@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'vercel' as const
 export const INTEGRATION_NAME = 'Vercel'
@@ -52,7 +53,13 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     }),
   ])
 
-  if (!deploysRes.ok) throw new Error(`Vercel API error: ${deploysRes.status}`)
+  if (!deploysRes.ok)
+    throw new Error(
+      apiError(deploysRes.status, {
+        401: 'Token is invalid or expired — regenerate at vercel.com → Settings → Tokens',
+        403: 'Token lacks deployment access — check token scope at vercel.com',
+      }),
+    )
 
   const deploysBody = (await deploysRes.json()) as { deployments?: RawData['deployments'] }
   const projectsBody = projectsRes.ok

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'supabase-management' as const
 export const INTEGRATION_NAME = 'Supabase'
@@ -58,7 +59,13 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     }),
   ])
 
-  if (!projectRes.ok) throw new Error(`Supabase API error: ${projectRes.status}`)
+  if (!projectRes.ok)
+    throw new Error(
+      apiError(projectRes.status, {
+        401: 'Authentication failed — check SUPABASE_MANAGEMENT_KEY (generate at supabase.com/dashboard → Access Tokens)',
+        404: 'Project not found — verify SUPABASE_PROJECT_REF in .env',
+      }),
+    )
 
   const project = (await projectRes.json()) as RawData['project']
   const healthBody = healthRes.ok ? ((await healthRes.json()) as RawData['health']) : []

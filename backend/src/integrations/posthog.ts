@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'posthog' as const
 export const INTEGRATION_NAME = 'PostHog'
@@ -43,7 +44,12 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   ])
 
   if (!flagsRes.ok && flagsRes.status !== 404)
-    throw new Error(`PostHog API error: ${flagsRes.status}`)
+    throw new Error(
+      apiError(flagsRes.status, {
+        401: 'Authentication failed — check your POSTHOG_API_KEY',
+        404: 'Project not found — verify POSTHOG_PROJECT_ID in .env',
+      }),
+    )
 
   const flagsBody = flagsRes.ok ? ((await flagsRes.json()) as { count?: number }) : { count: 0 }
   const insightsBody = insightsRes.ok

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'cloudflare' as const
 export const INTEGRATION_NAME = 'Cloudflare'
@@ -58,7 +59,14 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     }),
   ])
 
-  if (!zoneRes.ok) throw new Error(`Cloudflare API error: ${zoneRes.status}`)
+  if (!zoneRes.ok)
+    throw new Error(
+      apiError(zoneRes.status, {
+        400: 'Bad request — verify CLOUDFLARE_ZONE_ID in .env',
+        403: 'Token lacks Zone read permissions — update at dash.cloudflare.com → API Tokens',
+        404: 'Zone not found — check CLOUDFLARE_ZONE_ID in .env',
+      }),
+    )
 
   const zoneBody = (await zoneRes.json()) as {
     result?: { name?: string; status?: string }

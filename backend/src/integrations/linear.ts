@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
+import { apiError, graphQLError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'linear' as const
 export const INTEGRATION_NAME = 'Linear'
@@ -42,9 +43,15 @@ async function gql(apiKey: string, query: string, variables: Record<string, unkn
     body: JSON.stringify({ query, variables }),
     signal: AbortSignal.timeout(10_000),
   })
-  if (!res.ok) throw new Error(`Linear API error: ${res.status}`)
+  if (!res.ok)
+    throw new Error(
+      apiError(res.status, {
+        401: 'Authentication failed — check your LINEAR_API_KEY',
+        404: 'Team not found — verify LINEAR_TEAM_ID in .env',
+      }),
+    )
   const body = (await res.json()) as { data?: Record<string, unknown>; errors?: unknown[] }
-  if (body.errors) throw new Error(`Linear GraphQL error: ${JSON.stringify(body.errors)}`)
+  if (body.errors) throw new Error(graphQLError(body.errors))
   return body.data
 }
 
