@@ -9,6 +9,7 @@
     "test:unit": "bun test tests/unit/",
     "test:integration": "bun test tests/integration/",
     "changelog": "bun run scripts/generate-changelog.ts",
+    "load-test": "bun run scripts/load-test.ts",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
     "prepare": "husky"
