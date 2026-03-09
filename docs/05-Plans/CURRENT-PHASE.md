@@ -1,50 +1,42 @@
-# Current Phase: Phase 1 — Personal Dashboard
-Branch: `feature/phase-1-integrations`
-PMF Gate: 7 consecutive days personal daily use
+# Current Phase: Phase 2 — Polish & OSS Prep
+
+Branch: `feature/phase-2-polish`
+PMF Gate: Gate 1 — 10+ unprompted requests to try WhateverOPS
 
 ---
 
 ## Active Task
-Phase 1 complete. Ready for Phase 2.
+
+2.1 — Production error handler (started 2026-03-09T06:00:00Z)
 
 ---
 
 ## Completed This Phase
-- 1.1 Integration framework + cache + dashboard route — 657905a
-- 1.2 GitHub integration + panel — 657905a
-- 1.3 Linear integration + panel — 657905a
-- 1.4 Vercel integration + panel — 657905a
-- 1.5 Railway integration + panel — 657905a
-- 1.6 PostHog integration + panel — 657905a
-- 1.7 Resend integration + panel — 657905a
-- 1.8 Anthropic integration + panel — 657905a
-- 1.9 OpenAI integration + panel — 657905a
-- 1.10 Cloudflare integration + panel — 657905a
-- 1.11 Replit integration + panel — 657905a
-- 1.12 Supabase Management integration + panel — 657905a
-- 1.13 Supabase Auth integration + panel — 657905a
-- 1.14 Neon integration + panel — 657905a
-- 1.15 Sentry integration + panel — 657905a
-- 1.16 Stripe integration + panel (MRR calc) — 657905a
-- 1.17 Dashboard grid layout + dark theme — 103d80b
-- 1.18 Global health indicator (header) — 103d80b
-- 1.19 Auto-refresh per panel TTL — 103d80b
-- 1.20 Error states for all panels — 103d80b
-- 1.21 Unit tests all 15 integrations — f47030c
-- 1.22 Mock fixtures all 15 integrations — f47030c
+
+(none yet)
 
 ---
 
 ## Remaining
-None — Phase 1 complete.
+
+- 2.1 Production error handler — [M]
+- 2.2 Upstash Redis cache — [L]
+- 2.3 Per-panel staleness dot — [M]
+- 2.4 AUTO-1: deploy changelog → social — [M]
+- 2.5 AUTO-2: GitHub stars milestone → social — [M]
+- 2.6 AUTO-3: Weekly metrics digest → social — [M]
+- 2.7 AUTO-4: First payment auto-post — [S]
+- 2.8 AUTO-5: Error spike transparency — [M]
+- 2.9 Test email approval E2E — [S]
+- 2.10 BetterStack monitors + status page — [M]
+- 2.11 Self-hosting SETUP.md — [M]
+- 2.12 CONTRIBUTING.md — [S]
+- 2.13 Demo GIF + README embed — [M]
+- 2.14 Cache layer integration tests — [M]
+- 2.15 n8n webhook endpoint tests — [M]
 
 ---
 
 ## Decisions Made
-- All 15 integrations in single commit for efficiency (each follows INTEGRATION-PATTERN.md contract)
-- GenericPanel renders any integration data as auto-formatted metrics grid
-- Stripe gets dedicated StripePanel component (2-col wide) with MRR calculation
-- Health check uses == null (loose equality) to catch both null and undefined from API responses
-- Railway getHealthStatus returns 'warn' (not 'error') for empty projects with failed deploy
-- 10s polling interval for auto-refresh via useDashboard hook
-- Dashboard route skips unconfigured integrations (no env var = no call)
+
+(none yet)

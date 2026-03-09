@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'anthropic' as const
 export const INTEGRATION_NAME = 'Anthropic'
@@ -51,7 +52,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey).toString(36).slice(0, 8)
+  const hash = quickHash(config.apiKey).toString(36).slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`
 }
 

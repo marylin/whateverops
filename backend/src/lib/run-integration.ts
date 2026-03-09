@@ -1,4 +1,5 @@
 import { cacheGet, cacheSet } from '../cache/index.js'
+import { withRetry } from './retry.js'
 
 export interface IntegrationResult<T = unknown> {
   id: string
@@ -42,7 +43,12 @@ export async function runIntegration<TConfig, TRaw, TPanel>(
   }
 
   try {
-    const raw = await mod.fetchData(config)
+    // 10s timeout per attempt, 2 retries (3 total), exponential backoff
+    const raw = await withRetry(() => mod.fetchData(config), {
+      maxAttempts: 3,
+      timeoutMs: 10_000,
+      baseDelayMs: 1_000,
+    })
     const panel = mod.parsePanel(raw)
     const health = mod.getHealthStatus(raw)
 
@@ -59,6 +65,7 @@ export async function runIntegration<TConfig, TRaw, TPanel>(
       ttl: mod.DEFAULT_TTL,
     }
   } catch (err) {
+    // Never throw — always return error result
     const message = err instanceof Error ? err.message : 'Unknown error'
     return {
       id: mod.INTEGRATION_ID,

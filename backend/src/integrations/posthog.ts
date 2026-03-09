@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'posthog' as const
 export const INTEGRATION_NAME = 'PostHog'
@@ -44,9 +45,7 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   if (!flagsRes.ok && flagsRes.status !== 404)
     throw new Error(`PostHog API error: ${flagsRes.status}`)
 
-  const flagsBody = flagsRes.ok
-    ? ((await flagsRes.json()) as { count?: number })
-    : { count: 0 }
+  const flagsBody = flagsRes.ok ? ((await flagsRes.json()) as { count?: number }) : { count: 0 }
   const insightsBody = insightsRes.ok
     ? ((await insightsRes.json()) as { count?: number })
     : { count: 0 }
@@ -70,7 +69,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey + config.projectId)
+  const hash = quickHash(config.apiKey + config.projectId)
     .toString(36)
     .slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`

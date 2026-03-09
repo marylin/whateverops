@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { quickHash } from '../lib/hash.js'
 
 export const INTEGRATION_ID = 'sentry' as const
 export const INTEGRATION_NAME = 'Sentry'
@@ -60,7 +61,7 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   const issues = (await issuesRes.json()) as RawData['latestIssues']
   const statsData = statsRes.ok ? ((await statsRes.json()) as Array<[number, number]>) : []
-  const events24h = statsData.length > 0 ? statsData[statsData.length - 1]![1] ?? 0 : 0
+  const events24h = statsData.length > 0 ? (statsData[statsData.length - 1]![1] ?? 0) : 0
 
   return {
     unresolvedIssues: issues.length,
@@ -85,7 +86,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = Bun.hash(config.apiKey + config.org + config.project)
+  const hash = quickHash(config.apiKey + config.org + config.project)
     .toString(36)
     .slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`
