@@ -28,7 +28,11 @@ export async function runIntegration<TConfig, TRaw, TPanel>(
 ): Promise<IntegrationResult<TPanel>> {
   const cacheKey = mod.getCacheKey(config)
 
-  const cached = await cacheGet<{ panel: TPanel; health: 'ok' | 'warn' | 'error' }>(cacheKey)
+  const cached = await cacheGet<{
+    panel: TPanel
+    health: 'ok' | 'warn' | 'error'
+    fetchedAt: string
+  }>(cacheKey)
   if (cached) {
     return {
       id: mod.INTEGRATION_ID,
@@ -37,7 +41,7 @@ export async function runIntegration<TConfig, TRaw, TPanel>(
       data: cached.panel,
       error: null,
       cached: true,
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: cached.fetchedAt,
       ttl: mod.DEFAULT_TTL,
     }
   }
@@ -52,7 +56,8 @@ export async function runIntegration<TConfig, TRaw, TPanel>(
     const panel = mod.parsePanel(raw)
     const health = mod.getHealthStatus(raw)
 
-    await cacheSet(cacheKey, { panel, health }, mod.DEFAULT_TTL)
+    const fetchedAt = new Date().toISOString()
+    await cacheSet(cacheKey, { panel, health, fetchedAt }, mod.DEFAULT_TTL)
 
     return {
       id: mod.INTEGRATION_ID,
