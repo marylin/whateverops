@@ -81,3 +81,7 @@
 - name: 'size/L'
   color: 'f9d0c4'
   description: 'Large PR: 500+ lines changed'
+
+- name: stale
+  color: 'ededed'
+  description: Inactive issue or PR marked for closure
