@@ -1,0 +1,46 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependencies
+node_modules/
+bun.lockb
+
+# Build
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+# Test output (reports are auto-generated)
+coverage/
+tests/reports/
+playwright-report/
+test-results/
+blob-report/
+
+# Logs
+*.log
+logs/
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/settings.json
+
+# Vercel / Railway
+.vercel
+.railway
+
+# SQLite (use Neon in prod)
+*.sqlite
+*.sqlite-journal
+n8n/data/
+
+# Temp
+tmp/
+temp/
+.cache/
