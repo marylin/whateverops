@@ -16,6 +16,7 @@ import * as supabaseAuth from '../integrations/supabase-auth.js'
 import * as neon from '../integrations/neon.js'
 import * as sentry from '../integrations/sentry.js'
 import * as stripe from '../integrations/stripe.js'
+import * as selfMonitoring from '../integrations/self-monitoring.js'
 
 const dashboard = new Hono()
 
@@ -160,6 +161,16 @@ dashboard.get('/', async (c) => {
   if (stripeKey) {
     integrations.push(runIntegration(stripe, { apiKey: stripeKey }))
   }
+
+  // Self-monitoring — always enabled, polls own /health
+  const selfMonitorUrl =
+    process.env.SELF_MONITOR_URL ?? `http://localhost:${process.env.PORT ?? 3000}/health`
+  integrations.push(
+    runIntegration(selfMonitoring, {
+      apiKey: 'self',
+      healthUrl: selfMonitorUrl,
+    }),
+  )
 
   // All integrations run in parallel — never sequential
   const results = await Promise.all(integrations)
