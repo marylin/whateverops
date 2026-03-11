@@ -3,9 +3,9 @@
 > Maintained by Claude Code. Updated after every completed task.
 > This is the source of truth for `/resume` and `/status`.
 
-Last updated: 2026-03-09T09:00:00Z
-Current phase: Phase 3 — OSS Launch
-Overall: 59 / 115 tasks complete
+Last updated: 2026-03-10T12:00:00Z
+Current phase: Phase 3.1 — Launch Gap Closure (complete)
+Overall: 64 / 120 tasks complete
 
 ---
 
@@ -112,15 +112,32 @@ Gate: Gate 2 — 20 confirmed self-hosted instances. Status: ⏳
 
 ---
 
+## Phase 3.1 — Launch Gap Closure
+
+Status: ✅ COMPLETE | Branch: `feature/phase-3.1-launch-readiness`
+
+| ID    | Task                        | Status | Branch                             | Commit  | Tests  | Evidence                         |
+| ----- | --------------------------- | ------ | ---------------------------------- | ------- | ------ | -------------------------------- |
+| 3.1.1 | Self-monitoring integration | ✅     | feature/phase-3.1-launch-readiness | df9f4e9 | ✅ 7/7 | Standard contract, polls /health |
+| 3.1.2 | Public status page          | ✅     | feature/phase-3.1-launch-readiness | 75fe015 | —      | /status route, colored dots, 30s |
+| 3.1.3 | Status page unit tests      | ✅     | feature/phase-3.1-launch-readiness | 05f60f9 | ✅ 9/9 | Health logic, color mapping      |
+| 3.1.4 | Launch email template       | ✅     | feature/phase-3.1-launch-readiness | 51c3687 | —      | React Email + Resend, dark theme |
+| 3.1.5 | MIT LICENSE file            | ✅     | feature/phase-3.1-launch-readiness | 448df95 | —      | Standard MIT license at root     |
+
+Gate: All PRD gaps closed. Status: ✅
+
+---
+
 ## Summary
 
-| Phase           | Total   | ✅ Done | ⏳ Pending |
-| --------------- | ------- | ------- | ---------- |
-| 0 — Foundation  | 13      | 13      | 0          |
-| 1 — Dashboard   | 22      | 22      | 0          |
-| 2 — Polish      | 15      | 15      | 0          |
-| 3 — OSS Launch  | 9       | 9       | 0          |
-| 4 — Hosted Beta | 24      | 0       | 24         |
-| 5 — Paid Launch | 18      | 0       | 18         |
-| 6 — Growth      | 14      | 0       | 14         |
-| **Total**       | **115** | **59**  | **56**     |
+| Phase             | Total   | ✅ Done | ⏳ Pending |
+| ----------------- | ------- | ------- | ---------- |
+| 0 — Foundation    | 13      | 13      | 0          |
+| 1 — Dashboard     | 22      | 22      | 0          |
+| 2 — Polish        | 15      | 15      | 0          |
+| 3 — OSS Launch    | 9       | 9       | 0          |
+| 3.1 — Gap Closure | 5       | 5       | 0          |
+| 4 — Hosted Beta   | 24      | 0       | 24         |
+| 5 — Paid Launch   | 18      | 0       | 18         |
+| 6 — Growth        | 14      | 0       | 14         |
+| **Total**         | **120** | **64**  | **56**     |
