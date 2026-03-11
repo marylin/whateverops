@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
+    "@react-email/components": "^1.0.8",
     "@upstash/redis": "^1.36.3",
     "dotenv": "^17.3.1",
     "hono": "^4.7.4",
+    "resend": "^6.9.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
