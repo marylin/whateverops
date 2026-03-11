@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { HealthIndicator } from './HealthIndicator'
 import type { DashboardResponse } from '../../lib/api'
 
@@ -23,6 +24,12 @@ export function Header({ dashboard, onRefresh }: HeaderProps) {
               total={dashboard.total}
             />
           )}
+          <Link
+            to="/status"
+            className="text-xs px-3 py-1.5 text-gray-400 hover:text-white transition-colors"
+          >
+            Status
+          </Link>
           <button
             onClick={onRefresh}
             className="text-xs px-3 py-1.5 bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"

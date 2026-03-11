@@ -7,6 +7,7 @@ import { logger } from 'hono/logger'
 import { errorHandler } from './middleware/error.js'
 import dashboard from './routes/dashboard.js'
 import webhooks from './routes/webhooks.js'
+import status from './routes/status.js'
 
 const app = new Hono()
 
@@ -33,6 +34,7 @@ app.get('/health', (c) =>
 
 app.route('/api/dashboard', dashboard)
 app.route('/api/webhooks', webhooks)
+app.route('/api/status', status)
 
 const port = Number(process.env.PORT ?? 3000)
 
