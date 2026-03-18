@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'bun:test'
-import { parsePanel, getHealthStatus, getCacheKey } from '../../../../backend/src/integrations/github'
+import {
+  parsePanel,
+  getHealthStatus,
+  getCacheKey,
+} from '../../../../backend/src/integrations/github'
 import fixture from '../../../fixtures/mock-responses/github.json'
 
 describe('github integration', () => {
@@ -7,7 +11,7 @@ describe('github integration', () => {
     const panel = parsePanel(fixture.ok as Parameters<typeof parsePanel>[0])
     expect(panel.stars).toBe(42)
     expect(panel.openIssues).toBe(5)
-    expect(panel.openPRs).toBe(2)
+    expect(panel.openPRCount).toBe(2)
     expect(panel.forks).toBe(3)
     expect(panel.language).toBe('TypeScript')
   })

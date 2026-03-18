@@ -27,12 +27,8 @@ export interface RawData {
 export interface PanelData {
   projectCount: number
   recentDeploys: Array<{
-    id: string
-    project: string
-    status: string
-    created: string
+    display: string
     url: string | null
-    commitMessage: string | null
   }>
   lastDeployTime: string | null
   successRate: number
@@ -72,6 +68,14 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   }
 }
 
+function deployAgo(createdMs: number): string {
+  const seconds = Math.floor((Date.now() - createdMs) / 1000)
+  if (seconds < 60) return 'just now'
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+  return `${Math.floor(seconds / 86400)}d ago`
+}
+
 export function parsePanel(raw: RawData): PanelData {
   const deploys = raw.deployments ?? []
   const successCount = deploys.filter((d) => d.state === 'READY').length
@@ -80,12 +84,8 @@ export function parsePanel(raw: RawData): PanelData {
   return {
     projectCount: raw.projects?.length ?? 0,
     recentDeploys: deploys.slice(0, 5).map((d) => ({
-      id: d.uid,
-      project: d.name,
-      status: d.state,
-      created: new Date(d.created).toISOString(),
+      display: `${d.name} (${d.state}) · ${deployAgo(d.created)}`,
       url: d.url ? `https://${d.url}` : null,
-      commitMessage: d.meta?.githubCommitMessage ?? null,
     })),
     lastDeployTime: deploys.length > 0 ? new Date(deploys[0]!.created).toISOString() : null,
     successRate,

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { fetchStatus, type StatusResponse } from '../lib/api'
+import { formatTimestamp } from '../lib/format'
 
 const STATUS_COLORS: Record<string, string> = {
   ok: 'bg-emerald-500',
@@ -21,11 +22,6 @@ function StatusDot({ status }: { status: string }) {
   )
 }
 
-function formatTime(iso: string): string {
-  if (!iso) return 'N/A'
-  return new Date(iso).toLocaleTimeString()
-}
-
 export function StatusPage() {
   const [data, setData] = useState<StatusResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -40,6 +36,13 @@ export function StatusPage() {
       setError(err instanceof Error ? err.message : 'Failed to fetch status')
     } finally {
       setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    document.title = 'Status | WhateverOPS'
+    return () => {
+      document.title = 'WhateverOPS'
     }
   }, [])
 
@@ -108,7 +111,9 @@ export function StatusPage() {
                     <span className="text-sm font-medium text-white">{service.name}</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-xs text-gray-500">{formatTime(service.lastChecked)}</span>
+                    <span className="text-xs text-gray-500">
+                      {formatTimestamp(service.lastChecked)}
+                    </span>
                     <span
                       className={`text-xs font-medium ${
                         service.status === 'ok'
@@ -126,8 +131,8 @@ export function StatusPage() {
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-[10px] text-gray-700">
-                Last refresh: {formatTime(data.lastRefresh)}
+              <p className="text-xs text-gray-500">
+                Last refresh: {formatTimestamp(data.lastRefresh)}
                 {' · '}
                 Auto-refreshes every 30s
               </p>

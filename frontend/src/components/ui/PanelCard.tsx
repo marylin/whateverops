@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { StatusDot } from './StatusDot'
 import { StaleDot } from './StaleDot'
+import { formatTimestamp } from '../../lib/format'
 
 interface PanelCardProps {
   title: string
@@ -36,18 +37,9 @@ function getStatusPage(title: string): string | undefined {
   return STATUS_PAGES[key] ?? STATUS_PAGES[key.split('-')[0] ?? '']
 }
 
-function timeAgo(dateStr: string): string {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (seconds < 60) return `${seconds}s ago`
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
-  return `${Math.floor(seconds / 86400)}d ago`
-}
-
 export function PanelCard({
   title,
   status,
-  cached,
   lastUpdated,
   ttl,
   wide,
@@ -69,7 +61,7 @@ export function PanelCard({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <StatusDot status="error" />
-            <h3 className="text-sm font-semibold text-white">{title}</h3>
+            <h3 className="text-base font-semibold text-white">{title}</h3>
           </div>
           <span className="text-[10px] px-1.5 py-0.5 bg-[#FF454515] text-[#FF4545] rounded">
             error
@@ -83,13 +75,13 @@ export function PanelCard({
             )}
           </div>
           {lastUpdated && (
-            <p className="text-xs text-gray-500">Last success: {timeAgo(lastUpdated)}</p>
+            <p className="text-xs text-gray-500">Last success: {formatTimestamp(lastUpdated)}</p>
           )}
           <div className="flex gap-2">
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="text-xs px-3 py-1.5 bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
+                className="text-xs px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
               >
                 Retry
               </button>
@@ -99,7 +91,7 @@ export function PanelCard({
                 href={statusPage}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs px-3 py-1.5 bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
+                className="text-xs px-3 py-1.5 min-h-[44px] flex items-center bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
               >
                 Status page
               </a>
@@ -135,18 +127,15 @@ export function PanelCard({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <StatusDot status={status} />
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          <h3 className="text-base font-semibold text-white">{title}</h3>
         </div>
         <div className="flex items-center gap-2">
-          {cached && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-[#1E1E2E] text-gray-500 rounded">
-              cached
-            </span>
-          )}
           {lastUpdated && ttl && (
             <StaleDot lastUpdated={lastUpdated} ttl={ttl} error={error ?? null} />
           )}
-          {lastUpdated && <span className="text-[10px] text-gray-600">{timeAgo(lastUpdated)}</span>}
+          {lastUpdated && (
+            <span className="text-[10px] text-gray-600">{formatTimestamp(lastUpdated)}</span>
+          )}
         </div>
       </div>
       {children}

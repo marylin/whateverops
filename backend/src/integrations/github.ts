@@ -36,7 +36,7 @@ export interface RawData {
 export interface PanelData {
   stars: number
   openIssues: number
-  openPRs: number
+  openPRCount: number
   forks: number
   watchers: number
   language: string | null
@@ -106,7 +106,7 @@ export function parsePanel(raw: RawData): PanelData {
   return {
     stars: raw.repo?.stargazers_count ?? 0,
     openIssues: raw.repo?.open_issues_count ?? 0,
-    openPRs: raw.pullRequests?.total_count ?? 0,
+    openPRCount: raw.pullRequests?.total_count ?? 0,
     forks: raw.repo?.forks_count ?? 0,
     watchers: raw.repo?.watchers_count ?? 0,
     language: raw.repo?.language ?? null,

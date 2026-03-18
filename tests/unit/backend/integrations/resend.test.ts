@@ -1,18 +1,22 @@
 import { describe, it, expect } from 'bun:test'
-import { parsePanel, getHealthStatus, getCacheKey } from '../../../../backend/src/integrations/resend'
+import {
+  parsePanel,
+  getHealthStatus,
+  getCacheKey,
+} from '../../../../backend/src/integrations/resend'
 import fixture from '../../../fixtures/mock-responses/resend.json'
 
 describe('resend integration', () => {
   it('parsePanel() with healthy mock response', () => {
     const panel = parsePanel(fixture.ok as Parameters<typeof parsePanel>[0])
-    expect(panel.domainCount).toBe(1)
-    expect(panel.domains[0]!.status).toBe('verified')
+    expect(panel.domains).toBe(1)
+    expect(panel.domainList[0]!.status).toBe('verified')
     expect(panel.apiKeyCount).toBe(1)
   })
 
   it('parsePanel() handles missing optional fields', () => {
     const panel = parsePanel(fixture.empty as Parameters<typeof parsePanel>[0])
-    expect(panel.domainCount).toBe(0)
+    expect(panel.domains).toBe(0)
     expect(panel.apiKeyCount).toBe(0)
   })
 

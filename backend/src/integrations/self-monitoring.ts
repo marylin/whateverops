@@ -23,7 +23,7 @@ export interface PanelData {
   status: 'ok' | 'error'
   uptime: string
   lastChecked: string
-  responseTimeMs: number
+  responseTime_ms: number
 }
 
 function formatUptime(seconds: number): string {
@@ -68,7 +68,7 @@ export function parsePanel(raw: RawData): PanelData {
     status: raw.status ?? 'error',
     uptime: formatUptime(raw.uptime ?? 0),
     lastChecked: raw.timestamp ?? new Date().toISOString(),
-    responseTimeMs: raw.responseTimeMs ?? 0,
+    responseTime_ms: raw.responseTimeMs ?? 0,
   }
 }
 

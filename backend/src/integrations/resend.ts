@@ -26,8 +26,8 @@ export interface RawData {
 }
 
 export interface PanelData {
-  domainCount: number
-  domains: Array<{
+  domains: number
+  domainList: Array<{
     name: string
     status: string
   }>
@@ -63,8 +63,8 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
 export function parsePanel(raw: RawData): PanelData {
   return {
-    domainCount: raw.domains?.length ?? 0,
-    domains: (raw.domains ?? []).map((d) => ({
+    domains: raw.domains?.length ?? 0,
+    domainList: (raw.domains ?? []).map((d) => ({
       name: d.name,
       status: d.status,
     })),
