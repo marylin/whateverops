@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useDashboard } from '../../hooks/useDashboard'
 import { Header } from './Header'
 import { PanelCard } from '../ui/PanelCard'
+import { ErrorBoundary } from '../ui/ErrorBoundary'
 import { GenericPanel } from '../panels/GenericPanel'
 import { StripePanel } from '../panels/StripePanel'
 import type { IntegrationResult } from '../../lib/api'
@@ -29,6 +31,10 @@ function LoadingSkeleton() {
 
 export function Dashboard() {
   const { data, loading, error, refresh } = useDashboard()
+
+  useEffect(() => {
+    document.title = 'WhateverOPS'
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
@@ -60,25 +66,26 @@ export function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {loading && !data && <LoadingSkeleton />}
           {data?.panels.map((panel) => (
-            <PanelCard
-              key={panel.id}
-              title={panel.name}
-              status={panel.status}
-              cached={panel.cached}
-              lastUpdated={panel.lastUpdated}
-              ttl={panel.ttl}
-              wide={panel.id === 'stripe'}
-              error={panel.error}
-              onRetry={refresh}
-            >
-              {renderPanelContent(panel)}
-            </PanelCard>
+            <ErrorBoundary key={panel.id} title={panel.name}>
+              <PanelCard
+                title={panel.name}
+                status={panel.status}
+                cached={panel.cached}
+                lastUpdated={panel.lastUpdated}
+                ttl={panel.ttl}
+                wide={panel.id === 'stripe'}
+                error={panel.error}
+                onRetry={refresh}
+              >
+                {renderPanelContent(panel)}
+              </PanelCard>
+            </ErrorBoundary>
           ))}
         </div>
 
         {data && (
           <div className="mt-6 text-center">
-            <p className="text-[10px] text-gray-700">
+            <p className="text-[10px] text-gray-400">
               {data.configured} of {data.total} integrations configured
               {data.lastRefresh &&
                 ` · Last refresh: ${new Date(data.lastRefresh).toLocaleTimeString()}`}
