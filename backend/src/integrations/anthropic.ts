@@ -142,17 +142,17 @@ async function fetchUsageData(adminKey: string): Promise<UsageData | null> {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-    const startDate30d = thirtyDaysAgo.toISOString().slice(0, 10)
-    const startDate7d = sevenDaysAgo.toISOString().slice(0, 10)
-    const endDate = now.toISOString().slice(0, 10)
+    const start30d = thirtyDaysAgo.toISOString()
+    const start7d = sevenDaysAgo.toISOString()
+    const end = now.toISOString()
 
     const [costRes, usageRes] = await Promise.all([
       fetch(
-        `https://api.anthropic.com/v1/organizations/cost_report?start_date=${startDate30d}&end_date=${endDate}&bucket_size=day`,
+        `https://api.anthropic.com/v1/organizations/cost_report?starting_at=${start30d}&ending_at=${end}&bucket_width=1d`,
         { headers: adminHeaders, signal: AbortSignal.timeout(10_000) },
       ).catch(() => null),
       fetch(
-        `https://api.anthropic.com/v1/organizations/usage_report/messages?start_date=${startDate7d}&end_date=${endDate}&group_by=model`,
+        `https://api.anthropic.com/v1/organizations/usage_report/messages?starting_at=${start7d}&ending_at=${end}&bucket_width=1d&group_by=model`,
         { headers: adminHeaders, signal: AbortSignal.timeout(10_000) },
       ).catch(() => null),
     ])
