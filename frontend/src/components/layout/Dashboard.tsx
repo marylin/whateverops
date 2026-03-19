@@ -236,7 +236,7 @@ function GroupedPanels({
                   const wide = WIDE_PANELS.has(panel.id.replace(/-\d+$/, ''))
                   return (
                     <ErrorBoundary key={panel.id} title={panel.name}>
-                      <div className={wide ? 'xl:col-span-2' : ''}>
+                      <div className={wide ? 'xl:col-span-2' : ''} data-panel-id={panel.id}>
                         <PanelCard
                           title={panel.name}
                           status={panel.status}
@@ -271,17 +271,19 @@ function GroupedPanels({
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {ungrouped.map((panel) => (
                 <ErrorBoundary key={panel.id} title={panel.name}>
-                  <PanelCard
-                    title={panel.name}
-                    status={panel.status}
-                    cached={panel.cached}
-                    lastUpdated={panel.lastUpdated}
-                    ttl={panel.ttl}
-                    error={panel.error}
-                    onRetry={onRefresh}
-                  >
-                    {renderPanelContent(panel)}
-                  </PanelCard>
+                  <div data-panel-id={panel.id}>
+                    <PanelCard
+                      title={panel.name}
+                      status={panel.status}
+                      cached={panel.cached}
+                      lastUpdated={panel.lastUpdated}
+                      ttl={panel.ttl}
+                      error={panel.error}
+                      onRetry={onRefresh}
+                    >
+                      {renderPanelContent(panel)}
+                    </PanelCard>
+                  </div>
                 </ErrorBoundary>
               ))}
             </div>
