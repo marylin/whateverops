@@ -1,47 +1,84 @@
 {
   "ok": {
-    "openIssues": 8,
-    "inProgressIssues": 3,
-    "completedThisCycle": 12,
-    "cycleTotalIssues": 20,
-    "backlogCount": 15,
     "teamName": "Engineering",
+    "teamKey": "ENG",
+    "totalIssues": 77,
+    "openCount": 8,
+    "inProgressIssues": [
+      {
+        "identifier": "ENG-42",
+        "title": "Fix auth token refresh",
+        "priority": 1,
+        "priorityLabel": "Urgent",
+        "stateName": "In Progress",
+        "labels": ["Bug"],
+        "projectName": "Auth System",
+        "url": "https://linear.app/eng/issue/ENG-42"
+      },
+      {
+        "identifier": "ENG-45",
+        "title": "Add dashboard export",
+        "priority": 2,
+        "priorityLabel": "High",
+        "stateName": "In Progress",
+        "labels": ["Feature"],
+        "projectName": null,
+        "url": "https://linear.app/eng/issue/ENG-45"
+      },
+      {
+        "identifier": "ENG-50",
+        "title": "Update onboarding flow",
+        "priority": 3,
+        "priorityLabel": "Medium",
+        "stateName": "In Progress",
+        "labels": ["Improvement"],
+        "projectName": "Onboarding",
+        "url": "https://linear.app/eng/issue/ENG-50"
+      }
+    ],
+    "priorityBreakdown": { "Urgent": 1, "High": 1, "Medium": 1 },
+    "labelBreakdown": { "Bug": 1, "Feature": 1, "Improvement": 1 },
+    "projects": [
+      { "name": "Auth System", "state": "started", "progress": 60 },
+      { "name": "Onboarding", "state": "started", "progress": 25 }
+    ],
     "activeCycleName": "Sprint 5",
     "activeCycleProgress": 60,
     "cycleStartsAt": "2026-03-10T00:00:00.000Z",
     "cycleEndsAt": "2026-03-24T00:00:00.000Z",
-    "topPriorityIssueTitle": "Fix auth token refresh",
-    "overdueCount": 1,
-    "blockedCount": 0
+    "completedThisCycle": 12,
+    "cycleTotalIssues": 20
   },
   "error": {
-    "openIssues": null,
-    "inProgressIssues": null,
-    "completedThisCycle": 0,
-    "cycleTotalIssues": 0,
-    "backlogCount": 0,
     "teamName": "Unknown",
+    "teamKey": "",
+    "totalIssues": 0,
+    "openCount": 0,
+    "inProgressIssues": [],
+    "priorityBreakdown": {},
+    "labelBreakdown": {},
+    "projects": [],
     "activeCycleName": null,
     "activeCycleProgress": null,
     "cycleStartsAt": null,
     "cycleEndsAt": null,
-    "topPriorityIssueTitle": null,
-    "overdueCount": 0,
-    "blockedCount": 0
+    "completedThisCycle": 0,
+    "cycleTotalIssues": 0
   },
   "empty": {
-    "openIssues": 0,
-    "inProgressIssues": 0,
-    "completedThisCycle": 0,
-    "cycleTotalIssues": 0,
-    "backlogCount": 0,
     "teamName": "Engineering",
+    "teamKey": "ENG",
+    "totalIssues": 0,
+    "openCount": 0,
+    "inProgressIssues": [],
+    "priorityBreakdown": {},
+    "labelBreakdown": {},
+    "projects": [],
     "activeCycleName": null,
     "activeCycleProgress": null,
     "cycleStartsAt": null,
     "cycleEndsAt": null,
-    "topPriorityIssueTitle": null,
-    "overdueCount": 0,
-    "blockedCount": 0
+    "completedThisCycle": 0,
+    "cycleTotalIssues": 0
   }
 }

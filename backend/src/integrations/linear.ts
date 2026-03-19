@@ -13,38 +13,59 @@ export const CONFIG_SCHEMA = z.object({
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
+export interface LinearIssue {
+  identifier: string
+  title: string
+  priority: number
+  priorityLabel: string
+  stateName: string
+  labels: string[]
+  projectName: string | null
+  url: string
+}
+
+export interface LinearProject {
+  name: string
+  state: string
+  progress: number
+}
+
 export interface RawData {
-  openIssues: number
-  inProgressIssues: number
-  completedThisCycle: number
-  cycleTotalIssues: number
-  backlogCount: number
   teamName: string
+  teamKey: string
+  totalIssues: number
+  openCount: number
+  inProgressIssues: LinearIssue[]
+  priorityBreakdown: Record<string, number>
+  labelBreakdown: Record<string, number>
+  projects: LinearProject[]
+  // Cycle (optional — not all teams use sprints)
   activeCycleName: string | null
   activeCycleProgress: number | null
   cycleStartsAt: string | null
   cycleEndsAt: string | null
-  topPriorityIssueTitle: string | null
-  overdueCount: number
-  blockedCount: number
+  completedThisCycle: number
+  cycleTotalIssues: number
 }
 
 export interface PanelData {
-  openIssues: number
-  inProgress: number
-  completedThisCycle: number
-  cycleTotalIssues: number
-  backlog: number
   teamName: string
+  teamKey: string
+  totalIssues: number
+  openCount: number
+  inProgressIssues: LinearIssue[]
+  inProgressCount: number
+  priorityBreakdown: Record<string, number>
+  labelBreakdown: Record<string, number>
+  projects: LinearProject[]
+  bugsInProgress: number
+  featuresInProgress: number
+  // Cycle
   cycleName: string | null
   cycleProgress: number | null
-  cycleStartsAt: string | null
-  cycleEndsAt: string | null
-  topPriorityIssue: string | null
-  overdueCount: number
-  blockedCount: number
   daysLeftInCycle: number | null
-  cycleOnTrack: 'ahead' | 'behind' | 'on-track' | null
+  completedThisCycle: number
+  cycleTotalIssues: number
 }
 
 async function gql(apiKey: string, query: string, variables: Record<string, unknown> = {}) {
@@ -80,14 +101,15 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     if (!teamId) throw new Error('No teams found in your Linear workspace')
   }
 
-  const today = new Date().toISOString().slice(0, 10)
-  // Linear GraphQL uses String! for team(id:) but ID for issue filter comparators.
-  // Inline the teamId in filters to avoid type conflict.
   const tid = teamId
+
+  // Query 1: Team info + cycle + in-progress issues with details
   const query = `
-    query TeamStats($teamId: String!, $today: TimelessDateOrDuration!) {
+    query TeamStats($teamId: String!) {
       team(id: $teamId) {
         name
+        key
+        issueCount
         activeCycle {
           name
           progress
@@ -95,114 +117,154 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
           endsAt
           issues { nodes { state { type } } }
         }
-        issues(filter: { state: { type: { in: ["backlog"] } } }) { nodes { id } }
       }
       openIssues: issues(filter: { team: { id: { eq: "${tid}" } }, state: { type: { in: ["unstarted", "triage"] } } }) {
         nodes { id }
       }
-      inProgress: issues(filter: { team: { id: { eq: "${tid}" } }, state: { type: { eq: "started" } } }) {
-        nodes { id priority title }
-      }
-      overdueIssues: issues(filter: { team: { id: { eq: "${tid}" } }, dueDate: { lt: $today }, state: { type: { nin: ["completed", "canceled"] } } }) {
-        nodes { id }
-      }
-      blockedIssues: issues(filter: { team: { id: { eq: "${tid}" } }, state: { name: { containsIgnoreCase: "blocked" } } }) {
-        nodes { id }
-      }
-      topPriority: issues(filter: { team: { id: { eq: "${tid}" } }, state: { type: { in: ["started", "unstarted"] } }, priority: { gte: 1 } }, first: 1, orderBy: updatedAt) {
-        nodes { title priority }
+      inProgress: issues(filter: { team: { id: { eq: "${tid}" } }, state: { type: { eq: "started" } } }, first: 10, orderBy: updatedAt) {
+        nodes {
+          identifier
+          title
+          priority
+          priorityLabel
+          state { name }
+          labels { nodes { name } }
+          project { name }
+        }
       }
     }
   `
 
-  const data = (await gql(config.apiKey, query, { teamId: tid, today })) as {
-    team?: {
-      name?: string
-      activeCycle?: {
+  // Query 2: Projects
+  const projectsQuery = `{ projects(first: 15, orderBy: updatedAt) { nodes { name state progress } } }`
+
+  const [teamData, projectsData] = await Promise.all([
+    gql(config.apiKey, query, { teamId: tid }) as Promise<{
+      team?: {
         name?: string
-        progress?: number
-        startsAt?: string
-        endsAt?: string
-        issues?: { nodes?: Array<{ state?: { type?: string } }> }
+        key?: string
+        issueCount?: number
+        activeCycle?: {
+          name?: string
+          progress?: number
+          startsAt?: string
+          endsAt?: string
+          issues?: { nodes?: Array<{ state?: { type?: string } }> }
+        }
       }
-      issues?: { nodes?: unknown[] }
-    }
-    openIssues?: { nodes?: unknown[] }
-    inProgress?: { nodes?: Array<{ id?: string; priority?: number; title?: string }> }
-    overdueIssues?: { nodes?: unknown[] }
-    blockedIssues?: { nodes?: unknown[] }
-    topPriority?: { nodes?: Array<{ title?: string; priority?: number }> }
+      openIssues?: { nodes?: unknown[] }
+      inProgress?: {
+        nodes?: Array<{
+          identifier?: string
+          title?: string
+          priority?: number
+          priorityLabel?: string
+          state?: { name?: string }
+          labels?: { nodes?: Array<{ name?: string }> }
+          project?: { name?: string }
+        }>
+      }
+    }>,
+    gql(config.apiKey, projectsQuery) as Promise<{
+      projects?: {
+        nodes?: Array<{ name?: string; state?: string; progress?: number }>
+      }
+    }>,
+  ])
+
+  // Parse in-progress issues
+  const inProgressIssues: LinearIssue[] = (teamData?.inProgress?.nodes ?? []).map((n) => ({
+    identifier: n.identifier ?? '',
+    title: n.title ?? '',
+    priority: n.priority ?? 4,
+    priorityLabel: n.priorityLabel ?? 'No priority',
+    stateName: n.state?.name ?? 'In Progress',
+    labels: (n.labels?.nodes ?? []).map((l) => l.name ?? '').filter(Boolean),
+    projectName: n.project?.name ?? null,
+    url: `https://linear.app/${teamData?.team?.key?.toLowerCase() ?? 'team'}/issue/${n.identifier ?? ''}`,
+  }))
+
+  // Priority breakdown
+  const priorityBreakdown: Record<string, number> = {}
+  for (const issue of inProgressIssues) {
+    const key = issue.priorityLabel
+    priorityBreakdown[key] = (priorityBreakdown[key] ?? 0) + 1
   }
 
-  const cycleIssues = data?.team?.activeCycle?.issues?.nodes ?? []
-  const completedThisCycle = cycleIssues.filter(
-    (i: { state?: { type?: string } }) => i.state?.type === 'completed',
-  ).length
+  // Label breakdown
+  const labelBreakdown: Record<string, number> = {}
+  for (const issue of inProgressIssues) {
+    for (const label of issue.labels) {
+      labelBreakdown[label] = (labelBreakdown[label] ?? 0) + 1
+    }
+  }
 
-  const topPriorityNode = data?.topPriority?.nodes?.[0]
+  // Projects
+  const projects: LinearProject[] = (projectsData?.projects?.nodes ?? [])
+    .filter((p) => p.state === 'started' || p.state === 'planned')
+    .map((p) => ({
+      name: p.name ?? '',
+      state: p.state ?? '',
+      progress: Math.round((p.progress ?? 0) * 100),
+    }))
+
+  // Cycle
+  const cycleIssues = teamData?.team?.activeCycle?.issues?.nodes ?? []
+  const completedThisCycle = cycleIssues.filter((i) => i.state?.type === 'completed').length
 
   return {
-    openIssues: data?.openIssues?.nodes?.length ?? 0,
-    inProgressIssues: data?.inProgress?.nodes?.length ?? 0,
+    teamName: teamData?.team?.name ?? 'Unknown',
+    teamKey: teamData?.team?.key ?? '',
+    totalIssues: teamData?.team?.issueCount ?? 0,
+    openCount: teamData?.openIssues?.nodes?.length ?? 0,
+    inProgressIssues,
+    priorityBreakdown,
+    labelBreakdown,
+    projects,
+    activeCycleName: teamData?.team?.activeCycle?.name ?? null,
+    activeCycleProgress: teamData?.team?.activeCycle?.progress
+      ? Math.round(teamData.team.activeCycle.progress * 100)
+      : null,
+    cycleStartsAt: teamData?.team?.activeCycle?.startsAt ?? null,
+    cycleEndsAt: teamData?.team?.activeCycle?.endsAt ?? null,
     completedThisCycle,
     cycleTotalIssues: cycleIssues.length,
-    backlogCount: data?.team?.issues?.nodes?.length ?? 0,
-    teamName: data?.team?.name ?? 'Unknown',
-    activeCycleName: data?.team?.activeCycle?.name ?? null,
-    activeCycleProgress: data?.team?.activeCycle?.progress ?? null,
-    cycleStartsAt: data?.team?.activeCycle?.startsAt ?? null,
-    cycleEndsAt: data?.team?.activeCycle?.endsAt ?? null,
-    topPriorityIssueTitle: topPriorityNode?.title ?? null,
-    overdueCount: data?.overdueIssues?.nodes?.length ?? 0,
-    blockedCount: data?.blockedIssues?.nodes?.length ?? 0,
   }
 }
 
 export function parsePanel(raw: RawData): PanelData {
-  // Compute daysLeftInCycle
+  const bugs = raw.inProgressIssues.filter((i) =>
+    i.labels.some((l) => l.toLowerCase() === 'bug'),
+  ).length
+  const features = raw.inProgressIssues.filter((i) =>
+    i.labels.some((l) => l.toLowerCase() === 'feature'),
+  ).length
+
   let daysLeftInCycle: number | null = null
   if (raw.cycleEndsAt) {
     const endsAt = new Date(raw.cycleEndsAt).getTime()
-    const now = Date.now()
     if (!isNaN(endsAt)) {
-      daysLeftInCycle = Math.max(0, Math.ceil((endsAt - now) / (1000 * 60 * 60 * 24)))
-    }
-  }
-
-  // Compute cycleOnTrack based on progress vs time elapsed
-  let cycleOnTrack: 'ahead' | 'behind' | 'on-track' | null = null
-  if (raw.cycleStartsAt && raw.cycleEndsAt && raw.activeCycleProgress != null) {
-    const startsAt = new Date(raw.cycleStartsAt).getTime()
-    const endsAt = new Date(raw.cycleEndsAt).getTime()
-    const now = Date.now()
-    const totalDuration = endsAt - startsAt
-    if (totalDuration > 0 && !isNaN(startsAt) && !isNaN(endsAt)) {
-      const elapsed = Math.max(0, now - startsAt)
-      const timeElapsedPct = Math.min(1, elapsed / totalDuration)
-      const progressPct = raw.activeCycleProgress / 100
-      const diff = progressPct - timeElapsedPct
-      if (diff > 0.05) cycleOnTrack = 'ahead'
-      else if (diff < -0.05) cycleOnTrack = 'behind'
-      else cycleOnTrack = 'on-track'
+      daysLeftInCycle = Math.max(0, Math.ceil((endsAt - Date.now()) / 86_400_000))
     }
   }
 
   return {
-    openIssues: raw.openIssues ?? 0,
-    inProgress: raw.inProgressIssues ?? 0,
-    completedThisCycle: raw.completedThisCycle ?? 0,
-    cycleTotalIssues: raw.cycleTotalIssues ?? 0,
-    backlog: raw.backlogCount ?? 0,
-    teamName: raw.teamName ?? 'Unknown',
-    cycleName: raw.activeCycleName ?? null,
-    cycleProgress: raw.activeCycleProgress ?? null,
-    cycleStartsAt: raw.cycleStartsAt ?? null,
-    cycleEndsAt: raw.cycleEndsAt ?? null,
-    topPriorityIssue: raw.topPriorityIssueTitle ?? null,
-    overdueCount: raw.overdueCount ?? 0,
-    blockedCount: raw.blockedCount ?? 0,
+    teamName: raw.teamName,
+    teamKey: raw.teamKey,
+    totalIssues: raw.totalIssues,
+    openCount: raw.openCount,
+    inProgressIssues: raw.inProgressIssues,
+    inProgressCount: raw.inProgressIssues.length,
+    priorityBreakdown: raw.priorityBreakdown,
+    labelBreakdown: raw.labelBreakdown,
+    projects: raw.projects,
+    bugsInProgress: bugs,
+    featuresInProgress: features,
+    cycleName: raw.activeCycleName,
+    cycleProgress: raw.activeCycleProgress,
     daysLeftInCycle,
-    cycleOnTrack,
+    completedThisCycle: raw.completedThisCycle,
+    cycleTotalIssues: raw.cycleTotalIssues,
   }
 }
 
@@ -214,7 +276,7 @@ export function getCacheKey(config: IntegrationConfig): string {
 }
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
-  if (raw.openIssues == null && raw.inProgressIssues == null) return 'error'
-  if (raw.inProgressIssues > 10) return 'warn'
+  if (!raw.teamName || raw.teamName === 'Unknown') return 'error'
+  if (raw.inProgressIssues.length > 10) return 'warn'
   return 'ok'
 }
