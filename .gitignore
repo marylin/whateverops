@@ -47,3 +47,30 @@ n8n/data/
 tmp/
 temp/
 .cache/
+
+# Screenshots / images from dev sessions
+*.png
+*.jpg
+*.gif
+!frontend/public/**
+
+# Binary docs (use .md instead)
+*.docx
+*.xlsx
+*.pptx
+
+# gstack / Playwright MCP local state
+.gstack/
+.playwright-mcp/
+
+# Package lock (using pnpm-lock.yaml)
+frontend/package-lock.json
+
+# Internal planning docs (keep locally, exclude from OSS repo)
+docs/05-Plans/whateverops-prd.*
+docs/05-Plans/phase-*-plan.md
+docs/05-Plans/prd-gap-analysis-plan.md
+docs/05-Plans/oss-launch-review-prompts.md
+docs/05-Plans/phase-3.3-integration-fixes-plan.md
+docs/08-Feedback/
+docs/05-Plans/phase-4.1d-*
