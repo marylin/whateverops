@@ -5,6 +5,7 @@ import { apiError } from '../lib/api-error.js'
 export const INTEGRATION_ID = 'vercel' as const
 export const INTEGRATION_NAME = 'Vercel'
 export const DEFAULT_TTL = 60
+export const FETCH_TIMEOUT_MS = 20_000 // per-project deploy + domain fetches
 
 export const CONFIG_SCHEMA = z.object({
   apiKey: z.string().min(1, 'Vercel token required'),

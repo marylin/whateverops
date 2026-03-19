@@ -5,6 +5,7 @@ import { apiError } from '../lib/api-error.js'
 export const INTEGRATION_ID = 'supabase-management' as const
 export const INTEGRATION_NAME = 'Supabase'
 export const DEFAULT_TTL = 120
+export const FETCH_TIMEOUT_MS = 30_000 // multiple projects × health checks
 
 export const CONFIG_SCHEMA = z.object({
   apiKey: z.string().min(1, 'Supabase service key required'),
@@ -85,7 +86,7 @@ export interface PanelData {
 }
 
 async function sbFetch(url: string, headers: Record<string, string>): Promise<Response> {
-  return fetch(url, { headers, signal: AbortSignal.timeout(10_000) })
+  return fetch(url, { headers, signal: AbortSignal.timeout(15_000) })
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {

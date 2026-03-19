@@ -5,6 +5,7 @@ import { apiError } from '../lib/api-error.js'
 export const INTEGRATION_ID = 'github' as const
 export const INTEGRATION_NAME = 'GitHub'
 export const DEFAULT_TTL = 60
+export const FETCH_TIMEOUT_MS = 30_000 // multi-repo + issues + traffic + CI
 
 export const CONFIG_SCHEMA = z.object({
   apiKey: z.string().min(1, 'GitHub PAT required'),
