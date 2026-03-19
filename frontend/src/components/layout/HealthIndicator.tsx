@@ -11,7 +11,7 @@ interface HealthIndicatorProps {
 
 const healthLabels = {
   ok: 'All systems operational',
-  warn: 'Some services degraded',
+  warn: 'Needs attention',
   error: 'Service issues detected',
 }
 
@@ -64,7 +64,7 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
                       <span className="text-[10px] text-[#00D46A]">operational</span>
                     )}
                     {panel.status === 'warn' && (
-                      <span className="text-[10px] text-[#FFB800]">degraded</span>
+                      <span className="text-[10px] text-[#FFB800]">warning</span>
                     )}
                     {panel.status === 'error' && (
                       <span
