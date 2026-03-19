@@ -221,8 +221,9 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
     }
   }
 
-  // Supabase Management — supports SUPABASE_MANAGEMENT_KEY, SUPABASE_MANAGEMENT_KEY_2 … _5
-  const supabaseManagementKey = envOrSkip('SUPABASE_MANAGEMENT_KEY')
+  // Supabase Management — supports SUPABASE_MANAGEMENT_KEY or SUPABASE_ACCESS_TOKEN (fallback)
+  const supabaseManagementKey =
+    envOrSkip('SUPABASE_MANAGEMENT_KEY') ?? envOrSkip('SUPABASE_ACCESS_TOKEN')
   if (supabaseManagementKey) {
     integrations.push(
       runIntegration(supabaseManagement, {
