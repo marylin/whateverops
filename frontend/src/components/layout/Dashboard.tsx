@@ -107,7 +107,7 @@ const FOUNDER_GROUPS: Array<{
     id: 'users',
     label: 'Users',
     question: 'Are people using it?',
-    integrations: ['posthog', 'supabase-auth', 'github'],
+    integrations: ['posthog', 'supabase-auth'],
   },
   {
     id: 'costs',
@@ -119,7 +119,7 @@ const FOUNDER_GROUPS: Array<{
     id: 'attention',
     label: 'Attention',
     question: 'What needs my attention today?',
-    integrations: ['linear', 'resend'],
+    integrations: ['linear', 'github', 'resend'],
   },
 ]
 
