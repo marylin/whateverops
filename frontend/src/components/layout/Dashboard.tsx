@@ -8,30 +8,50 @@ import { StripePanel } from '../panels/StripePanel'
 import { SentryPanel } from '../panels/SentryPanel'
 import { VercelPanel } from '../panels/VercelPanel'
 import { RailwayPanel } from '../panels/RailwayPanel'
+import { GitHubPanel } from '../panels/GitHubPanel'
+import { AnthropicPanel } from '../panels/AnthropicPanel'
+import { OpenAIPanel } from '../panels/OpenAIPanel'
+import { NeonPanel } from '../panels/NeonPanel'
+import { LinearPanel } from '../panels/LinearPanel'
+import { CloudflarePanel } from '../panels/CloudflarePanel'
+import { ResendPanel } from '../panels/ResendPanel'
+import { PostHogPanel } from '../panels/PostHogPanel'
+import { SupabaseMgmtPanel } from '../panels/SupabaseMgmtPanel'
+import { SupabaseAuthPanel } from '../panels/SupabaseAuthPanel'
+import { SelfMonitoringPanel } from '../panels/SelfMonitoringPanel'
 import { DailyDigest } from './DailyDigest'
 import type { IntegrationResult } from '../../lib/api'
 
 /** Wide panels that span 2 columns on xl (3-col) desktop layout */
 const WIDE_PANELS = new Set(['stripe', 'github', 'sentry'])
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
+  stripe: StripePanel,
+  sentry: SentryPanel,
+  vercel: VercelPanel,
+  railway: RailwayPanel,
+  github: GitHubPanel,
+  anthropic: AnthropicPanel,
+  openai: OpenAIPanel,
+  neon: NeonPanel,
+  linear: LinearPanel,
+  cloudflare: CloudflarePanel,
+  resend: ResendPanel,
+  posthog: PostHogPanel,
+  'supabase-management': SupabaseMgmtPanel,
+  'supabase-auth': SupabaseAuthPanel,
+  'self-monitoring': SelfMonitoringPanel,
+}
+
 function renderPanelContent(panel: IntegrationResult) {
   if (!panel.data) return <p className="text-sm text-gray-500">No data</p>
 
   const baseId = panel.id.replace(/-\d+$/, '')
+  const PanelComponent = PANEL_MAP[baseId]
 
-  if (baseId === 'stripe') {
-    return <StripePanel data={panel.data as unknown as Parameters<typeof StripePanel>[0]['data']} />
-  }
-  if (baseId === 'sentry') {
-    return <SentryPanel data={panel.data as unknown as Parameters<typeof SentryPanel>[0]['data']} />
-  }
-  if (baseId === 'vercel') {
-    return <VercelPanel data={panel.data as unknown as Parameters<typeof VercelPanel>[0]['data']} />
-  }
-  if (baseId === 'railway') {
-    return (
-      <RailwayPanel data={panel.data as unknown as Parameters<typeof RailwayPanel>[0]['data']} />
-    )
+  if (PanelComponent) {
+    return <PanelComponent data={panel.data} />
   }
 
   return <GenericPanel data={panel.data as Record<string, unknown>} />
