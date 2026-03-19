@@ -8,7 +8,7 @@ export const DEFAULT_TTL = 60
 
 export const CONFIG_SCHEMA = z.object({
   apiKey: z.string().min(1, 'Linear API key required'),
-  teamId: z.string().min(1),
+  teamId: z.string().optional(),
 })
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
@@ -70,6 +70,16 @@ async function gql(apiKey: string, query: string, variables: Record<string, unkn
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  // Auto-detect team if not specified
+  let teamId = config.teamId
+  if (!teamId) {
+    const teamsData = (await gql(config.apiKey, `{ teams { nodes { id name } } }`)) as {
+      teams?: { nodes?: Array<{ id: string; name: string }> }
+    }
+    teamId = teamsData?.teams?.nodes?.[0]?.id
+    if (!teamId) throw new Error('No teams found in your Linear workspace')
+  }
+
   const today = new Date().toISOString().slice(0, 10)
   const query = `
     query TeamStats($teamId: String!, $today: TimelessDate!) {
@@ -102,7 +112,7 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     }
   `
 
-  const data = (await gql(config.apiKey, query, { teamId: config.teamId, today })) as {
+  const data = (await gql(config.apiKey, query, { teamId, today })) as {
     team?: {
       name?: string
       activeCycle?: {
@@ -194,7 +204,7 @@ export function parsePanel(raw: RawData): PanelData {
 }
 
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = quickHash(config.apiKey + config.teamId)
+  const hash = quickHash(config.apiKey + (config.teamId ?? 'auto'))
     .toString(36)
     .slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`
