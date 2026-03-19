@@ -9,7 +9,6 @@ import * as resend from '../integrations/resend.js'
 import * as anthropic from '../integrations/anthropic.js'
 import * as openai from '../integrations/openai.js'
 import * as cloudflare from '../integrations/cloudflare.js'
-import * as replit from '../integrations/replit.js'
 import * as supabaseManagement from '../integrations/supabase-management.js'
 import * as supabaseAuth from '../integrations/supabase-auth.js'
 import * as neon from '../integrations/neon.js'
@@ -218,17 +217,6 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
           zoneId: process.env[`CLOUDFLARE_ZONE_ID_${n}`] ?? '',
           accountId: process.env[`CLOUDFLARE_ACCOUNT_ID_${n}`] ?? '',
         }),
-      )
-    }
-  }
-
-  // Replit — supports REPLIT_API_KEY, REPLIT_API_KEY_2 … REPLIT_API_KEY_5
-  const replitKey = envOrSkip('REPLIT_API_KEY')
-  if (replitKey) {
-    integrations.push(runIntegration(replit, { apiKey: replitKey }))
-    for (const n of getExtraInstances('REPLIT_API_KEY')) {
-      integrations.push(
-        runIntegration(withInstance(replit, n), { apiKey: process.env[`REPLIT_API_KEY_${n}`]! }),
       )
     }
   }

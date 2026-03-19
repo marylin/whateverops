@@ -1,5 +1,7 @@
 import { Metric } from '../ui/Metric'
+import { ProgressBar } from '../ui/ProgressBar'
 import { ExternalLink } from '../ui/ExternalLink'
+import { formatDuration } from '../../lib/format'
 
 interface NeonPanelData {
   projectCount: number
@@ -19,60 +21,105 @@ interface NeonPanelData {
   totalBranches: number
   totalEndpoints: number
   allEndpointsActive: boolean
+  primaryEndpointStatus: string | null
+  storageUsedPct: number | null
 }
 
 export function NeonPanel({ data }: { data: NeonPanelData }) {
+  const epStatus = data.primaryEndpointStatus ?? 'unknown'
+  const isActive = epStatus === 'active' || epStatus === 'idle'
+  const hasError = data.projects.some(
+    (p) => p.endpointStatus === 'error' || p.endpointStatus === 'failed',
+  )
+  const storageHigh = data.storageUsedPct !== null && data.storageUsedPct > 80
+
+  // Aggregate compute hours across projects
+  const totalComputeSec = data.projects.reduce((sum, p) => sum + p.computeTimeSec, 0)
+  const totalStorageMB = data.projects.reduce((sum, p) => sum + p.storageMB, 0)
+
   return (
-    <div className="space-y-4">
-      {/* Hero: endpoint status */}
+    <div className="space-y-3">
+      {/* Hero: DB status badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {data.allEndpointsActive ? (
+          {hasError ? (
+            <>
+              <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
+              <span className="text-sm font-semibold text-[#FF4545]">Endpoint Error</span>
+            </>
+          ) : isActive ? (
             <>
               <div className="w-2.5 h-2.5 rounded-full bg-[#00D46A]" />
-              <span className="text-sm font-semibold text-white">All endpoints active</span>
+              <span className="text-sm font-semibold text-white">Active</span>
             </>
           ) : (
             <>
               <div className="w-2.5 h-2.5 rounded-full bg-[#FFB800]" />
-              <span className="text-sm font-semibold text-white">Some endpoints inactive</span>
+              <span className="text-sm font-semibold text-white">{epStatus}</span>
             </>
           )}
         </div>
-        <span className="text-xs text-gray-400">
+        <ExternalLink href="https://console.neon.tech" className="text-[10px] text-gray-600">
           {data.projectCount} project{data.projectCount !== 1 ? 's' : ''}
-        </span>
+        </ExternalLink>
       </div>
 
-      {/* Summary metrics */}
+      {/* Alert row */}
+      {(hasError || storageHigh) && (
+        <div className="flex flex-wrap gap-1.5">
+          {hasError && (
+            <span className="text-[10px] px-2 py-0.5 bg-[#FF454520] text-[#FF4545] rounded font-semibold">
+              Endpoint in error state
+            </span>
+          )}
+          {storageHigh && (
+            <span className="text-[10px] px-2 py-0.5 bg-[#FFB80020] text-[#FFB800] rounded font-semibold">
+              Storage &gt;80% ({data.storageUsedPct}%)
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Supporting metrics */}
       <div className="grid grid-cols-3 gap-3">
-        <Metric label="Branches" value={data.totalBranches} />
-        <Metric label="Endpoints" value={data.totalEndpoints} />
-        <Metric label="Projects" value={data.projectCount} />
+        <Metric
+          label="Storage"
+          value={totalStorageMB < 1 ? '< 1 MB' : `${Math.round(totalStorageMB)} MB`}
+        />
+        <Metric label="Compute" value={formatDuration(totalComputeSec)} />
+        <Metric
+          label="Endpoints"
+          value={data.totalEndpoints}
+          subValue={data.allEndpointsActive ? 'all active' : 'some inactive'}
+          trend={data.allEndpointsActive ? 'up' : 'down'}
+        />
       </div>
 
-      {/* Project list */}
-      {data.projects.length > 0 && (
+      {/* Storage bar if pct known */}
+      {data.storageUsedPct !== null && (
+        <ProgressBar
+          value={Math.min(data.storageUsedPct, 100)}
+          color={data.storageUsedPct > 80 ? 'red' : data.storageUsedPct > 60 ? 'yellow' : 'green'}
+          label="Storage usage (est.)"
+          size="sm"
+        />
+      )}
+
+      {/* Project list (de-emphasized) */}
+      {data.projects.length > 1 && (
         <div>
           <span className="text-xs text-gray-500 font-medium">Projects</span>
-          <div className="mt-1.5 space-y-1.5">
+          <div className="mt-1.5 space-y-1">
             {data.projects.slice(0, 5).map((proj) => (
               <div key={proj.name} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 min-w-0">
-                  <ExternalLink href="https://console.neon.tech" className="text-gray-300 truncate">
-                    {proj.name}
-                  </ExternalLink>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-[#1E1E2E] text-gray-500 rounded shrink-0">
-                    {proj.region}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 shrink-0 ml-2">
+                <ExternalLink href="https://console.neon.tech" className="text-gray-400 truncate">
+                  {proj.name}
+                </ExternalLink>
+                <div className="flex items-center gap-2 shrink-0 ml-2 text-gray-600">
+                  <span>{proj.endpointCount} ep</span>
                   {proj.storageMB > 0 && (
-                    <span className="text-gray-600">
-                      {proj.storageMB < 1 ? '< 1' : Math.round(proj.storageMB)} MB
-                    </span>
+                    <span>{proj.storageMB < 1 ? '< 1' : Math.round(proj.storageMB)} MB</span>
                   )}
-                  <span className="text-gray-600">PG {proj.pgVersion}</span>
                 </div>
               </div>
             ))}

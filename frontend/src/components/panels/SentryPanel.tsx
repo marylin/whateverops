@@ -6,6 +6,8 @@ import { timeAgo, smartNumber } from '../../lib/format'
 interface SentryPanelData {
   unresolvedCount: number
   events24h: number
+  newIssues24h: number
+  usersAffected24h: number
   latestIssues: Array<{
     id: string
     title: string
@@ -18,12 +20,8 @@ interface SentryPanelData {
   crashFreeRate: number | null
   errorTrend: Array<{ date: string; count: number }>
   errorTrendDirection: 'up' | 'down' | 'stable'
-}
-
-const TREND_LABELS: Record<string, string> = {
-  up: '\u2191 Increasing',
-  down: '\u2193 Decreasing',
-  stable: '\u2192 Stable',
+  latestRelease: { version: string; date: string } | null
+  issuesSinceRelease: number
 }
 
 const TREND_COLORS: Record<string, 'up' | 'down' | 'neutral'> = {
@@ -32,40 +30,95 @@ const TREND_COLORS: Record<string, 'up' | 'down' | 'neutral'> = {
   stable: 'neutral',
 }
 
+function crashFreeColor(rate: number | null): 'green' | 'yellow' | 'red' {
+  if (rate == null) return 'green'
+  if (rate >= 99.5) return 'green'
+  if (rate >= 99) return 'yellow'
+  return 'red'
+}
+
+function crashFreeBadgeClass(rate: number | null): string {
+  if (rate == null) return 'bg-[#1E1E2E] text-gray-400'
+  if (rate >= 99.5) return 'bg-[#00D46A20] text-[#00D46A]'
+  if (rate >= 99) return 'bg-[#FFB80020] text-[#FFB800]'
+  return 'bg-[#FF454520] text-[#FF4545]'
+}
+
 export function SentryPanel({ data }: { data: SentryPanelData }) {
-  const trendLabel = TREND_LABELS[data.errorTrendDirection] ?? '\u2192 Stable'
   const trendColor = TREND_COLORS[data.errorTrendDirection] ?? 'neutral'
+  const hasAlerts =
+    data.newIssues24h > 0 ||
+    (data.crashFreeRate !== null && data.crashFreeRate < 99) ||
+    data.errorTrendDirection === 'up'
 
   return (
     <div className="space-y-4">
-      {/* Hero: unresolved count + trend */}
+      {/* Hero: crash-free rate badge */}
       <div className="flex items-start justify-between">
         <div>
-          <p
-            className={`text-3xl font-bold ${data.unresolvedCount > 0 ? 'text-[#FF4545]' : 'text-white'}`}
+          <div
+            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xl font-bold ${crashFreeBadgeClass(data.crashFreeRate)}`}
           >
-            {data.unresolvedCount}
-          </p>
-          <p className="text-xs text-gray-500">Unresolved issues</p>
+            {data.crashFreeRate !== null ? `${data.crashFreeRate}%` : 'N/A'}
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Crash-free rate (24h)</p>
         </div>
-        <div className="text-right">
-          <Metric
-            label="Events (24h)"
-            value={smartNumber(data.events24h)}
-            subValue={trendLabel}
-            trend={trendColor}
-          />
-        </div>
+        {data.latestRelease && (
+          <div className="text-right">
+            <p className="text-xs text-gray-400 font-mono">
+              {data.latestRelease.version.slice(0, 12)}
+            </p>
+            <p className="text-[10px] text-gray-600">Latest release</p>
+          </div>
+        )}
       </div>
 
-      {/* Crash-free rate */}
       {data.crashFreeRate !== null && (
         <ProgressBar
           value={data.crashFreeRate}
-          color={data.crashFreeRate >= 99 ? 'green' : data.crashFreeRate >= 95 ? 'yellow' : 'red'}
-          label="Crash-free rate"
+          color={crashFreeColor(data.crashFreeRate)}
+          showValue={false}
         />
       )}
+
+      {/* Alert row */}
+      {hasAlerts && (
+        <div className="space-y-1">
+          {data.newIssues24h > 0 && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
+              <span className="text-xs text-[#FF4545]">
+                {data.newIssues24h} NEW error{data.newIssues24h !== 1 ? 's' : ''} since last deploy
+              </span>
+            </div>
+          )}
+          {data.crashFreeRate !== null && data.crashFreeRate < 99 && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
+              <span className="text-xs text-[#FF4545]">
+                Crash-free rate below 99% ({data.crashFreeRate}%)
+              </span>
+            </div>
+          )}
+          {data.errorTrendDirection === 'up' && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
+              <span className="text-xs text-[#FFB800]">Error trend is increasing</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Supporting metrics */}
+      <div className="grid grid-cols-3 gap-4">
+        <Metric
+          label="Users affected"
+          value={smartNumber(data.usersAffected24h)}
+          subValue="today"
+        />
+        <Metric label="Unresolved" value={data.unresolvedCount} trend={trendColor} />
+        <Metric label="Events (24h)" value={smartNumber(data.events24h)} />
+      </div>
 
       {/* Error trend mini chart */}
       {data.errorTrend.length > 1 && (
@@ -88,12 +141,12 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
         </div>
       )}
 
-      {/* Latest issues */}
+      {/* Latest issues (compact) */}
       {data.latestIssues.length > 0 && (
         <div>
           <span className="text-xs text-gray-500 font-medium">Latest Issues</span>
           <div className="mt-1.5 space-y-1.5">
-            {data.latestIssues.slice(0, 4).map((issue) => (
+            {data.latestIssues.slice(0, 3).map((issue) => (
               <div key={issue.id} className="text-xs">
                 <div className="flex items-center justify-between">
                   <ExternalLink
@@ -103,7 +156,12 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
                     {issue.title}
                   </ExternalLink>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-gray-600">{issue.count}×</span>
+                    {issue.userCount > 0 && (
+                      <span className="text-gray-600">
+                        {issue.userCount} user{issue.userCount !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                    <span className="text-gray-600">{issue.count}&times;</span>
                     {issue.level === 'error' && (
                       <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545]" />
                     )}
@@ -113,7 +171,7 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
                   </div>
                 </div>
                 <p className="text-gray-600 truncate">
-                  {issue.culprit} · {timeAgo(issue.lastSeen)}
+                  {issue.culprit} &middot; {timeAgo(issue.lastSeen)}
                 </p>
               </div>
             ))}

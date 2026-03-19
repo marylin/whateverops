@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 
-// Mock dashboard API response with all 15 integrations
+// Mock dashboard API response with all 14 external integrations
 const mockDashboardResponse = {
   panels: [
     {
@@ -94,16 +94,6 @@ const mockDashboardResponse = {
       ttl: 60,
     },
     {
-      id: 'replit',
-      name: 'Replit',
-      status: 'ok',
-      data: { repls: 12, languages: ['TypeScript', 'Python', 'Go'] },
-      error: null,
-      cached: true,
-      lastUpdated: new Date().toISOString(),
-      ttl: 600,
-    },
-    {
       id: 'supabase-management',
       name: 'Supabase',
       status: 'ok',
@@ -175,8 +165,8 @@ const mockDashboardResponse = {
   ],
   globalHealth: 'warn' as const,
   lastRefresh: new Date().toISOString(),
-  configured: 15,
-  total: 15,
+  configured: 14,
+  total: 14,
 }
 
 async function mockDashboardAPI(page: Page) {
@@ -190,16 +180,16 @@ async function mockDashboardAPI(page: Page) {
 }
 
 test.describe('Dashboard', () => {
-  test('loads and displays all 15 integration panels', async ({ page }) => {
+  test('loads and displays all 14 integration panels', async ({ page }) => {
     await mockDashboardAPI(page)
     await page.goto('/')
 
     // Wait for panels to render
     await expect(page.getByText('GitHub')).toBeVisible({ timeout: 10000 })
 
-    // Each panel card has an h3 title — count those to verify all 15 rendered
+    // Each panel card has an h3 title — count those to verify all 14 rendered
     const panelTitles = page.locator('main h3')
-    await expect(panelTitles).toHaveCount(15, { timeout: 10000 })
+    await expect(panelTitles).toHaveCount(14, { timeout: 10000 })
   })
 
   test('displays panel titles for all integrations', async ({ page }) => {
@@ -217,7 +207,6 @@ test.describe('Dashboard', () => {
       'Anthropic',
       'OpenAI',
       'Cloudflare',
-      'Replit',
       'Supabase',
       'Supabase Auth',
       'Neon',
@@ -239,7 +228,7 @@ test.describe('Dashboard', () => {
     await expect(header).toBeVisible({ timeout: 10000 })
 
     // Should show configured count
-    await expect(page.getByText('15 of 15')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('14 of 14')).toBeVisible({ timeout: 10000 })
   })
 
   test('shows loading skeletons then content', async ({ page }) => {
@@ -329,7 +318,7 @@ test.describe('Dashboard', () => {
           globalHealth: 'ok',
           lastRefresh: new Date().toISOString(),
           configured: 0,
-          total: 15,
+          total: 14,
         }),
       })
     })

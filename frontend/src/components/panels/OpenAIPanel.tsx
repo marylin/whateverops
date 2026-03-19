@@ -1,7 +1,6 @@
 import { Metric } from '../ui/Metric'
 import { ProgressBar } from '../ui/ProgressBar'
-import { ExternalLink } from '../ui/ExternalLink'
-import { smartNumber, formatCurrency } from '../../lib/format'
+import { formatCurrency } from '../../lib/format'
 
 interface OpenAIPanelData {
   keyValid: boolean
@@ -25,110 +24,112 @@ interface OpenAIPanelData {
     }>
     hasData: boolean
   }
+  projectedMonthlySpend: number
+  costTrendPct: number | null
+  highestCostModel: string | null
 }
 
 export function OpenAIPanel({ data }: { data: OpenAIPanelData }) {
   const rl = data.rateLimits
-  const hasTokenLimits = rl.tokensUsedPct !== null
-  const hasRequestLimits = rl.requestsUsedPct !== null
   const usage = data.usage
   const hasUsage = usage?.hasData && (usage.totalCost30d > 0 || usage.modelUsage.length > 0)
+  const trendPct = data.costTrendPct
+  const trendUp = trendPct !== null && trendPct > 0
+  const trendDown = trendPct !== null && trendPct < 0
+  const rateLimitPct = rl.tokensUsedPct ?? rl.requestsUsedPct ?? null
+  const projectedSpend = data.projectedMonthlySpend ?? 0
+
+  // Alert conditions
+  const projectedHigh = projectedSpend > 2 * usage.totalCost30d && usage.totalCost30d > 0
+  const rateLimitCritical = rateLimitPct !== null && rateLimitPct > 90
+
+  if (!data.keyValid) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
+          <span className="text-sm font-semibold text-[#FF4545]">Invalid API key</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-4">
-      {/* Hero: key status + model count */}
+    <div className="space-y-3">
+      {/* Hero: cost this month with trend arrow */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {data.keyValid ? (
-            <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#00D46A]" />
-              <span className="text-sm font-semibold text-white">API key active</span>
-            </>
-          ) : (
-            <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
-              <span className="text-sm font-semibold text-[#FF4545]">Invalid API key</span>
-            </>
-          )}
-        </div>
-        <ExternalLink href="https://platform.openai.com" className="text-xs text-gray-400">
-          {data.modelCount} models
-        </ExternalLink>
-      </div>
-
-      {/* Usage & Cost section */}
-      {hasUsage && (
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-gray-500 font-medium">Usage (30d)</span>
-            <span className="text-sm font-semibold text-white">
-              {formatCurrency(usage.totalCost30d)}
-            </span>
-          </div>
-
-          {/* Daily cost sparkline */}
-          {usage.dailyCosts.length > 1 && (
-            <div className="flex items-end gap-0.5 h-6 mb-2">
-              {usage.dailyCosts.slice(-14).map((day, i) => {
-                const max = Math.max(...usage.dailyCosts.slice(-14).map((d) => d.cost), 0.01)
-                const height = Math.max((day.cost / max) * 100, 4)
-                return (
-                  <div
-                    key={i}
-                    className="flex-1 bg-[#10A37F60] rounded-sm"
-                    style={{ height: `${height}%` }}
-                    title={`${day.date}: ${formatCurrency(day.cost)}`}
-                  />
-                )
-              })}
+          <p className="text-2xl font-bold text-white">{formatCurrency(usage.totalCost30d)}</p>
+          <p className="text-xs text-gray-500">This month</p>
+        </div>
+        <div className="text-right">
+          {trendPct !== null && (
+            <div className="flex items-center gap-1 justify-end">
+              <span
+                className={`text-sm font-semibold ${trendDown ? 'text-[#00D46A]' : trendUp ? 'text-[#FF4545]' : 'text-gray-400'}`}
+              >
+                {trendDown ? '\u2193' : trendUp ? '\u2191' : '\u2192'} {Math.abs(trendPct)}%
+              </span>
             </div>
           )}
+          <p className="text-[10px] text-gray-600">vs last week</p>
+        </div>
+      </div>
 
-          {/* Model breakdown */}
-          {usage.modelUsage.length > 0 && (
-            <div className="space-y-1">
-              {usage.modelUsage.slice(0, 4).map((m) => (
-                <div key={m.model} className="flex items-center justify-between text-xs">
-                  <span className="text-gray-400 truncate max-w-[50%]">{m.model}</span>
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <span>{smartNumber(m.inputTokens)} in</span>
-                    <span>{smartNumber(m.outputTokens)} out</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Alert row */}
+      {(projectedHigh || rateLimitCritical) && (
+        <div className="flex flex-wrap gap-1.5">
+          {projectedHigh && (
+            <span className="text-[10px] px-2 py-0.5 bg-[#FFB80020] text-[#FFB800] rounded font-semibold">
+              Projected spend {formatCurrency(projectedSpend)}
+            </span>
+          )}
+          {rateLimitCritical && (
+            <span className="text-[10px] px-2 py-0.5 bg-[#FF454520] text-[#FF4545] rounded font-semibold">
+              Rate limit &gt;90%
+            </span>
           )}
         </div>
       )}
 
-      {/* Rate limits as progress bars */}
-      {hasTokenLimits && (
-        <ProgressBar
-          value={rl.tokensUsedPct!}
-          color={rl.tokensUsedPct! >= 90 ? 'red' : rl.tokensUsedPct! >= 70 ? 'yellow' : 'blue'}
-          label="Token usage"
-          size="md"
-        />
+      {/* Daily cost sparkline */}
+      {hasUsage && usage.dailyCosts.length > 1 && (
+        <div className="flex items-end gap-0.5 h-6">
+          {usage.dailyCosts.slice(-14).map((day, i) => {
+            const max = Math.max(...usage.dailyCosts.slice(-14).map((d) => d.cost), 0.01)
+            const height = Math.max((day.cost / max) * 100, 4)
+            return (
+              <div
+                key={i}
+                className="flex-1 bg-[#10A37F60] rounded-sm"
+                style={{ height: `${height}%` }}
+                title={`${day.date}: ${formatCurrency(day.cost)}`}
+              />
+            )
+          })}
+        </div>
       )}
 
-      {hasRequestLimits && (
-        <ProgressBar
-          value={rl.requestsUsedPct!}
-          color={rl.requestsUsedPct! >= 90 ? 'red' : rl.requestsUsedPct! >= 70 ? 'yellow' : 'blue'}
-          label="Request usage"
-          size="md"
+      {/* Supporting metrics */}
+      <div className="grid grid-cols-3 gap-3">
+        <Metric label="Projected" value={formatCurrency(projectedSpend)} />
+        <Metric label="Top Model" value={data.highestCostModel ?? 'N/A'} />
+        <Metric
+          label="Rate Limit"
+          value={rateLimitPct !== null ? `${rateLimitPct}%` : 'N/A'}
+          trend={rateLimitCritical ? 'down' : undefined}
         />
-      )}
-
-      {/* Remaining details */}
-      <div className="grid grid-cols-2 gap-3">
-        {rl.tokensRemaining !== null && (
-          <Metric label="Tokens Remaining" value={rl.tokensRemaining.toLocaleString()} />
-        )}
-        {rl.requestsRemaining !== null && (
-          <Metric label="Requests Remaining" value={rl.requestsRemaining.toLocaleString()} />
-        )}
       </div>
+
+      {/* Rate limit bar */}
+      {rl.tokensUsedPct !== null && (
+        <ProgressBar
+          value={rl.tokensUsedPct}
+          color={rl.tokensUsedPct >= 90 ? 'red' : rl.tokensUsedPct >= 70 ? 'yellow' : 'blue'}
+          label="Token usage"
+          size="sm"
+        />
+      )}
     </div>
   )
 }

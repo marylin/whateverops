@@ -65,8 +65,12 @@ export interface PanelData {
     restartCount: number
     upSince: string | null
     healthy: boolean
+    restartLooping: boolean
   }>
   allServicesHealthy: boolean
+  unhealthyServiceCount: number
+  longestUptime: string | null
+  deployInProgress: boolean
 }
 
 async function gql(apiKey: string, query: string, variables: Record<string, unknown> = {}) {
@@ -224,6 +228,15 @@ export function parsePanel(raw: RawData): PanelData {
 
   const services = (raw.serviceInstances ?? []).map((si) => {
     const healthy = si.latestDeployStatus === 'SUCCESS' && si.restartCount < 5 && si.numReplicas > 0
+
+    // Restart looping: restartCount > 3 AND upSince < 1 hour ago
+    let restartLooping = false
+    if (si.restartCount > 3 && si.upSince) {
+      const upSinceMs = new Date(si.upSince).getTime()
+      const oneHourAgo = Date.now() - 60 * 60 * 1000
+      restartLooping = upSinceMs > oneHourAgo
+    }
+
     return {
       name: si.serviceName,
       project: si.projectName,
@@ -233,8 +246,31 @@ export function parsePanel(raw: RawData): PanelData {
       restartCount: si.restartCount,
       upSince: si.upSince,
       healthy,
+      restartLooping,
     }
   })
+
+  const unhealthyServiceCount = services.filter((s) => !s.healthy).length
+
+  // Longest uptime across all services
+  let longestUptime: string | null = null
+  const uptimes = services
+    .filter((s) => s.upSince)
+    .map((s) => Date.now() - new Date(s.upSince!).getTime())
+    .filter((ms) => ms > 0)
+  if (uptimes.length > 0) {
+    const maxMs = Math.max(...uptimes)
+    const days = Math.floor(maxMs / 86400000)
+    const hours = Math.floor((maxMs % 86400000) / 3600000)
+    if (days > 0) longestUptime = `${days}d ${hours}h`
+    else if (hours > 0) longestUptime = `${hours}h`
+    else longestUptime = `${Math.floor(maxMs / 60000)}m`
+  }
+
+  // Check if any deploy is in progress
+  const deployInProgress = deploys.some(
+    (d) => d.status === 'BUILDING' || d.status === 'DEPLOYING' || d.status === 'INITIALIZING',
+  )
 
   return {
     projectCount: projects.length,
@@ -244,6 +280,9 @@ export function parsePanel(raw: RawData): PanelData {
     activeServices: serviceCount,
     services,
     allServicesHealthy: services.length === 0 || services.every((s) => s.healthy),
+    unhealthyServiceCount,
+    longestUptime,
+    deployInProgress,
   }
 }
 

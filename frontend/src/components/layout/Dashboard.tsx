@@ -5,6 +5,10 @@ import { PanelCard } from '../ui/PanelCard'
 import { ErrorBoundary } from '../ui/ErrorBoundary'
 import { GenericPanel } from '../panels/GenericPanel'
 import { StripePanel } from '../panels/StripePanel'
+import { SentryPanel } from '../panels/SentryPanel'
+import { VercelPanel } from '../panels/VercelPanel'
+import { RailwayPanel } from '../panels/RailwayPanel'
+import { DailyDigest } from './DailyDigest'
 import type { IntegrationResult } from '../../lib/api'
 
 /** Wide panels that span 2 columns on xl (3-col) desktop layout */
@@ -13,8 +17,21 @@ const WIDE_PANELS = new Set(['stripe', 'github', 'sentry'])
 function renderPanelContent(panel: IntegrationResult) {
   if (!panel.data) return <p className="text-sm text-gray-500">No data</p>
 
-  if (panel.id === 'stripe') {
+  const baseId = panel.id.replace(/-\d+$/, '')
+
+  if (baseId === 'stripe') {
     return <StripePanel data={panel.data as unknown as Parameters<typeof StripePanel>[0]['data']} />
+  }
+  if (baseId === 'sentry') {
+    return <SentryPanel data={panel.data as unknown as Parameters<typeof SentryPanel>[0]['data']} />
+  }
+  if (baseId === 'vercel') {
+    return <VercelPanel data={panel.data as unknown as Parameters<typeof VercelPanel>[0]['data']} />
+  }
+  if (baseId === 'railway') {
+    return (
+      <RailwayPanel data={panel.data as unknown as Parameters<typeof RailwayPanel>[0]['data']} />
+    )
   }
 
   return <GenericPanel data={panel.data as Record<string, unknown>} />
@@ -65,6 +82,8 @@ export function Dashboard() {
             </p>
           </div>
         )}
+
+        {data && data.panels.length > 0 && <DailyDigest panels={data.panels} />}
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {loading && !data && <LoadingSkeleton />}

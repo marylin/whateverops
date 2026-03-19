@@ -135,6 +135,9 @@ export interface PanelData {
   language: string | null
   lastPush: string
   repoUrl: string
+  externalPRs: number
+  staleIssuesCount: number
+  starsTrend: number
   issues: Array<{
     number: number
     title: string
@@ -539,6 +542,22 @@ export function parsePanel(raw: RawData): PanelData {
     }
   })
 
+  // Compute externalPRs: PRs where user !== repo owner
+  const owner = raw.primaryRepo?.split('/')[0] ?? ''
+  const allOpenPRs =
+    (raw.repoActivities ?? []).find((ra) => ra.fullName === raw.primaryRepo)?.openPRs ?? []
+  const externalPRs = allOpenPRs.filter((pr) => pr.user !== owner).length
+
+  // Compute staleIssuesCount: open issues with no activity >30 days
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000
+  const staleIssuesCount = (raw.issues ?? []).filter((i) => {
+    const updated = new Date(i.updated_at).getTime()
+    return !isNaN(updated) && updated < thirtyDaysAgo
+  }).length
+
+  // starsTrend: placeholder (GitHub API lacks weekly star history)
+  const starsTrend = 0
+
   // Map issues for panel
   const issuesList = (raw.issues ?? []).map((i) => ({
     number: i.number,
@@ -555,6 +574,9 @@ export function parsePanel(raw: RawData): PanelData {
     stars: raw.repo?.stargazers_count ?? 0,
     openIssues: raw.repo?.open_issues_count ?? 0,
     openPRs: raw.pullRequests?.total_count ?? 0,
+    externalPRs,
+    staleIssuesCount,
+    starsTrend,
     issues: issuesList,
     forks: raw.repo?.forks_count ?? 0,
     watchers: raw.repo?.watchers_count ?? 0,

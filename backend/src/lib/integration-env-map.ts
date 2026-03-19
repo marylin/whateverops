@@ -42,9 +42,6 @@ export const INTEGRATION_ENV_MAP: Record<string, Record<string, string>> = {
     zoneId: 'CLOUDFLARE_ZONE_ID',
     accountId: 'CLOUDFLARE_ACCOUNT_ID',
   },
-  replit: {
-    apiKey: 'REPLIT_API_KEY',
-  },
   'supabase-management': {
     apiKey: 'SUPABASE_MANAGEMENT_KEY',
     projectRef: 'SUPABASE_PROJECT_REF',
@@ -82,7 +79,6 @@ export const INTEGRATION_NAMES: Record<string, string> = {
   anthropic: 'Anthropic',
   openai: 'OpenAI',
   cloudflare: 'Cloudflare',
-  replit: 'Replit',
   'supabase-management': 'Supabase',
   'supabase-auth': 'Supabase Auth',
   neon: 'Neon',

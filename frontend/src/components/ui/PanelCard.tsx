@@ -29,7 +29,6 @@ const STATUS_PAGES: Record<string, string> = {
   resend: 'https://resend-status.com',
   linear: 'https://linearstatus.com',
   anthropic: 'https://status.anthropic.com',
-  replit: 'https://status.replit.com',
 }
 
 function getStatusPage(title: string): string | undefined {

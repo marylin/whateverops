@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Metric } from '../ui/Metric'
 import { MiniBar } from '../ui/MiniBar'
 import { ExternalLink } from '../ui/ExternalLink'
@@ -8,6 +9,9 @@ interface SupabaseAuthPanelData {
   recentSignups: number
   activeRecently: number
   providerBreakdown: Record<string, number>
+  signupsTrend: 'up' | 'down' | 'flat'
+  dauPct: number
+  daysSinceLastSignup: number | null
 }
 
 const PROVIDER_COLORS: Record<string, string> = {
@@ -21,6 +25,8 @@ const PROVIDER_COLORS: Record<string, string> = {
 }
 
 export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
+  const [showProviders, setShowProviders] = useState(false)
+
   const providers = Object.entries(data.providerBreakdown)
   const providerSegments = providers.map(([name, count]) => ({
     value: count,
@@ -29,6 +35,12 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
   }))
 
   const hasUsers = data.totalUsers > 0
+  const signupBadgeColor =
+    data.signupsTrend === 'up'
+      ? 'bg-[#00D46A20] text-[#00D46A]'
+      : data.signupsTrend === 'down'
+        ? 'bg-[#FF454520] text-[#FF4545]'
+        : 'bg-[#1E1E2E] text-gray-400'
 
   return (
     <div className="space-y-4">
@@ -37,30 +49,83 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
           View in Supabase
         </ExternalLink>
       </div>
-      {/* Hero: total users */}
+
+      {/* Hero: total users with weekly signup badge */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-2xl font-bold text-white">{smartNumber(data.totalUsers)}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-2xl font-bold text-white">{smartNumber(data.totalUsers)}</p>
+            {data.recentSignups > 0 && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${signupBadgeColor}`}>
+                +{data.recentSignups} this week
+              </span>
+            )}
+          </div>
           <p className="text-xs text-gray-500">Total users</p>
         </div>
-        {hasUsers && (
-          <div className="grid grid-cols-2 gap-3">
-            <Metric label="Signups (7d)" value={data.recentSignups} />
-            <Metric label="Active (24h)" value={data.activeRecently} />
-          </div>
-        )}
       </div>
+
+      {/* Alert row */}
+      {data.daysSinceLastSignup !== null && data.daysSinceLastSignup > 3 && (
+        <div className="flex items-center gap-2 text-xs bg-[#FFB80010] border border-[#FFB80015] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#FFB800] shrink-0" />
+          <span className="text-[#FFB800]">
+            No new signups in {data.daysSinceLastSignup} day
+            {data.daysSinceLastSignup !== 1 ? 's' : ''}
+          </span>
+        </div>
+      )}
+      {hasUsers && data.dauPct < 5 && (
+        <div className="flex items-center gap-2 text-xs bg-[#FFB80010] border border-[#FFB80015] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#FFB800] shrink-0" />
+          <span className="text-[#FFB800]">DAU at {data.dauPct}% — low daily engagement</span>
+        </div>
+      )}
 
       {/* Empty state */}
       {!hasUsers && (
         <p className="text-xs text-gray-500">No users yet — auth is configured and ready</p>
       )}
 
-      {/* Provider breakdown */}
+      {/* Supporting: Active today | Signups this week (with trend) | DAU % */}
+      {hasUsers && (
+        <div className="grid grid-cols-3 gap-3">
+          <Metric label="Active (24h)" value={data.activeRecently} />
+          <Metric
+            label="Signups (7d)"
+            value={data.recentSignups}
+            subValue={
+              data.signupsTrend === 'up'
+                ? 'Trending up'
+                : data.signupsTrend === 'down'
+                  ? 'Trending down'
+                  : undefined
+            }
+            trend={
+              data.signupsTrend === 'up' ? 'up' : data.signupsTrend === 'down' ? 'down' : undefined
+            }
+          />
+          <Metric label="DAU %" value={`${data.dauPct}%`} />
+        </div>
+      )}
+
+      {/* De-emphasized: provider breakdown (expandable) */}
       {providerSegments.length > 0 && providerSegments.some((s) => s.value > 0) && (
-        <div>
-          <span className="text-xs text-gray-500 font-medium mb-1.5 block">Auth Providers</span>
-          <MiniBar segments={providerSegments} height={8} />
+        <div className="pt-1 border-t border-[#1E1E2E]">
+          <button
+            onClick={() => setShowProviders(!showProviders)}
+            className="flex items-center gap-1.5 text-[10px] text-gray-600 hover:text-gray-400 transition-colors"
+          >
+            <span className={`transition-transform ${showProviders ? 'rotate-90' : ''}`}>
+              &#9658;
+            </span>
+            Auth providers ({providers.length})
+          </button>
+          {showProviders && (
+            <div className="mt-1.5">
+              <MiniBar segments={providerSegments} height={8} />
+            </div>
+          )}
         </div>
       )}
     </div>

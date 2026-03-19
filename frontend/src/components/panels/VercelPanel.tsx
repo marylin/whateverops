@@ -1,4 +1,3 @@
-import { ProgressBar } from '../ui/ProgressBar'
 import { StatusBadge } from '../ui/StatusBadge'
 import { ExternalLink } from '../ui/ExternalLink'
 import { timeAgo, formatDuration } from '../../lib/format'
@@ -28,45 +27,122 @@ interface VercelPanelData {
     misconfigured: boolean
   }>
   domainHealthy: boolean
+  lastProductionDeploy: {
+    id: string
+    project: string
+    status: string
+    created: string
+    url: string | null
+    commitMessage: string | null
+    buildDurationSec: number | null
+    errorMessage: string | null
+  } | null
+  timeSinceLastDeploy: string | null
+}
+
+function deployStatusBadgeClass(status: string): string {
+  const s = status.toUpperCase()
+  if (s === 'READY') return 'bg-[#00D46A20] text-[#00D46A]'
+  if (s === 'ERROR') return 'bg-[#FF454520] text-[#FF4545]'
+  if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#FFB80020] text-[#FFB800]'
+  return 'bg-[#1E1E2E] text-gray-400'
 }
 
 export function VercelPanel({ data }: { data: VercelPanelData }) {
+  const prodDeploy = data.lastProductionDeploy
+  const hasMisconfiguredDomain = data.domains.some((d) => d.misconfigured)
+  const hasAlerts = (prodDeploy && prodDeploy.status === 'ERROR') || hasMisconfiguredDomain
+
   return (
     <div className="space-y-4">
-      {/* Hero: deploy success rate */}
-      <div className="flex items-center justify-between">
+      {/* Hero: last production deploy status */}
+      <div className="flex items-start justify-between">
         <div>
-          <p className="text-2xl font-bold text-white">{Math.round(data.successRate)}%</p>
-          <p className="text-xs text-gray-500">Deploy success rate</p>
+          {prodDeploy ? (
+            <>
+              <div
+                className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xl font-bold ${deployStatusBadgeClass(prodDeploy.status)}`}
+              >
+                {prodDeploy.status}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Production &middot; {timeAgo(prodDeploy.created)}
+              </p>
+            </>
+          ) : data.recentDeploys.length > 0 ? (
+            <>
+              <div
+                className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xl font-bold ${deployStatusBadgeClass(data.recentDeploys[0]!.status)}`}
+              >
+                {data.recentDeploys[0]!.status}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Latest deploy &middot; {timeAgo(data.recentDeploys[0]!.created)}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-gray-500">No deploys</p>
+          )}
         </div>
         <div className="text-right">
-          <ExternalLink href="https://vercel.com/dashboard" className="text-sm text-white">
-            {data.projectCount} project{data.projectCount !== 1 ? 's' : ''}
-          </ExternalLink>
-          {data.lastDeployTime && (
-            <p className="text-xs text-gray-500">Last deploy {timeAgo(data.lastDeployTime)}</p>
+          {data.timeSinceLastDeploy && (
+            <p className="text-xs text-gray-500">{data.timeSinceLastDeploy}</p>
           )}
         </div>
       </div>
 
-      <ProgressBar
-        value={data.successRate}
-        color={data.successRate >= 90 ? 'green' : data.successRate >= 70 ? 'yellow' : 'red'}
-        showValue={false}
-      />
+      {/* Alert row */}
+      {hasAlerts && (
+        <div className="space-y-1">
+          {prodDeploy && prodDeploy.status === 'ERROR' && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
+              <span className="text-xs text-[#FF4545] truncate">
+                Deploy failed{prodDeploy.errorMessage ? `: ${prodDeploy.errorMessage}` : ''}
+              </span>
+            </div>
+          )}
+          {hasMisconfiguredDomain && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
+              <span className="text-xs text-[#FFB800]">
+                {data.domains.filter((d) => d.misconfigured).length} domain
+                {data.domains.filter((d) => d.misconfigured).length !== 1 ? 's' : ''} misconfigured
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Recent deploys */}
+      {/* Supporting: commit message, build time, project name */}
+      {prodDeploy && (
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-gray-400 truncate max-w-[60%]">
+            {prodDeploy.commitMessage
+              ? prodDeploy.commitMessage.split('\n')[0]?.slice(0, 50)
+              : prodDeploy.project}
+          </span>
+          <div className="flex items-center gap-3 shrink-0 text-gray-600">
+            {prodDeploy.buildDurationSec !== null && (
+              <span>{formatDuration(prodDeploy.buildDurationSec)}</span>
+            )}
+            <span>{prodDeploy.project}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Recent deploys (max 3) */}
       {data.recentDeploys.length > 0 && (
         <div>
           <span className="text-xs text-gray-500 font-medium">Recent Deploys</span>
           <div className="mt-1.5 space-y-1.5">
-            {data.recentDeploys.slice(0, 4).map((deploy) => (
+            {data.recentDeploys.slice(0, 3).map((deploy) => (
               <div key={deploy.id} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 min-w-0">
                   <StatusBadge status={deploy.status} />
                   <span className="text-gray-400 truncate">
                     {deploy.url ? (
-                      <ExternalLink href={`https://${deploy.url}`} className="text-gray-400">
+                      <ExternalLink href={deploy.url} className="text-gray-400">
                         {deploy.project}
                       </ExternalLink>
                     ) : (
@@ -75,44 +151,19 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
                     {deploy.commitMessage && (
                       <span className="text-gray-600">
                         {' '}
-                        — {deploy.commitMessage.split('\n')[0]?.slice(0, 30)}
+                        &mdash; {deploy.commitMessage.split('\n')[0]?.slice(0, 30)}
                       </span>
                     )}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
+                  {deploy.target && (
+                    <span className="text-[10px] text-gray-600">{deploy.target}</span>
+                  )}
                   {deploy.buildDurationSec !== null && (
                     <span className="text-gray-600">{formatDuration(deploy.buildDurationSec)}</span>
                   )}
                   <span className="text-gray-600">{timeAgo(deploy.created)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Domains */}
-      {data.domains.length > 0 && (
-        <div>
-          <span className="text-xs text-gray-500 font-medium">Domains</span>
-          <div className="mt-1.5 space-y-1">
-            {data.domains.slice(0, 4).map((domain) => (
-              <div key={domain.name} className="flex items-center justify-between text-xs">
-                <ExternalLink href={`https://${domain.name}`} className="text-gray-400">
-                  {domain.name}
-                </ExternalLink>
-                <div className="flex items-center gap-1.5">
-                  {domain.healthy ? (
-                    <span className="text-[#00D46A]">✓</span>
-                  ) : (
-                    <span className="text-[#FF4545]">✗</span>
-                  )}
-                  {domain.sslReady ? (
-                    <span className="text-[10px] text-gray-600">SSL</span>
-                  ) : (
-                    <span className="text-[10px] text-[#FFB800]">No SSL</span>
-                  )}
                 </div>
               </div>
             ))}

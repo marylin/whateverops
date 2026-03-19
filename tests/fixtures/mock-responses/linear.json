@@ -3,27 +3,45 @@
     "openIssues": 8,
     "inProgressIssues": 3,
     "completedThisCycle": 12,
+    "cycleTotalIssues": 20,
     "backlogCount": 15,
     "teamName": "Engineering",
     "activeCycleName": "Sprint 5",
-    "activeCycleProgress": 0.6
+    "activeCycleProgress": 60,
+    "cycleStartsAt": "2026-03-10T00:00:00.000Z",
+    "cycleEndsAt": "2026-03-24T00:00:00.000Z",
+    "topPriorityIssueTitle": "Fix auth token refresh",
+    "overdueCount": 1,
+    "blockedCount": 0
   },
   "error": {
     "openIssues": null,
     "inProgressIssues": null,
     "completedThisCycle": 0,
+    "cycleTotalIssues": 0,
     "backlogCount": 0,
     "teamName": "Unknown",
     "activeCycleName": null,
-    "activeCycleProgress": null
+    "activeCycleProgress": null,
+    "cycleStartsAt": null,
+    "cycleEndsAt": null,
+    "topPriorityIssueTitle": null,
+    "overdueCount": 0,
+    "blockedCount": 0
   },
   "empty": {
     "openIssues": 0,
     "inProgressIssues": 0,
     "completedThisCycle": 0,
+    "cycleTotalIssues": 0,
     "backlogCount": 0,
     "teamName": "Engineering",
     "activeCycleName": null,
-    "activeCycleProgress": null
+    "activeCycleProgress": null,
+    "cycleStartsAt": null,
+    "cycleEndsAt": null,
+    "topPriorityIssueTitle": null,
+    "overdueCount": 0,
+    "blockedCount": 0
   }
 }

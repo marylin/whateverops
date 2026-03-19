@@ -70,6 +70,8 @@ export interface PanelData {
   totalBranches: number
   totalEndpoints: number
   allEndpointsActive: boolean
+  primaryEndpointStatus: string | null
+  storageUsedPct: number | null
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
@@ -230,12 +232,22 @@ export function parsePanel(raw: RawData): PanelData {
     }
   })
 
+  // Compute primaryEndpointStatus from first project
+  const firstProject = parsedProjects[0]
+  const primaryEndpointStatus = firstProject?.endpointStatus ?? null
+
+  // storageUsedPct: estimate against Neon free tier ~512 MB
+  const totalStorageMB = parsedProjects.reduce((sum, p) => sum + p.storageMB, 0)
+  const storageUsedPct = totalStorageMB > 0 ? Math.round((totalStorageMB / 512) * 100) : null
+
   return {
     projectCount: projects.length,
     projects: parsedProjects,
     totalBranches,
     totalEndpoints,
     allEndpointsActive: totalEndpoints === 0 || allEndpointsActive,
+    primaryEndpointStatus,
+    storageUsedPct,
   }
 }
 

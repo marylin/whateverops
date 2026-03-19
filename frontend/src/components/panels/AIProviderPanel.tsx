@@ -25,23 +25,13 @@ export function AIProviderPanel({ data }: { data: AIProviderData }) {
 
   return (
     <div className="space-y-4">
-      {/* Hero: key status + model count */}
-      <div className="flex items-center justify-between">
+      {/* Hero: rate limit status */}
+      {!data.keyValid && (
         <div className="flex items-center gap-2">
-          {data.keyValid ? (
-            <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#00D46A]" />
-              <span className="text-sm font-semibold text-white">API key active</span>
-            </>
-          ) : (
-            <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
-              <span className="text-sm font-semibold text-[#FF4545]">Invalid API key</span>
-            </>
-          )}
+          <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
+          <span className="text-sm font-semibold text-[#FF4545]">Invalid API key</span>
         </div>
-        <span className="text-xs text-gray-400">{data.modelCount} models</span>
-      </div>
+      )}
 
       {/* Rate limits as progress bars */}
       {hasTokenLimits && (

@@ -72,6 +72,9 @@ export interface PanelData {
     }>
     hasAdminKey: boolean
   }
+  projectedMonthlySpend: number
+  costTrendPct: number | null
+  highestCostModel: string | null
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
@@ -218,6 +221,40 @@ export function parsePanel(raw: RawData): PanelData {
       : null
 
   const usageData = raw.usage
+  const dailyCosts = (usageData?.dailyCosts ?? []).map((c) => ({
+    date: c.date,
+    cost: c.costUsd,
+  }))
+
+  // Compute projected monthly spend
+  const now = new Date()
+  const dayOfMonth = now.getDate()
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  const totalCost = usageData?.totalCost30d ?? 0
+  const dailyAvg = dayOfMonth > 0 ? totalCost / Math.min(dayOfMonth, 30) : 0
+  const daysRemaining = daysInMonth - dayOfMonth
+  const projectedMonthlySpend = totalCost + dailyAvg * daysRemaining
+
+  // Compute cost trend pct
+  let costTrendPct: number | null = null
+  if (dailyCosts.length >= 7) {
+    const thisWeek = dailyCosts.slice(-7).reduce((sum, d) => sum + d.cost, 0)
+    const lastWeek = dailyCosts.slice(-14, -7).reduce((sum, d) => sum + d.cost, 0)
+    if (lastWeek > 0) {
+      costTrendPct = Math.round(((thisWeek - lastWeek) / lastWeek) * 100)
+    }
+  }
+
+  // Compute highest cost model
+  const modelUsageList = usageData?.modelUsage ?? []
+  let highestCostModel: string | null = null
+  if (modelUsageList.length > 0) {
+    const sorted = [...modelUsageList].sort(
+      (a, b) => b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens),
+    )
+    highestCostModel = sorted[0]?.model ?? null
+  }
+
   return {
     keyValid: raw.keyValid ?? false,
     availableModels: raw.models ?? [],
@@ -233,11 +270,8 @@ export function parsePanel(raw: RawData): PanelData {
     },
     usage: {
       totalCost30d: usageData?.totalCost30d ?? 0,
-      dailyCosts: (usageData?.dailyCosts ?? []).map((c) => ({
-        date: c.date,
-        cost: c.costUsd,
-      })),
-      modelUsage: (usageData?.modelUsage ?? []).map((m) => ({
+      dailyCosts,
+      modelUsage: modelUsageList.map((m) => ({
         model: m.model,
         inputTokens: m.inputTokens,
         outputTokens: m.outputTokens,
@@ -245,6 +279,9 @@ export function parsePanel(raw: RawData): PanelData {
       })),
       hasAdminKey: usageData !== null,
     },
+    projectedMonthlySpend,
+    costTrendPct,
+    highestCostModel,
   }
 }
 

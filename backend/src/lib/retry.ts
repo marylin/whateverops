@@ -1,6 +1,6 @@
 /**
  * Retry wrapper with exponential backoff and timeout.
- * Used by runIntegration to make all 15 integrations resilient.
+ * Used by runIntegration to make all integrations resilient.
  */
 
 export interface RetryOptions {

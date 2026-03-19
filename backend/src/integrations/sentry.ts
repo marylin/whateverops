@@ -14,6 +14,13 @@ export const CONFIG_SCHEMA = z.object({
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
+export interface ReleaseData {
+  version: string
+  dateCreated: string
+  newGroups: number
+  lastDeploy: { dateFinished: string; environment: string } | null
+}
+
 export interface RawData {
   unresolvedIssues: number
   latestIssues: Array<{
@@ -31,11 +38,14 @@ export interface RawData {
   }
   crashFreeRate: number | null
   errorTrend: Array<{ timestamp: number; count: number }>
+  releases: ReleaseData[]
 }
 
 export interface PanelData {
   unresolvedCount: number
   events24h: number
+  newIssues24h: number
+  usersAffected24h: number
   latestIssues: Array<{
     id: string
     title: string
@@ -48,6 +58,8 @@ export interface PanelData {
   crashFreeRate: number | null
   errorTrend: Array<{ date: string; count: number }>
   errorTrendDirection: 'up' | 'down' | 'stable'
+  latestRelease: { version: string; date: string } | null
+  issuesSinceRelease: number
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
@@ -56,7 +68,7 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   const orgBase = `https://sentry.io/api/0/organizations/${config.org}`
 
-  const [issuesRes, statsRes, sessionsRes, errorVolumeRes] = await Promise.all([
+  const [issuesRes, statsRes, sessionsRes, errorVolumeRes, releasesRes] = await Promise.all([
     fetch(`${base}/issues/?query=is:unresolved&limit=5&sort=date`, {
       headers,
       signal: AbortSignal.timeout(10_000),
@@ -73,6 +85,10 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       `${orgBase}/stats_v2/?project=${config.project}&category=error&interval=1d&statsPeriod=7d`,
       { headers, signal: AbortSignal.timeout(10_000) },
     ),
+    fetch(`${orgBase}/releases/?per_page=5`, {
+      headers,
+      signal: AbortSignal.timeout(10_000),
+    }),
   ])
 
   if (!issuesRes.ok)
@@ -113,12 +129,35 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     }))
   }
 
+  // Releases
+  let releases: ReleaseData[] = []
+  if (releasesRes.ok) {
+    const releasesBody = (await releasesRes.json()) as Array<{
+      version?: string
+      dateCreated?: string
+      newGroups?: number
+      lastDeploy?: { dateFinished?: string; environment?: string } | null
+    }>
+    releases = (releasesBody ?? []).map((r) => ({
+      version: r.version ?? '',
+      dateCreated: r.dateCreated ?? '',
+      newGroups: r.newGroups ?? 0,
+      lastDeploy: r.lastDeploy
+        ? {
+            dateFinished: r.lastDeploy.dateFinished ?? '',
+            environment: r.lastDeploy.environment ?? '',
+          }
+        : null,
+    }))
+  }
+
   return {
     unresolvedIssues: issues.length,
     latestIssues: issues,
     stats: { events24h },
     crashFreeRate,
     errorTrend,
+    releases,
   }
 }
 
@@ -133,10 +172,31 @@ export function parsePanel(raw: RawData): PanelData {
     else if (curr < prev * 0.8) direction = 'down'
   }
 
+  // New issues in last 24h (computed from latestIssues firstSeen)
+  const now24h = Date.now() - 24 * 60 * 60 * 1000
+  const issues = raw.latestIssues ?? []
+  const newIssues24h = issues.filter((i) => new Date(i.firstSeen).getTime() > now24h).length
+  const usersAffected24h = issues
+    .filter((i) => new Date(i.lastSeen).getTime() > now24h)
+    .reduce((sum, i) => sum + (i.userCount ?? 0), 0)
+
+  // Latest release info
+  const releases = raw.releases ?? []
+  const latestRelease =
+    releases.length > 0 ? { version: releases[0]!.version, date: releases[0]!.dateCreated } : null
+
+  // Issues since latest release
+  const issuesSinceRelease = latestRelease
+    ? issues.filter((i) => new Date(i.firstSeen).getTime() > new Date(latestRelease.date).getTime())
+        .length
+    : 0
+
   return {
     unresolvedCount: raw.unresolvedIssues ?? 0,
     events24h: raw.stats?.events24h ?? 0,
-    latestIssues: (raw.latestIssues ?? []).map((i) => ({
+    newIssues24h,
+    usersAffected24h,
+    latestIssues: issues.map((i) => ({
       id: i.id,
       title: i.title,
       culprit: i.culprit,
@@ -151,6 +211,8 @@ export function parsePanel(raw: RawData): PanelData {
       count: t.count,
     })),
     errorTrendDirection: direction,
+    latestRelease,
+    issuesSinceRelease,
   }
 }
 

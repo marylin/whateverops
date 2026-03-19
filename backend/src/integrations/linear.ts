@@ -24,6 +24,9 @@ export interface RawData {
   activeCycleProgress: number | null
   cycleStartsAt: string | null
   cycleEndsAt: string | null
+  topPriorityIssueTitle: string | null
+  overdueCount: number
+  blockedCount: number
 }
 
 export interface PanelData {
@@ -37,6 +40,11 @@ export interface PanelData {
   cycleProgress: number | null
   cycleStartsAt: string | null
   cycleEndsAt: string | null
+  topPriorityIssue: string | null
+  overdueCount: number
+  blockedCount: number
+  daysLeftInCycle: number | null
+  cycleOnTrack: 'ahead' | 'behind' | 'on-track' | null
 }
 
 async function gql(apiKey: string, query: string, variables: Record<string, unknown> = {}) {
@@ -62,8 +70,9 @@ async function gql(apiKey: string, query: string, variables: Record<string, unkn
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  const today = new Date().toISOString().slice(0, 10)
   const query = `
-    query TeamStats($teamId: String!) {
+    query TeamStats($teamId: String!, $today: TimelessDate!) {
       team(id: $teamId) {
         name
         activeCycle {
@@ -79,12 +88,21 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
         nodes { id }
       }
       inProgress: issues(filter: { team: { id: { eq: $teamId } }, state: { type: { eq: "started" } } }) {
+        nodes { id priority title }
+      }
+      overdueIssues: issues(filter: { team: { id: { eq: $teamId } }, dueDate: { lt: $today }, state: { type: { nin: ["completed", "canceled"] } } }) {
         nodes { id }
+      }
+      blockedIssues: issues(filter: { team: { id: { eq: $teamId } }, state: { name: { containsIgnoreCase: "blocked" } } }) {
+        nodes { id }
+      }
+      topPriority: issues(filter: { team: { id: { eq: $teamId } }, state: { type: { in: ["started", "unstarted"] } }, priority: { gte: 1 } }, first: 1, orderBy: priority) {
+        nodes { title priority }
       }
     }
   `
 
-  const data = (await gql(config.apiKey, query, { teamId: config.teamId })) as {
+  const data = (await gql(config.apiKey, query, { teamId: config.teamId, today })) as {
     team?: {
       name?: string
       activeCycle?: {
@@ -97,13 +115,18 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       issues?: { nodes?: unknown[] }
     }
     openIssues?: { nodes?: unknown[] }
-    inProgress?: { nodes?: unknown[] }
+    inProgress?: { nodes?: Array<{ id?: string; priority?: number; title?: string }> }
+    overdueIssues?: { nodes?: unknown[] }
+    blockedIssues?: { nodes?: unknown[] }
+    topPriority?: { nodes?: Array<{ title?: string; priority?: number }> }
   }
 
   const cycleIssues = data?.team?.activeCycle?.issues?.nodes ?? []
   const completedThisCycle = cycleIssues.filter(
     (i: { state?: { type?: string } }) => i.state?.type === 'completed',
   ).length
+
+  const topPriorityNode = data?.topPriority?.nodes?.[0]
 
   return {
     openIssues: data?.openIssues?.nodes?.length ?? 0,
@@ -116,10 +139,41 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     activeCycleProgress: data?.team?.activeCycle?.progress ?? null,
     cycleStartsAt: data?.team?.activeCycle?.startsAt ?? null,
     cycleEndsAt: data?.team?.activeCycle?.endsAt ?? null,
+    topPriorityIssueTitle: topPriorityNode?.title ?? null,
+    overdueCount: data?.overdueIssues?.nodes?.length ?? 0,
+    blockedCount: data?.blockedIssues?.nodes?.length ?? 0,
   }
 }
 
 export function parsePanel(raw: RawData): PanelData {
+  // Compute daysLeftInCycle
+  let daysLeftInCycle: number | null = null
+  if (raw.cycleEndsAt) {
+    const endsAt = new Date(raw.cycleEndsAt).getTime()
+    const now = Date.now()
+    if (!isNaN(endsAt)) {
+      daysLeftInCycle = Math.max(0, Math.ceil((endsAt - now) / (1000 * 60 * 60 * 24)))
+    }
+  }
+
+  // Compute cycleOnTrack based on progress vs time elapsed
+  let cycleOnTrack: 'ahead' | 'behind' | 'on-track' | null = null
+  if (raw.cycleStartsAt && raw.cycleEndsAt && raw.activeCycleProgress != null) {
+    const startsAt = new Date(raw.cycleStartsAt).getTime()
+    const endsAt = new Date(raw.cycleEndsAt).getTime()
+    const now = Date.now()
+    const totalDuration = endsAt - startsAt
+    if (totalDuration > 0 && !isNaN(startsAt) && !isNaN(endsAt)) {
+      const elapsed = Math.max(0, now - startsAt)
+      const timeElapsedPct = Math.min(1, elapsed / totalDuration)
+      const progressPct = raw.activeCycleProgress / 100
+      const diff = progressPct - timeElapsedPct
+      if (diff > 0.05) cycleOnTrack = 'ahead'
+      else if (diff < -0.05) cycleOnTrack = 'behind'
+      else cycleOnTrack = 'on-track'
+    }
+  }
+
   return {
     openIssues: raw.openIssues ?? 0,
     inProgress: raw.inProgressIssues ?? 0,
@@ -131,6 +185,11 @@ export function parsePanel(raw: RawData): PanelData {
     cycleProgress: raw.activeCycleProgress ?? null,
     cycleStartsAt: raw.cycleStartsAt ?? null,
     cycleEndsAt: raw.cycleEndsAt ?? null,
+    topPriorityIssue: raw.topPriorityIssueTitle ?? null,
+    overdueCount: raw.overdueCount ?? 0,
+    blockedCount: raw.blockedCount ?? 0,
+    daysLeftInCycle,
+    cycleOnTrack,
   }
 }
 

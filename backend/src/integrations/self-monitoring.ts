@@ -24,6 +24,13 @@ export interface PanelData {
   uptime: string
   lastChecked: string
   responseTime_ms: number
+  responseTimeStatus: 'fast' | 'normal' | 'slow'
+}
+
+function getResponseTimeStatus(ms: number): 'fast' | 'normal' | 'slow' {
+  if (ms <= 500) return 'fast'
+  if (ms <= 3000) return 'normal'
+  return 'slow'
 }
 
 function formatUptime(seconds: number): string {
@@ -64,11 +71,13 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 }
 
 export function parsePanel(raw: RawData): PanelData {
+  const responseTimeMs = raw.responseTimeMs ?? 0
   return {
     status: raw.status ?? 'error',
     uptime: formatUptime(raw.uptime ?? 0),
     lastChecked: raw.timestamp ?? new Date().toISOString(),
-    responseTime_ms: raw.responseTimeMs ?? 0,
+    responseTime_ms: responseTimeMs,
+    responseTimeStatus: getResponseTimeStatus(responseTimeMs),
   }
 }
 

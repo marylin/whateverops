@@ -22,46 +22,84 @@ interface RailwayPanelData {
     restartCount: number
     upSince: string | null
     healthy: boolean
+    restartLooping: boolean
   }>
   allServicesHealthy: boolean
+  unhealthyServiceCount: number
+  longestUptime: string | null
+  deployInProgress: boolean
 }
 
 export function RailwayPanel({ data }: { data: RailwayPanelData }) {
-  const unhealthyCount = data.services.filter((s) => !s.healthy).length
+  const unhealthyCount = data.unhealthyServiceCount
+  const restartLoopingCount = data.services.filter((s) => s.restartLooping).length
+
+  const hasAlerts = unhealthyCount > 0 || restartLoopingCount > 0 || data.deployInProgress
 
   return (
     <div className="space-y-4">
-      {/* Hero: service health */}
-      <div className="flex items-center justify-between">
+      {/* Hero: health badge */}
+      <div className="flex items-start justify-between">
         <div>
           {data.allServicesHealthy ? (
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#00D46A]" />
-              <p className="text-sm font-semibold text-white">All services healthy</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#00D46A20]">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#00D46A]" />
+              <span className="text-sm font-bold text-[#00D46A]">All Services Healthy</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#FF4545]" />
-              <p className="text-sm font-semibold text-white">
-                {unhealthyCount} service{unhealthyCount !== 1 ? 's' : ''} need attention
-              </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FF454520]">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
+              <span className="text-sm font-bold text-[#FF4545]">
+                {unhealthyCount} Service{unhealthyCount !== 1 ? 's' : ''} Down
+              </span>
             </div>
           )}
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-1.5">
             <ExternalLink href="https://railway.app/dashboard" className="text-gray-500">
-              {data.projectCount} project{data.projectCount !== 1 ? 's' : ''}
+              {data.serviceCount} service{data.serviceCount !== 1 ? 's' : ''}
             </ExternalLink>
-            {' · '}
-            {data.serviceCount} service{data.serviceCount !== 1 ? 's' : ''}
           </p>
         </div>
-        {data.lastDeployTime && (
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Last deploy</p>
-            <p className="text-xs text-gray-400">{timeAgo(data.lastDeployTime)}</p>
-          </div>
-        )}
+        <div className="text-right">
+          {data.lastDeployTime && (
+            <>
+              <p className="text-xs text-gray-500">Last deploy</p>
+              <p className="text-xs text-gray-400">{timeAgo(data.lastDeployTime)}</p>
+            </>
+          )}
+          {data.longestUptime && (
+            <p className="text-[10px] text-gray-600 mt-1">Uptime: {data.longestUptime}</p>
+          )}
+        </div>
       </div>
+
+      {/* Alert row */}
+      {hasAlerts && (
+        <div className="space-y-1">
+          {unhealthyCount > 0 && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
+              <span className="text-xs text-[#FF4545]">
+                {unhealthyCount} service{unhealthyCount !== 1 ? 's' : ''} unhealthy
+              </span>
+            </div>
+          )}
+          {restartLoopingCount > 0 && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
+              <span className="text-xs text-[#FFB800]">
+                {restartLoopingCount} service{restartLoopingCount !== 1 ? 's' : ''} restart-looping
+              </span>
+            </div>
+          )}
+          {data.deployInProgress && (
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
+              <span className="text-xs text-[#FFB800]">Deploy in progress</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Services */}
       {data.services.length > 0 && (
@@ -78,11 +116,18 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
                     className={`w-2 h-2 rounded-full shrink-0 ${svc.healthy ? 'bg-[#00D46A]' : 'bg-[#FF4545]'}`}
                   />
                   <span className="text-gray-300 truncate">{svc.name}</span>
-                  <span className="text-gray-600 truncate">{svc.project}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
-                  {svc.restartCount > 0 && (
-                    <span className="text-[10px] text-[#FFB800]">{svc.restartCount} restarts</span>
+                  {svc.restartLooping && (
+                    <span className="text-[10px] text-[#FFB800]">restart loop</span>
+                  )}
+                  {svc.restartCount > 0 && !svc.restartLooping && (
+                    <span className="text-[10px] text-gray-600">
+                      {svc.restartCount} restart{svc.restartCount !== 1 ? 's' : ''}
+                    </span>
+                  )}
+                  {svc.upSince && (
+                    <span className="text-[10px] text-gray-600">up {timeAgo(svc.upSince)}</span>
                   )}
                   {svc.latestDeployStatus && <StatusBadge status={svc.latestDeployStatus} />}
                 </div>
@@ -92,12 +137,12 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
         </div>
       )}
 
-      {/* Recent deploys */}
+      {/* Recent deploys (compact, max 3) */}
       {data.recentDeploys.length > 0 && (
         <div>
           <span className="text-xs text-gray-500 font-medium">Recent Deploys</span>
           <div className="mt-1.5 space-y-1">
-            {data.recentDeploys.slice(0, 4).map((deploy) => (
+            {data.recentDeploys.slice(0, 3).map((deploy) => (
               <div key={deploy.id} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 min-w-0">
                   <StatusBadge status={deploy.status} />

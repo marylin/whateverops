@@ -68,6 +68,17 @@ export interface PanelData {
     misconfigured: boolean
   }>
   domainHealthy: boolean
+  lastProductionDeploy: {
+    id: string
+    project: string
+    status: string
+    created: string
+    url: string | null
+    commitMessage: string | null
+    buildDurationSec: number | null
+    errorMessage: string | null
+  } | null
+  timeSinceLastDeploy: string | null
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
@@ -154,6 +165,35 @@ export function parsePanel(raw: RawData): PanelData {
   }))
   const domainHealthy = domains.length === 0 || domains.every((d) => d.healthy)
 
+  // Find last production deploy
+  const prodDeploy = deploys.find((d) => d.target === 'production') ?? null
+  const lastProductionDeploy = prodDeploy
+    ? {
+        id: prodDeploy.uid,
+        project: prodDeploy.name,
+        status: prodDeploy.state,
+        created: new Date(prodDeploy.created).toISOString(),
+        url: prodDeploy.url ? `https://${prodDeploy.url}` : null,
+        commitMessage: prodDeploy.meta?.githubCommitMessage ?? null,
+        buildDurationSec:
+          prodDeploy.buildingAt && prodDeploy.ready
+            ? Math.round((prodDeploy.ready - prodDeploy.buildingAt) / 1000)
+            : null,
+        errorMessage: prodDeploy.errorMessage ?? null,
+      }
+    : null
+
+  // Human-readable time since last deploy
+  let timeSinceLastDeploy: string | null = null
+  if (deploys.length > 0) {
+    const diffMs = Date.now() - deploys[0]!.created
+    const diffSec = Math.floor(diffMs / 1000)
+    if (diffSec < 60) timeSinceLastDeploy = 'just now'
+    else if (diffSec < 3600) timeSinceLastDeploy = `${Math.floor(diffSec / 60)}m ago`
+    else if (diffSec < 86400) timeSinceLastDeploy = `${Math.floor(diffSec / 3600)}h ago`
+    else timeSinceLastDeploy = `${Math.floor(diffSec / 86400)}d ago`
+  }
+
   return {
     projectCount: raw.projects?.length ?? 0,
     recentDeploys: deploys.slice(0, 5).map((d) => ({
@@ -174,6 +214,8 @@ export function parsePanel(raw: RawData): PanelData {
     successRate,
     domains,
     domainHealthy,
+    lastProductionDeploy,
+    timeSinceLastDeploy,
   }
 }
 
