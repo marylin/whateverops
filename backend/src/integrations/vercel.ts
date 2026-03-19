@@ -12,26 +12,62 @@ export const CONFIG_SCHEMA = z.object({
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
+export interface DomainInfo {
+  name: string
+  projectId: string
+  projectName: string
+  configured: boolean
+  verified: boolean
+  sslReady: boolean
+  misconfigured: boolean
+}
+
 export interface RawData {
   deployments: Array<{
     uid: string
     name: string
     state: string
     created: number
+    buildingAt?: number
+    ready?: number
     url: string | null
+    target?: string | null
+    errorCode?: string
+    errorMessage?: string
+    checksState?: string
+    checksConclusion?: string
+    source?: string
     meta?: { githubCommitMessage?: string }
   }>
   projects: Array<{ id: string; name: string }>
+  domains: DomainInfo[]
 }
 
 export interface PanelData {
   projectCount: number
   recentDeploys: Array<{
-    display: string
+    id: string
+    project: string
+    status: string
+    created: string
     url: string | null
+    commitMessage: string | null
+    target: string | null
+    buildDurationSec: number | null
+    errorMessage: string | null
+    checksStatus: string | null
+    source: string | null
   }>
   lastDeployTime: string | null
   successRate: number
+  domains: Array<{
+    name: string
+    project: string
+    healthy: boolean
+    sslReady: boolean
+    misconfigured: boolean
+  }>
+  domainHealthy: boolean
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
@@ -59,21 +95,49 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   const deploysBody = (await deploysRes.json()) as { deployments?: RawData['deployments'] }
   const projectsBody = projectsRes.ok
-    ? ((await projectsRes.json()) as { projects?: RawData['projects'] })
-    : { projects: [] }
+    ? ((await projectsRes.json()) as { projects?: Array<{ id: string; name: string }> })
+    : { projects: [] as Array<{ id: string; name: string }> }
+
+  const projects = projectsBody.projects ?? []
+
+  // Fetch domains for each project (max 5 projects to avoid rate limits)
+  const domainResults = await Promise.all(
+    projects.slice(0, 5).map(async (project) => {
+      try {
+        const res = await fetch(`${base}/v9/projects/${project.id}/domains`, {
+          headers,
+          signal: AbortSignal.timeout(10_000),
+        })
+        if (!res.ok) return []
+        const body = (await res.json()) as {
+          domains?: Array<{
+            name: string
+            verified: boolean
+            configured?: boolean
+            misconfigured?: boolean
+            certs?: Array<{ id: string }>
+          }>
+        }
+        return (body.domains ?? []).map((d) => ({
+          name: d.name,
+          projectId: project.id,
+          projectName: project.name,
+          configured: d.configured ?? true,
+          verified: d.verified,
+          sslReady: (d.certs ?? []).length > 0,
+          misconfigured: d.misconfigured ?? false,
+        }))
+      } catch {
+        return []
+      }
+    }),
+  )
 
   return {
     deployments: deploysBody.deployments ?? [],
-    projects: projectsBody.projects ?? [],
+    projects,
+    domains: domainResults.flat(),
   }
-}
-
-function deployAgo(createdMs: number): string {
-  const seconds = Math.floor((Date.now() - createdMs) / 1000)
-  if (seconds < 60) return 'just now'
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
-  return `${Math.floor(seconds / 86400)}d ago`
 }
 
 export function parsePanel(raw: RawData): PanelData {
@@ -81,14 +145,35 @@ export function parsePanel(raw: RawData): PanelData {
   const successCount = deploys.filter((d) => d.state === 'READY').length
   const successRate = deploys.length > 0 ? Math.round((successCount / deploys.length) * 100) : 100
 
+  const domains = (raw.domains ?? []).map((d) => ({
+    name: d.name,
+    project: d.projectName,
+    healthy: d.configured && d.verified && !d.misconfigured,
+    sslReady: d.sslReady,
+    misconfigured: d.misconfigured,
+  }))
+  const domainHealthy = domains.length === 0 || domains.every((d) => d.healthy)
+
   return {
     projectCount: raw.projects?.length ?? 0,
     recentDeploys: deploys.slice(0, 5).map((d) => ({
-      display: `${d.name} (${d.state}) · ${deployAgo(d.created)}`,
+      id: d.uid,
+      project: d.name,
+      status: d.state,
+      created: new Date(d.created).toISOString(),
       url: d.url ? `https://${d.url}` : null,
+      commitMessage: d.meta?.githubCommitMessage ?? null,
+      target: d.target ?? null,
+      buildDurationSec:
+        d.buildingAt && d.ready ? Math.round((d.ready - d.buildingAt) / 1000) : null,
+      errorMessage: d.errorMessage ?? null,
+      checksStatus: d.checksConclusion ?? d.checksState ?? null,
+      source: d.source ?? null,
     })),
     lastDeployTime: deploys.length > 0 ? new Date(deploys[0]!.created).toISOString() : null,
     successRate,
+    domains,
+    domainHealthy,
   }
 }
 
@@ -99,9 +184,15 @@ export function getCacheKey(config: IntegrationConfig): string {
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
   const deploys = raw.deployments ?? []
-  if (deploys.length === 0) return 'ok'
-  const latest = deploys[0]
-  if (latest?.state === 'ERROR') return 'error'
-  if (latest?.state === 'BUILDING' || latest?.state === 'INITIALIZING') return 'warn'
+  if (deploys.length > 0) {
+    const latest = deploys[0]
+    if (latest?.state === 'ERROR') return 'error'
+    if (latest?.state === 'BUILDING' || latest?.state === 'INITIALIZING') return 'warn'
+  }
+
+  // Domain misconfiguration → warn
+  const misconfigured = (raw.domains ?? []).some((d) => d.misconfigured || !d.verified)
+  if (misconfigured) return 'warn'
+
   return 'ok'
 }

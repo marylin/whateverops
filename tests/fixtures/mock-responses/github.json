@@ -1,5 +1,7 @@
 {
   "ok": {
+    "repos": [],
+    "primaryRepo": "user/repo",
     "repo": {
       "stargazers_count": 42,
       "open_issues_count": 5,
@@ -7,22 +9,44 @@
       "watchers_count": 42,
       "language": "TypeScript",
       "pushed_at": "2026-03-08T10:00:00Z",
-      "default_branch": "main"
+      "default_branch": "main",
+      "html_url": "https://github.com/user/repo"
     },
+    "issues": [],
     "pullRequests": { "total_count": 2 },
     "recentCommit": {
       "sha": "abc1234",
       "message": "feat: add dashboard",
       "date": "2026-03-08T10:00:00Z",
-      "author": "dev"
-    }
+      "author": "dev",
+      "url": "https://github.com/user/repo/commit/abc1234"
+    },
+    "workflowRuns": [],
+    "dependabotAlerts": [],
+    "traffic": {
+      "views": { "count": 100, "uniques": 10 },
+      "clones": { "count": 5, "uniques": 2 }
+    },
+    "repoActivities": []
   },
   "error": {
+    "repos": [],
+    "primaryRepo": null,
     "repo": null,
+    "issues": [],
     "pullRequests": { "total_count": 0 },
-    "recentCommit": null
+    "recentCommit": null,
+    "workflowRuns": [],
+    "dependabotAlerts": [],
+    "traffic": {
+      "views": { "count": 0, "uniques": 0 },
+      "clones": { "count": 0, "uniques": 0 }
+    },
+    "repoActivities": []
   },
   "empty": {
+    "repos": [],
+    "primaryRepo": null,
     "repo": {
       "stargazers_count": 0,
       "open_issues_count": 0,
@@ -30,9 +54,18 @@
       "watchers_count": 0,
       "language": null,
       "pushed_at": "2024-01-01T00:00:00Z",
-      "default_branch": "main"
+      "default_branch": "main",
+      "html_url": "https://github.com/user/repo"
     },
+    "issues": [],
     "pullRequests": { "total_count": 0 },
-    "recentCommit": null
+    "recentCommit": null,
+    "workflowRuns": [],
+    "dependabotAlerts": [],
+    "traffic": {
+      "views": { "count": 0, "uniques": 0 },
+      "clones": { "count": 0, "uniques": 0 }
+    },
+    "repoActivities": []
   }
 }

@@ -12,6 +12,15 @@ export const CONFIG_SCHEMA = z.object({
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
+export interface RefundData {
+  id: string
+  amount: number
+  currency: string
+  status: string
+  created: number
+  reason: string | null
+}
+
 export interface RawData {
   subscriptions: Array<{
     id: string
@@ -34,6 +43,9 @@ export interface RawData {
   }>
   balance: number
   currency: string
+  refunds: RefundData[]
+  netRevenue: number
+  customerCount: number
 }
 
 export interface PanelData {
@@ -52,7 +64,12 @@ export interface PanelData {
     date: string
     description: string | null
   }>
+  churnRate30d: number
   currency: string
+  refundCount30d: number
+  refundAmount30d: number
+  netRevenue30d: number
+  customerCount: number
 }
 
 async function stripeGet(
@@ -82,29 +99,66 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const now = Math.floor(Date.now() / 1000)
   const thirtyDaysAgo = now - 30 * 86400
 
-  const [subsRes, chargesRes, balanceRes] = await Promise.all([
-    stripeGet(config.apiKey, '/subscriptions', {
-      limit: '100',
-      status: 'all',
-    }),
-    stripeGet(config.apiKey, '/charges', {
-      limit: '10',
-      'created[gte]': thirtyDaysAgo.toString(),
-    }),
-    stripeGet(config.apiKey, '/balance'),
-  ])
+  const [subsRes, chargesRes, balanceRes, refundsRes, balanceTxRes, customersRes] =
+    await Promise.all([
+      stripeGet(config.apiKey, '/subscriptions', {
+        limit: '100',
+        status: 'all',
+      }),
+      stripeGet(config.apiKey, '/charges', {
+        limit: '10',
+        'created[gte]': thirtyDaysAgo.toString(),
+      }),
+      stripeGet(config.apiKey, '/balance'),
+      stripeGet(config.apiKey, '/refunds', {
+        limit: '25',
+        'created[gte]': thirtyDaysAgo.toString(),
+      }),
+      stripeGet(config.apiKey, '/balance_transactions', {
+        limit: '100',
+        'created[gte]': thirtyDaysAgo.toString(),
+        type: 'charge',
+      }),
+      stripeGet(config.apiKey, '/customers', { limit: '1' }),
+    ])
 
   const subs = subsRes as { data?: RawData['subscriptions'] }
   const charges = chargesRes as { data?: RawData['recentCharges'] }
   const balance = balanceRes as {
     available?: Array<{ amount?: number; currency?: string }>
   }
+  const refundsBody = refundsRes as {
+    data?: Array<{
+      id: string
+      amount: number
+      currency: string
+      status: string
+      created: number
+      reason: string | null
+    }>
+  }
+  const balanceTxBody = balanceTxRes as {
+    data?: Array<{ net: number }>
+  }
+  const customersBody = customersRes as { total_count?: number }
+
+  const netRevenue = (balanceTxBody.data ?? []).reduce((sum, tx) => sum + tx.net, 0)
 
   return {
     subscriptions: subs.data ?? [],
     recentCharges: charges.data ?? [],
     balance: balance.available?.[0]?.amount ?? 0,
     currency: balance.available?.[0]?.currency ?? 'usd',
+    refunds: (refundsBody.data ?? []).map((r) => ({
+      id: r.id,
+      amount: r.amount,
+      currency: r.currency,
+      status: r.status,
+      created: r.created,
+      reason: r.reason,
+    })),
+    netRevenue,
+    customerCount: customersBody.total_count ?? 0,
   }
 }
 
@@ -163,7 +217,17 @@ export function parsePanel(raw: RawData): PanelData {
       date: new Date(c.created * 1000).toISOString(),
       description: c.description,
     })),
+    churnRate30d:
+      activeSubs.length + canceledSubs30d.length > 0
+        ? Math.round(
+            (canceledSubs30d.length / (activeSubs.length + canceledSubs30d.length)) * 1000,
+          ) / 10
+        : 0,
     currency: raw.currency ?? 'usd',
+    refundCount30d: (raw.refunds ?? []).length,
+    refundAmount30d: (raw.refunds ?? []).reduce((sum, r) => sum + r.amount, 0) / 100,
+    netRevenue30d: (raw.netRevenue ?? 0) / 100,
+    customerCount: raw.customerCount ?? 0,
   }
 }
 

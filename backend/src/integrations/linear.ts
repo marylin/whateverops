@@ -17,20 +17,26 @@ export interface RawData {
   openIssues: number
   inProgressIssues: number
   completedThisCycle: number
+  cycleTotalIssues: number
   backlogCount: number
   teamName: string
   activeCycleName: string | null
   activeCycleProgress: number | null
+  cycleStartsAt: string | null
+  cycleEndsAt: string | null
 }
 
 export interface PanelData {
   openIssues: number
   inProgress: number
   completedThisCycle: number
+  cycleTotalIssues: number
   backlog: number
   teamName: string
   cycleName: string | null
   cycleProgress: number | null
+  cycleStartsAt: string | null
+  cycleEndsAt: string | null
 }
 
 async function gql(apiKey: string, query: string, variables: Record<string, unknown> = {}) {
@@ -63,6 +69,8 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
         activeCycle {
           name
           progress
+          startsAt
+          endsAt
           issues { nodes { state { type } } }
         }
         issues(filter: { state: { type: { in: ["backlog"] } } }) { nodes { id } }
@@ -82,6 +90,8 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       activeCycle?: {
         name?: string
         progress?: number
+        startsAt?: string
+        endsAt?: string
         issues?: { nodes?: Array<{ state?: { type?: string } }> }
       }
       issues?: { nodes?: unknown[] }
@@ -99,10 +109,13 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     openIssues: data?.openIssues?.nodes?.length ?? 0,
     inProgressIssues: data?.inProgress?.nodes?.length ?? 0,
     completedThisCycle,
+    cycleTotalIssues: cycleIssues.length,
     backlogCount: data?.team?.issues?.nodes?.length ?? 0,
     teamName: data?.team?.name ?? 'Unknown',
     activeCycleName: data?.team?.activeCycle?.name ?? null,
     activeCycleProgress: data?.team?.activeCycle?.progress ?? null,
+    cycleStartsAt: data?.team?.activeCycle?.startsAt ?? null,
+    cycleEndsAt: data?.team?.activeCycle?.endsAt ?? null,
   }
 }
 
@@ -111,10 +124,13 @@ export function parsePanel(raw: RawData): PanelData {
     openIssues: raw.openIssues ?? 0,
     inProgress: raw.inProgressIssues ?? 0,
     completedThisCycle: raw.completedThisCycle ?? 0,
+    cycleTotalIssues: raw.cycleTotalIssues ?? 0,
     backlog: raw.backlogCount ?? 0,
     teamName: raw.teamName ?? 'Unknown',
     cycleName: raw.activeCycleName ?? null,
     cycleProgress: raw.activeCycleProgress ?? null,
+    cycleStartsAt: raw.cycleStartsAt ?? null,
+    cycleEndsAt: raw.cycleEndsAt ?? null,
   }
 }
 

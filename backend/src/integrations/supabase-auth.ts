@@ -20,6 +20,7 @@ export interface RawData {
     created_at: string
     last_sign_in_at: string | null
     email: string
+    app_metadata?: { providers?: string[] }
   }>
   totalUsers: number
 }
@@ -28,6 +29,7 @@ export interface PanelData {
   totalUsers: number
   recentSignups: number
   activeRecently: number
+  providerBreakdown: Record<string, number>
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
@@ -49,14 +51,16 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       }),
     )
 
+  // Supabase Admin API returns total count in x-total-count header, not in JSON body
+  const totalFromHeader = parseInt(res.headers.get('x-total-count') ?? '', 10)
+
   const body = (await res.json()) as {
     users?: RawData['users']
-    total?: number
   }
 
   return {
     users: body.users ?? [],
-    totalUsers: body.total ?? body.users?.length ?? 0,
+    totalUsers: Number.isFinite(totalFromHeader) ? totalFromHeader : (body.users?.length ?? 0),
   }
 }
 
@@ -71,10 +75,18 @@ export function parsePanel(raw: RawData): PanelData {
     (u) => u.last_sign_in_at && new Date(u.last_sign_in_at).getTime() > oneDayAgo,
   ).length
 
+  const providerBreakdown: Record<string, number> = {}
+  for (const u of users) {
+    for (const p of u.app_metadata?.providers ?? ['email']) {
+      providerBreakdown[p] = (providerBreakdown[p] ?? 0) + 1
+    }
+  }
+
   return {
     totalUsers: raw.totalUsers ?? 0,
     recentSignups,
     activeRecently,
+    providerBreakdown,
   }
 }
 
