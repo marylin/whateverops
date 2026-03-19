@@ -11,7 +11,7 @@ export async function sendLaunchEmail({ to, name, githubUrl }: SendLaunchEmailOp
   const resend = new Resend(process.env.RESEND_API_KEY)
 
   const { data, error } = await resend.emails.send({
-    from: 'WhateverOPS <hello@whateverops.live>',
+    from: process.env.RESEND_FROM_EMAIL ?? 'WhateverOPS <noreply@example.com>',
     to,
     subject: `${name ? `${name}, ` : ''}WhateverOPS is live — your unified ops dashboard awaits`,
     react: LaunchAnnouncement({ name, githubUrl }),

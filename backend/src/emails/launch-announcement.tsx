@@ -18,7 +18,7 @@ interface LaunchAnnouncementProps {
 
 export function LaunchAnnouncement({
   name = 'there',
-  githubUrl = 'https://github.com/whateverops-dev/whateverops',
+  githubUrl = 'https://github.com/your-org/whateverops',
 }: LaunchAnnouncementProps) {
   return (
     <Html>
