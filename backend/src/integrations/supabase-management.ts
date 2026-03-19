@@ -36,7 +36,7 @@ export interface ProjectDetail {
   health: Array<{
     name: string
     status: string
-    error: string
+    error?: string
   }>
   readOnly: boolean
   advisors: PerformanceAdvisor[]
@@ -92,13 +92,9 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const headers = { Authorization: `Bearer ${config.apiKey}` }
   const base = 'https://api.supabase.com/v1'
 
-  // If a specific projectRef is provided (non-empty), fetch only that project.
-  // Otherwise, fetch all projects via the management API.
-  let projectRefs: string[]
-
-  if (config.projectRef && config.projectRef.length > 0) {
-    projectRefs = [config.projectRef]
-  } else {
+  // Always list ALL projects — a solopreneur typically has multiple.
+  // projectRef is kept for backward compat but we fetch everything.
+  {
     const listRes = await sbFetch(`${base}/projects`, headers)
     if (!listRes.ok)
       throw new Error(
@@ -106,68 +102,64 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
           401: 'Authentication failed — check SUPABASE_ACCESS_TOKEN (generate at supabase.com/dashboard → Account → Access Tokens)',
         }),
       )
-    const projectsList = (await listRes.json()) as Array<{ ref: string }>
-    projectRefs = projectsList.map((p) => p.ref)
-  }
+    const projectsList = (await listRes.json()) as Array<{
+      id: string
+      ref: string
+      name: string
+      region: string
+      status: string
+      database?: { version?: string }
+    }>
+    // Use list data directly — avoids per-project detail calls (rate limit friendly).
+    // Only fetch health for ACTIVE projects (skip paused/inactive).
+    const activeRefs = projectsList
+      .filter((p) => p.status === 'ACTIVE_HEALTHY' || p.status === 'ACTIVE_UNHEALTHY')
+      .map((p) => p.ref)
 
-  // Fetch details for each project in parallel
-  const projects = await Promise.all(
-    projectRefs.map(async (ref) => {
-      const [projectRes, healthRes, readOnlyRes, advisorsRes] = await Promise.all([
-        sbFetch(`${base}/projects/${ref}`, headers),
-        sbFetch(`${base}/projects/${ref}/health`, headers),
-        sbFetch(`${base}/projects/${ref}/readonly`, headers),
-        sbFetch(`${base}/projects/${ref}/advisors/performance`, headers),
-      ])
-
-      if (!projectRes.ok) {
-        // Skip projects that fail to load
-        return {
-          project: null,
-          health: [],
-          readOnly: false,
-          advisors: [],
-        } as ProjectDetail
-      }
-
-      const project = (await projectRes.json()) as ProjectData
-      const healthBody = healthRes.ok
-        ? ((await healthRes.json()) as Array<{ name: string; status: string; error: string }>)
-        : []
-
-      const readOnlyBody = readOnlyRes.ok
-        ? ((await readOnlyRes.json()) as { enabled?: boolean })
-        : { enabled: false }
-
-      const advisorsRaw = advisorsRes.ok ? await advisorsRes.json() : []
-      // API may return a bare array or { advisors: [...] } depending on version
-      const advisorsBody: Array<{ id: string; reason: string; type: string }> = Array.isArray(
-        advisorsRaw,
-      )
-        ? advisorsRaw
-        : Array.isArray((advisorsRaw as Record<string, unknown>)?.advisors)
-          ? ((advisorsRaw as Record<string, unknown>).advisors as typeof advisorsBody)
+    const healthResults = await Promise.all(
+      activeRefs.map(async (ref) => {
+        const res = await sbFetch(
+          `${base}/projects/${ref}/health?services=auth,realtime,rest,storage`,
+          headers,
+        ).catch(() => null)
+        const body = res?.ok
+          ? ((await res.json()) as Array<{ name: string; status: string; healthy?: boolean }>)
           : []
+        return { ref, health: body }
+      }),
+    )
 
+    const healthMap = new Map(healthResults.map((h) => [h.ref, h.health]))
+
+    const projects: ProjectDetail[] = projectsList.map((p) => {
+      const health = healthMap.get(p.ref) ?? []
       return {
-        project,
-        health: healthBody ?? [],
-        readOnly: readOnlyBody.enabled ?? false,
-        advisors: advisorsBody ?? [],
+        project: {
+          id: p.id,
+          name: p.name,
+          status: p.status,
+          region: p.region,
+          database: p.database ?? { version: 'unknown' },
+        } as ProjectData,
+        health: health.map((h) => ({
+          name: h.name,
+          status: h.healthy ? 'ACTIVE_HEALTHY' : (h.status ?? 'UNKNOWN'),
+        })),
+        readOnly: false,
+        advisors: [],
       } as ProjectDetail
-    }),
-  )
+    })
 
-  return {
-    projects: projects.filter((p) => p.project !== null),
-    apiRequestCount: null,
+    return { projects, apiRequestCount: null }
   }
 }
 
 export function parsePanel(raw: RawData): PanelData {
   const projectDetails = (raw.projects ?? []).map((pd) => {
     const health = pd.health ?? []
-    const healthyCount = health.filter((h) => h.status === 'HEALTHY').length
+    const healthyCount = health.filter(
+      (h) => h.status === 'HEALTHY' || h.status === 'ACTIVE_HEALTHY',
+    ).length
     const advisors = (pd.advisors ?? []).map((a) => ({ reason: a.reason, type: a.type }))
 
     return {
@@ -219,8 +211,11 @@ export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
   let hasWarn = false
   for (const pd of projects) {
     if (!pd.project) continue
-    if (pd.project.status !== 'ACTIVE_HEALTHY') hasWarn = true
-    const unhealthy = (pd.health ?? []).filter((h) => h.status !== 'HEALTHY')
+    // INACTIVE is intentional (paused projects) — only warn on truly unhealthy
+    if (pd.project.status === 'ACTIVE_UNHEALTHY') hasWarn = true
+    const unhealthy = (pd.health ?? []).filter(
+      (h) => h.status !== 'HEALTHY' && h.status !== 'ACTIVE_HEALTHY',
+    )
     if (unhealthy.length > 0) hasWarn = true
     if (pd.readOnly) hasWarn = true
     if ((pd.advisors ?? []).length > 0) hasWarn = true
