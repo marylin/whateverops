@@ -59,16 +59,23 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
                     <StatusDot status={panel.status} size="sm" />
                     <span className="text-xs text-white">{panel.name}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {panel.cached && <span className="text-[10px] text-gray-600">cached</span>}
-                    {panel.error && (
+                  <div className="flex items-center gap-1.5">
+                    {panel.status === 'ok' && (
+                      <span className="text-[10px] text-[#00D46A]">operational</span>
+                    )}
+                    {panel.status === 'warn' && (
+                      <span className="text-[10px] text-[#FFB800]">degraded</span>
+                    )}
+                    {panel.status === 'error' && (
                       <span
                         className="text-[10px] text-[#FF4545] max-w-[140px] truncate"
-                        title={panel.error}
+                        title={panel.error ?? undefined}
                       >
-                        {panel.error.includes(' — ')
-                          ? panel.error.slice(0, panel.error.indexOf(' — '))
-                          : panel.error}
+                        {panel.error
+                          ? panel.error.includes(' — ')
+                            ? panel.error.slice(0, panel.error.indexOf(' — '))
+                            : panel.error
+                          : 'error'}
                       </span>
                     )}
                   </div>
