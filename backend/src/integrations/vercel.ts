@@ -22,29 +22,52 @@ export interface DomainInfo {
   misconfigured: boolean
 }
 
+interface RawDeployment {
+  uid: string
+  name: string
+  state: string
+  created: number
+  buildingAt?: number
+  ready?: number
+  url: string | null
+  target?: string | null
+  errorCode?: string
+  errorMessage?: string
+  checksState?: string
+  checksConclusion?: string
+  source?: string
+  meta?: { githubCommitMessage?: string }
+}
+
 export interface RawData {
-  deployments: Array<{
-    uid: string
+  deployments: RawDeployment[]
+  projects: Array<{
+    id: string
     name: string
-    state: string
-    created: number
-    buildingAt?: number
-    ready?: number
-    url: string | null
-    target?: string | null
-    errorCode?: string
-    errorMessage?: string
-    checksState?: string
-    checksConclusion?: string
-    source?: string
-    meta?: { githubCommitMessage?: string }
+    framework?: string | null
+    latestUrl?: string | null
   }>
-  projects: Array<{ id: string; name: string }>
+  /** Latest production deployment per project — keyed by project id */
+  projectDeployments: Record<string, RawDeployment | null>
   domains: DomainInfo[]
 }
 
 export interface PanelData {
   projectCount: number
+  /** Per-project summary with latest production deploy */
+  projects: Array<{
+    id: string
+    name: string
+    framework: string | null
+    url: string | null
+    latestDeploy: {
+      status: string
+      created: string
+      commitMessage: string | null
+      buildDurationSec: number | null
+      errorMessage: string | null
+    } | null
+  }>
   recentDeploys: Array<{
     id: string
     project: string
@@ -104,51 +127,92 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       }),
     )
 
-  const deploysBody = (await deploysRes.json()) as { deployments?: RawData['deployments'] }
+  const deploysBody = (await deploysRes.json()) as { deployments?: RawDeployment[] }
+  type ProjectsApiProject = {
+    id: string
+    name: string
+    framework?: string | null
+    latestDeployments?: Array<{ url?: string }>
+  }
   const projectsBody = projectsRes.ok
-    ? ((await projectsRes.json()) as { projects?: Array<{ id: string; name: string }> })
-    : { projects: [] as Array<{ id: string; name: string }> }
+    ? ((await projectsRes.json()) as { projects?: ProjectsApiProject[] })
+    : { projects: [] as ProjectsApiProject[] }
 
-  const projects = projectsBody.projects ?? []
+  const projects = (projectsBody.projects ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    framework: p.framework ?? null,
+    latestUrl: p.latestDeployments?.[0]?.url ? `https://${p.latestDeployments[0].url}` : null,
+  }))
 
-  // Fetch domains for each project (max 5 projects to avoid rate limits)
-  const domainResults = await Promise.all(
-    projects.slice(0, 5).map(async (project) => {
-      try {
-        const res = await fetch(`${base}/v9/projects/${project.id}/domains`, {
-          headers,
-          signal: AbortSignal.timeout(10_000),
-        })
-        if (!res.ok) return []
-        const body = (await res.json()) as {
-          domains?: Array<{
-            name: string
-            verified: boolean
-            configured?: boolean
-            misconfigured?: boolean
-            certs?: Array<{ id: string }>
-          }>
+  // Fetch per-project latest production deploy + domains in parallel
+  const [projectDeployResults, domainResults] = await Promise.all([
+    // Latest production deploy per project
+    Promise.all(
+      projects.map(async (project) => {
+        try {
+          const res = await fetch(
+            `${base}/v6/deployments?projectId=${project.id}&limit=1&target=production`,
+            { headers, signal: AbortSignal.timeout(10_000) },
+          )
+          if (!res.ok) return { id: project.id, deploy: null }
+          const body = (await res.json()) as { deployments?: RawDeployment[] }
+          const deploy = body.deployments?.[0] ?? null
+          return { id: project.id, deploy }
+        } catch {
+          return { id: project.id, deploy: null }
         }
-        return (body.domains ?? []).map((d) => ({
-          name: d.name,
-          projectId: project.id,
-          projectName: project.name,
-          configured: d.configured ?? true,
-          verified: d.verified,
-          sslReady: (d.certs ?? []).length > 0,
-          misconfigured: d.misconfigured ?? false,
-        }))
-      } catch {
-        return []
-      }
-    }),
-  )
+      }),
+    ),
+    // Domains for first 5 projects
+    Promise.all(
+      projects.slice(0, 5).map(async (project) => {
+        try {
+          const res = await fetch(`${base}/v9/projects/${project.id}/domains`, {
+            headers,
+            signal: AbortSignal.timeout(10_000),
+          })
+          if (!res.ok) return []
+          const body = (await res.json()) as {
+            domains?: Array<{
+              name: string
+              verified: boolean
+              configured?: boolean
+              misconfigured?: boolean
+              certs?: Array<{ id: string }>
+            }>
+          }
+          return (body.domains ?? []).map((d) => ({
+            name: d.name,
+            projectId: project.id,
+            projectName: project.name,
+            configured: d.configured ?? true,
+            verified: d.verified,
+            sslReady: (d.certs ?? []).length > 0,
+            misconfigured: d.misconfigured ?? false,
+          }))
+        } catch {
+          return []
+        }
+      }),
+    ),
+  ])
+
+  const projectDeployments: Record<string, RawDeployment | null> = {}
+  for (const { id, deploy } of projectDeployResults) {
+    projectDeployments[id] = deploy
+  }
 
   return {
     deployments: deploysBody.deployments ?? [],
     projects,
+    projectDeployments,
     domains: domainResults.flat(),
   }
+}
+
+function buildDuration(d: RawDeployment): number | null {
+  return d.buildingAt && d.ready ? Math.round((d.ready - d.buildingAt) / 1000) : null
 }
 
 export function parsePanel(raw: RawData): PanelData {
@@ -165,21 +229,45 @@ export function parsePanel(raw: RawData): PanelData {
   }))
   const domainHealthy = domains.length === 0 || domains.every((d) => d.healthy)
 
-  // Find last production deploy
-  const prodDeploy = deploys.find((d) => d.target === 'production') ?? null
-  const lastProductionDeploy = prodDeploy
+  // Build per-project summaries using the dedicated per-project deploy fetches
+  const projects = (raw.projects ?? []).map((p) => {
+    const d = raw.projectDeployments?.[p.id] ?? null
+    return {
+      id: p.id,
+      name: p.name,
+      framework: p.framework ?? null,
+      url: p.latestUrl ?? null,
+      latestDeploy: d
+        ? {
+            status: d.state,
+            created: new Date(d.created).toISOString(),
+            commitMessage: d.meta?.githubCommitMessage ?? null,
+            buildDurationSec: buildDuration(d),
+            errorMessage: d.errorMessage ?? null,
+          }
+        : null,
+    }
+  })
+
+  // Find last production deploy across all projects (most recent by created timestamp)
+  const allProdDeploys = Object.values(raw.projectDeployments ?? {}).filter(
+    (d): d is RawDeployment => d !== null,
+  )
+  const latestProdDeploy =
+    allProdDeploys.length > 0
+      ? allProdDeploys.reduce((best, d) => (d.created > best.created ? d : best))
+      : (deploys.find((d) => d.target === 'production') ?? null)
+
+  const lastProductionDeploy = latestProdDeploy
     ? {
-        id: prodDeploy.uid,
-        project: prodDeploy.name,
-        status: prodDeploy.state,
-        created: new Date(prodDeploy.created).toISOString(),
-        url: prodDeploy.url ? `https://${prodDeploy.url}` : null,
-        commitMessage: prodDeploy.meta?.githubCommitMessage ?? null,
-        buildDurationSec:
-          prodDeploy.buildingAt && prodDeploy.ready
-            ? Math.round((prodDeploy.ready - prodDeploy.buildingAt) / 1000)
-            : null,
-        errorMessage: prodDeploy.errorMessage ?? null,
+        id: latestProdDeploy.uid,
+        project: latestProdDeploy.name,
+        status: latestProdDeploy.state,
+        created: new Date(latestProdDeploy.created).toISOString(),
+        url: latestProdDeploy.url ? `https://${latestProdDeploy.url}` : null,
+        commitMessage: latestProdDeploy.meta?.githubCommitMessage ?? null,
+        buildDurationSec: buildDuration(latestProdDeploy),
+        errorMessage: latestProdDeploy.errorMessage ?? null,
       }
     : null
 
@@ -196,6 +284,7 @@ export function parsePanel(raw: RawData): PanelData {
 
   return {
     projectCount: raw.projects?.length ?? 0,
+    projects,
     recentDeploys: deploys.slice(0, 5).map((d) => ({
       id: d.uid,
       project: d.name,
@@ -204,8 +293,7 @@ export function parsePanel(raw: RawData): PanelData {
       url: d.url ? `https://${d.url}` : null,
       commitMessage: d.meta?.githubCommitMessage ?? null,
       target: d.target ?? null,
-      buildDurationSec:
-        d.buildingAt && d.ready ? Math.round((d.ready - d.buildingAt) / 1000) : null,
+      buildDurationSec: buildDuration(d),
       errorMessage: d.errorMessage ?? null,
       checksStatus: d.checksConclusion ?? d.checksState ?? null,
       source: d.source ?? null,
@@ -225,6 +313,13 @@ export function getCacheKey(config: IntegrationConfig): string {
 }
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
+  // Any project with a failed production deploy → error
+  const projectDeploys = Object.values(raw.projectDeployments ?? {})
+  if (projectDeploys.some((d) => d?.state === 'ERROR')) return 'error'
+  if (projectDeploys.some((d) => d?.state === 'BUILDING' || d?.state === 'INITIALIZING'))
+    return 'warn'
+
+  // Fall back to global recent deploys list
   const deploys = raw.deployments ?? []
   if (deploys.length > 0) {
     const latest = deploys[0]

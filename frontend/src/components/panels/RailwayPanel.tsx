@@ -101,41 +101,69 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
         </div>
       )}
 
-      {/* Services */}
-      {data.services.length > 0 && (
-        <div>
-          <span className="text-xs text-gray-500 font-medium">Services</span>
-          <div className="mt-1.5 space-y-1.5">
-            {data.services.map((svc) => (
-              <div
-                key={`${svc.project}-${svc.name}`}
-                className="flex items-center justify-between text-xs"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <div
-                    className={`w-2 h-2 rounded-full shrink-0 ${svc.healthy ? 'bg-[#00D46A]' : 'bg-[#FF4545]'}`}
-                  />
-                  <span className="text-gray-300 truncate">{svc.name}</span>
+      {/* Services grouped by project */}
+      {data.services.length > 0 &&
+        (() => {
+          // Build ordered map: projectName → services[]
+          const projectMap = new Map<string, typeof data.services>()
+          for (const svc of data.services) {
+            const bucket = projectMap.get(svc.project) ?? []
+            bucket.push(svc)
+            projectMap.set(svc.project, bucket)
+          }
+          const projectEntries = Array.from(projectMap.entries())
+          const showProjectHeaders = projectEntries.length > 1
+
+          return (
+            <div className="space-y-3">
+              {projectEntries.map(([projectName, svcs]) => (
+                <div key={projectName}>
+                  {showProjectHeaders && (
+                    <p className="text-[10px] text-gray-600 font-medium uppercase tracking-wide mb-1">
+                      {projectName}
+                    </p>
+                  )}
+                  {!showProjectHeaders && (
+                    <span className="text-xs text-gray-500 font-medium">Services</span>
+                  )}
+                  <div className="mt-1 space-y-1.5">
+                    {svcs.map((svc) => (
+                      <div
+                        key={`${svc.project}-${svc.name}`}
+                        className="flex items-center justify-between text-xs"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div
+                            className={`w-2 h-2 rounded-full shrink-0 ${svc.healthy ? 'bg-[#00D46A]' : 'bg-[#FF4545]'}`}
+                          />
+                          <span className="text-gray-300 truncate">{svc.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {svc.restartLooping && (
+                            <span className="text-[10px] text-[#FFB800]">restart loop</span>
+                          )}
+                          {svc.restartCount > 0 && !svc.restartLooping && (
+                            <span className="text-[10px] text-gray-600">
+                              {svc.restartCount} restart{svc.restartCount !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                          {svc.upSince && (
+                            <span className="text-[10px] text-gray-600">
+                              up {timeAgo(svc.upSince)}
+                            </span>
+                          )}
+                          {svc.latestDeployStatus && (
+                            <StatusBadge status={svc.latestDeployStatus} />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0 ml-2">
-                  {svc.restartLooping && (
-                    <span className="text-[10px] text-[#FFB800]">restart loop</span>
-                  )}
-                  {svc.restartCount > 0 && !svc.restartLooping && (
-                    <span className="text-[10px] text-gray-600">
-                      {svc.restartCount} restart{svc.restartCount !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                  {svc.upSince && (
-                    <span className="text-[10px] text-gray-600">up {timeAgo(svc.upSince)}</span>
-                  )}
-                  {svc.latestDeployStatus && <StatusBadge status={svc.latestDeployStatus} />}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              ))}
+            </div>
+          )
+        })()}
 
       {/* Recent deploys (compact, max 3) */}
       {data.recentDeploys.length > 0 && (

@@ -138,10 +138,10 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   // Fetch recent deployments per project
   const deployments: RawData['deployments'] = []
-  for (const project of projects.slice(0, 3)) {
+  for (const project of projects.slice(0, 5)) {
     const envId = project.environments[0]?.id
     if (!envId) continue
-    for (const service of project.services.slice(0, 5)) {
+    for (const service of project.services) {
       try {
         const deplData = (await gql(
           config.apiKey,
@@ -173,10 +173,10 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   // Fetch service instance status per service
   const serviceInstances: ServiceInstance[] = []
-  for (const project of projects.slice(0, 3)) {
+  for (const project of projects.slice(0, 5)) {
     const envId = project.environments[0]?.id
     if (!envId) continue
-    for (const service of project.services.slice(0, 5)) {
+    for (const service of project.services) {
       try {
         const instData = (await gql(
           config.apiKey,
@@ -200,20 +200,31 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
           }
         }
         const inst = instData?.serviceInstance
-        if (inst) {
-          serviceInstances.push({
-            serviceId: service.id,
-            serviceName: service.name,
-            projectName: project.name,
-            latestDeployStatus: inst.latestDeployment?.status ?? null,
-            healthcheckPath: inst.healthcheckPath ?? null,
-            numReplicas: inst.numReplicas ?? 0,
-            restartCount: inst.restartCountSinceDeploy ?? 0,
-            upSince: inst.upSince ?? null,
-          })
-        }
+        // Always push a record — fall back to stub data if serviceInstance is null
+        // so every service in the project appears in the panel
+        serviceInstances.push({
+          serviceId: service.id,
+          serviceName: service.name,
+          projectName: project.name,
+          latestDeployStatus: inst?.latestDeployment?.status ?? null,
+          healthcheckPath: inst?.healthcheckPath ?? null,
+          numReplicas: inst?.numReplicas ?? 0,
+          restartCount: inst?.restartCountSinceDeploy ?? 0,
+          upSince: inst?.upSince ?? null,
+        })
       } catch {
-        // skip if serviceInstance query fails
+        // If the serviceInstance query fails entirely, still push a stub so the
+        // service name appears in the panel (with unknown status)
+        serviceInstances.push({
+          serviceId: service.id,
+          serviceName: service.name,
+          projectName: project.name,
+          latestDeployStatus: null,
+          healthcheckPath: null,
+          numReplicas: 0,
+          restartCount: 0,
+          upSince: null,
+        })
       }
     }
   }

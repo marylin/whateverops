@@ -222,20 +222,25 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
   }
 
   // Supabase Management — supports SUPABASE_MANAGEMENT_KEY or SUPABASE_ACCESS_TOKEN (fallback)
+  // projectRef is optional: if omitted (or empty), all projects under the account are fetched.
+  // Set SUPABASE_PROJECT_REF to restrict to a single project.
   const supabaseManagementKey =
     envOrSkip('SUPABASE_MANAGEMENT_KEY') ?? envOrSkip('SUPABASE_ACCESS_TOKEN')
   if (supabaseManagementKey) {
     integrations.push(
       runIntegration(supabaseManagement, {
         apiKey: supabaseManagementKey,
-        projectRef: process.env.SUPABASE_PROJECT_REF ?? '',
+        ...(process.env.SUPABASE_PROJECT_REF
+          ? { projectRef: process.env.SUPABASE_PROJECT_REF }
+          : {}),
       }),
     )
     for (const n of getExtraInstances('SUPABASE_MANAGEMENT_KEY')) {
+      const refN = process.env[`SUPABASE_PROJECT_REF_${n}`]
       integrations.push(
         runIntegration(withInstance(supabaseManagement, n), {
           apiKey: process.env[`SUPABASE_MANAGEMENT_KEY_${n}`]!,
-          projectRef: process.env[`SUPABASE_PROJECT_REF_${n}`] ?? '',
+          ...(refN ? { projectRef: refN } : {}),
         }),
       )
     }

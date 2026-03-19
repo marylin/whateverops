@@ -2,8 +2,25 @@ import { StatusBadge } from '../ui/StatusBadge'
 import { ExternalLink } from '../ui/ExternalLink'
 import { timeAgo, formatDuration } from '../../lib/format'
 
+interface LatestDeploy {
+  status: string
+  created: string
+  commitMessage: string | null
+  buildDurationSec: number | null
+  errorMessage: string | null
+}
+
+interface ProjectSummary {
+  id: string
+  name: string
+  framework: string | null
+  url: string | null
+  latestDeploy: LatestDeploy | null
+}
+
 interface VercelPanelData {
   projectCount: number
+  projects: ProjectSummary[]
   recentDeploys: Array<{
     id: string
     project: string
@@ -48,10 +65,21 @@ function deployStatusBadgeClass(status: string): string {
   return 'bg-[#1E1E2E] text-gray-400'
 }
 
+function statusDot(status: string): string {
+  const s = status.toUpperCase()
+  if (s === 'READY') return 'bg-[#00D46A]'
+  if (s === 'ERROR') return 'bg-[#FF4545]'
+  if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#FFB800]'
+  return 'bg-gray-600'
+}
+
 export function VercelPanel({ data }: { data: VercelPanelData }) {
   const prodDeploy = data.lastProductionDeploy
   const hasMisconfiguredDomain = data.domains.some((d) => d.misconfigured)
-  const hasAlerts = (prodDeploy && prodDeploy.status === 'ERROR') || hasMisconfiguredDomain
+
+  // Projects with a failed latest deploy
+  const failedProjects = (data.projects ?? []).filter((p) => p.latestDeploy?.status === 'ERROR')
+  const hasAlerts = failedProjects.length > 0 || hasMisconfiguredDomain
 
   return (
     <div className="space-y-4">
@@ -94,14 +122,18 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
       {/* Alert row */}
       {hasAlerts && (
         <div className="space-y-1">
-          {prodDeploy && prodDeploy.status === 'ERROR' && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
+          {failedProjects.map((p) => (
+            <div
+              key={p.id}
+              className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]"
+            >
               <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
               <span className="text-xs text-[#FF4545] truncate">
-                Deploy failed{prodDeploy.errorMessage ? `: ${prodDeploy.errorMessage}` : ''}
+                {p.name} deploy failed
+                {p.latestDeploy?.errorMessage ? `: ${p.latestDeploy.errorMessage}` : ''}
               </span>
             </div>
-          )}
+          ))}
           {hasMisconfiguredDomain && (
             <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
               <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
@@ -114,7 +146,7 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
         </div>
       )}
 
-      {/* Supporting: commit message, build time, project name */}
+      {/* Supporting: commit message, build time, project name for hero deploy */}
       {prodDeploy && (
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-400 truncate max-w-[60%]">
@@ -131,12 +163,60 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
         </div>
       )}
 
-      {/* Recent deploys (max 3) */}
+      {/* Project list: each project with latest deploy status */}
+      {data.projects && data.projects.length > 0 && (
+        <div>
+          <span className="text-xs text-gray-500 font-medium">Projects</span>
+          <div className="mt-1.5 space-y-1.5">
+            {data.projects.map((project) => (
+              <div key={project.id} className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  {project.latestDeploy ? (
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDot(project.latestDeploy.status)}`}
+                    />
+                  ) : (
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-gray-700" />
+                  )}
+                  <span className="text-gray-300 truncate">
+                    {project.url ? (
+                      <ExternalLink href={project.url} className="text-gray-300">
+                        {project.name}
+                      </ExternalLink>
+                    ) : (
+                      project.name
+                    )}
+                  </span>
+                  {project.framework && (
+                    <span className="text-gray-600 shrink-0">{project.framework}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-2">
+                  {project.latestDeploy ? (
+                    <>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${deployStatusBadgeClass(project.latestDeploy.status)}`}
+                      >
+                        {project.latestDeploy.status}
+                      </span>
+                      <span className="text-gray-600">{timeAgo(project.latestDeploy.created)}</span>
+                    </>
+                  ) : (
+                    <span className="text-gray-700">no deploys</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent deploys activity feed (top 3-5 across all projects) */}
       {data.recentDeploys.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">Recent Deploys</span>
+          <span className="text-xs text-gray-500 font-medium">Recent Activity</span>
           <div className="mt-1.5 space-y-1.5">
-            {data.recentDeploys.slice(0, 3).map((deploy) => (
+            {data.recentDeploys.slice(0, 5).map((deploy) => (
               <div key={deploy.id} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 min-w-0">
                   <StatusBadge status={deploy.status} />

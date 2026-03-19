@@ -8,7 +8,7 @@ export const DEFAULT_TTL = 120
 
 export const CONFIG_SCHEMA = z.object({
   apiKey: z.string().min(1, 'Supabase service key required'),
-  projectRef: z.string().default(''),
+  projectRef: z.string().optional(),
 })
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
@@ -92,11 +92,11 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const headers = { Authorization: `Bearer ${config.apiKey}` }
   const base = 'https://api.supabase.com/v1'
 
-  // If a specific projectRef is provided, fetch only that project (backward compatible)
-  // Otherwise, fetch all projects
+  // If a specific projectRef is provided (non-empty), fetch only that project.
+  // Otherwise, fetch all projects via the management API.
   let projectRefs: string[]
 
-  if (config.projectRef) {
+  if (config.projectRef && config.projectRef.length > 0) {
     projectRefs = [config.projectRef]
   } else {
     const listRes = await sbFetch(`${base}/projects`, headers)
