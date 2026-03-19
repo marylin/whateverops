@@ -15,7 +15,7 @@ export function Header({ dashboard, onRefresh }: HeaderProps) {
           <h1 className="text-2xl font-bold text-[#7C3AED]">WhateverOPS</h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative">
           {dashboard && (
             <HealthIndicator
               globalHealth={dashboard.globalHealth}
