@@ -81,8 +81,11 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   }
 
   const today = new Date().toISOString().slice(0, 10)
+  // Linear GraphQL uses String! for team(id:) but ID for issue filter comparators.
+  // Inline the teamId in filters to avoid type conflict.
+  const tid = teamId
   const query = `
-    query TeamStats($teamId: String!, $today: TimelessDate!) {
+    query TeamStats($teamId: String!, $today: TimelessDateOrDuration!) {
       team(id: $teamId) {
         name
         activeCycle {
@@ -94,25 +97,25 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
         }
         issues(filter: { state: { type: { in: ["backlog"] } } }) { nodes { id } }
       }
-      openIssues: issues(filter: { team: { id: { eq: $teamId } }, state: { type: { in: ["unstarted", "triage"] } } }) {
+      openIssues: issues(filter: { team: { id: { eq: "${tid}" } }, state: { type: { in: ["unstarted", "triage"] } } }) {
         nodes { id }
       }
-      inProgress: issues(filter: { team: { id: { eq: $teamId } }, state: { type: { eq: "started" } } }) {
+      inProgress: issues(filter: { team: { id: { eq: "${tid}" } }, state: { type: { eq: "started" } } }) {
         nodes { id priority title }
       }
-      overdueIssues: issues(filter: { team: { id: { eq: $teamId } }, dueDate: { lt: $today }, state: { type: { nin: ["completed", "canceled"] } } }) {
+      overdueIssues: issues(filter: { team: { id: { eq: "${tid}" } }, dueDate: { lt: $today }, state: { type: { nin: ["completed", "canceled"] } } }) {
         nodes { id }
       }
-      blockedIssues: issues(filter: { team: { id: { eq: $teamId } }, state: { name: { containsIgnoreCase: "blocked" } } }) {
+      blockedIssues: issues(filter: { team: { id: { eq: "${tid}" } }, state: { name: { containsIgnoreCase: "blocked" } } }) {
         nodes { id }
       }
-      topPriority: issues(filter: { team: { id: { eq: $teamId } }, state: { type: { in: ["started", "unstarted"] } }, priority: { gte: 1 } }, first: 1, orderBy: priority) {
+      topPriority: issues(filter: { team: { id: { eq: "${tid}" } }, state: { type: { in: ["started", "unstarted"] } }, priority: { gte: 1 } }, first: 1, orderBy: updatedAt) {
         nodes { title priority }
       }
     }
   `
 
-  const data = (await gql(config.apiKey, query, { teamId, today })) as {
+  const data = (await gql(config.apiKey, query, { teamId: tid, today })) as {
     team?: {
       name?: string
       activeCycle?: {
