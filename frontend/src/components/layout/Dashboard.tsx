@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDashboard } from '../../hooks/useDashboard'
 import { Header } from './Header'
 import { PanelCard } from '../ui/PanelCard'
@@ -69,6 +69,229 @@ function LoadingSkeleton() {
   )
 }
 
+/**
+ * Cards grouped by the 5 solopreneur questions:
+ *   1. "Is my product making money?"
+ *   2. "Is anything broken right now?"
+ *   3. "Are people using it?"
+ *   4. "Am I burning too much?"
+ *   5. "What needs my attention today?"
+ */
+const FOUNDER_GROUPS: Array<{
+  id: string
+  label: string
+  question: string
+  integrations: string[]
+}> = [
+  {
+    id: 'money',
+    label: 'Revenue',
+    question: 'Is my product making money?',
+    integrations: ['stripe'],
+  },
+  {
+    id: 'health',
+    label: 'Health',
+    question: 'Is anything broken right now?',
+    integrations: [
+      'sentry',
+      'vercel',
+      'railway',
+      'neon',
+      'supabase-management',
+      'cloudflare',
+      'self-monitoring',
+    ],
+  },
+  {
+    id: 'users',
+    label: 'Users',
+    question: 'Are people using it?',
+    integrations: ['posthog', 'supabase-auth', 'github'],
+  },
+  {
+    id: 'costs',
+    label: 'Costs',
+    question: 'Am I burning too much?',
+    integrations: ['anthropic', 'openai'],
+  },
+  {
+    id: 'attention',
+    label: 'Attention',
+    question: 'What needs my attention today?',
+    integrations: ['linear', 'resend'],
+  },
+]
+
+function GroupedPanels({
+  panels,
+  onRefresh,
+}: {
+  panels: IntegrationResult[]
+  onRefresh: () => void
+}) {
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard-collapsed-groups')
+      return saved ? new Set(JSON.parse(saved)) : new Set()
+    } catch {
+      return new Set()
+    }
+  })
+
+  function toggleGroup(groupId: string) {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(groupId)) next.delete(groupId)
+      else next.add(groupId)
+      localStorage.setItem('dashboard-collapsed-groups', JSON.stringify([...next]))
+      return next
+    })
+  }
+
+  // Build a map of panel ID (stripping instance suffix) → panel
+  const panelMap = new Map<string, IntegrationResult[]>()
+  for (const panel of panels) {
+    const baseId = panel.id.replace(/-\d+$/, '')
+    if (!panelMap.has(baseId)) panelMap.set(baseId, [])
+    panelMap.get(baseId)!.push(panel)
+  }
+
+  // Track which panels are assigned to a group
+  const assigned = new Set<string>()
+
+  return (
+    <div className="space-y-6 mt-4">
+      {FOUNDER_GROUPS.map((group) => {
+        // Collect panels for this group
+        const groupPanels: IntegrationResult[] = []
+        for (const intId of group.integrations) {
+          const instances = panelMap.get(intId) ?? []
+          for (const p of instances) {
+            groupPanels.push(p)
+            assigned.add(p.id)
+          }
+        }
+
+        if (groupPanels.length === 0) return null
+
+        const isCollapsed = collapsedGroups.has(group.id)
+        const errorCount = groupPanels.filter((p) => p.status === 'error').length
+        const warnCount = groupPanels.filter((p) => p.status === 'warn').length
+
+        return (
+          <section key={group.id}>
+            {/* Group header */}
+            <button
+              onClick={() => toggleGroup(group.id)}
+              className="w-full flex items-center justify-between mb-3 group"
+            >
+              <div className="flex items-center gap-3">
+                <svg
+                  className={`w-4 h-4 text-gray-600 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+                <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                  {group.label}
+                </h2>
+                <span className="text-xs text-gray-600 font-normal normal-case">
+                  {group.question}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {errorCount > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FF454520] text-[#FF4545]">
+                    {errorCount} error{errorCount !== 1 ? 's' : ''}
+                  </span>
+                )}
+                {warnCount > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FFB80020] text-[#FFB800]">
+                    {warnCount} warning{warnCount !== 1 ? 's' : ''}
+                  </span>
+                )}
+                {errorCount === 0 && warnCount === 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#00D46A20] text-[#00D46A]">
+                    all ok
+                  </span>
+                )}
+                <span className="text-[10px] text-gray-700">
+                  {groupPanels.length} card{groupPanels.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+            </button>
+
+            {/* Collapsed summary */}
+            {isCollapsed ? null : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {groupPanels.map((panel) => {
+                  const wide = WIDE_PANELS.has(panel.id.replace(/-\d+$/, ''))
+                  return (
+                    <ErrorBoundary key={panel.id} title={panel.name}>
+                      <div className={wide ? 'xl:col-span-2' : ''}>
+                        <PanelCard
+                          title={panel.name}
+                          status={panel.status}
+                          cached={panel.cached}
+                          lastUpdated={panel.lastUpdated}
+                          ttl={panel.ttl}
+                          wide={wide}
+                          error={panel.error}
+                          onRetry={onRefresh}
+                        >
+                          {renderPanelContent(panel)}
+                        </PanelCard>
+                      </div>
+                    </ErrorBoundary>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        )
+      })}
+
+      {/* Ungrouped panels (future integrations not yet categorized) */}
+      {(() => {
+        const ungrouped = panels.filter((p) => !assigned.has(p.id))
+        if (ungrouped.length === 0) return null
+        return (
+          <section>
+            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+              Other
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {ungrouped.map((panel) => (
+                <ErrorBoundary key={panel.id} title={panel.name}>
+                  <PanelCard
+                    title={panel.name}
+                    status={panel.status}
+                    cached={panel.cached}
+                    lastUpdated={panel.lastUpdated}
+                    ttl={panel.ttl}
+                    error={panel.error}
+                    onRetry={onRefresh}
+                  >
+                    {renderPanelContent(panel)}
+                  </PanelCard>
+                </ErrorBoundary>
+              ))}
+            </div>
+          </section>
+        )
+      })()}
+    </div>
+  )
+}
+
 export function Dashboard() {
   const { data, loading, error, refresh } = useDashboard()
 
@@ -107,28 +330,11 @@ export function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {loading && !data && <LoadingSkeleton />}
-          {data?.panels.map((panel) => {
-            const wide = WIDE_PANELS.has(panel.id.replace(/-\d+$/, ''))
-            return (
-              <ErrorBoundary key={panel.id} title={panel.name}>
-                <div className={wide ? 'xl:col-span-2' : ''}>
-                  <PanelCard
-                    title={panel.name}
-                    status={panel.status}
-                    cached={panel.cached}
-                    lastUpdated={panel.lastUpdated}
-                    ttl={panel.ttl}
-                    wide={wide}
-                    error={panel.error}
-                    onRetry={refresh}
-                  >
-                    {renderPanelContent(panel)}
-                  </PanelCard>
-                </div>
-              </ErrorBoundary>
-            )
-          })}
         </div>
+
+        {data && data.panels.length > 0 && (
+          <GroupedPanels panels={data.panels} onRefresh={refresh} />
+        )}
 
         {data && (
           <div className="mt-6 text-center">
