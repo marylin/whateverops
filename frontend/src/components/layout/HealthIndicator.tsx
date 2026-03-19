@@ -33,14 +33,14 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
 
       {showModal && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-[#111118] border border-[#1E1E2E] rounded-xl p-6 w-full max-w-md mx-4"
+            className="bg-[#111118] border border-[#1E1E2E] rounded-xl p-6 w-full max-w-md max-h-[80vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 shrink-0">
               <h2 className="text-sm font-semibold text-white">Integration Status</h2>
               <button
                 onClick={() => setShowModal(false)}
@@ -49,7 +49,7 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
                 x
               </button>
             </div>
-            <div className="space-y-2 max-h-80 overflow-y-auto">
+            <div className="space-y-2 overflow-y-auto min-h-0">
               {panels.map((panel) => (
                 <div
                   key={panel.id}

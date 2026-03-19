@@ -7,6 +7,9 @@ import { GenericPanel } from '../panels/GenericPanel'
 import { StripePanel } from '../panels/StripePanel'
 import type { IntegrationResult } from '../../lib/api'
 
+/** Wide panels that span 2 columns on xl (3-col) desktop layout */
+const WIDE_PANELS = new Set(['stripe', 'github', 'sentry'])
+
 function renderPanelContent(panel: IntegrationResult) {
   if (!panel.data) return <p className="text-sm text-gray-500">No data</p>
 
@@ -65,22 +68,27 @@ export function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {loading && !data && <LoadingSkeleton />}
-          {data?.panels.map((panel) => (
-            <ErrorBoundary key={panel.id} title={panel.name}>
-              <PanelCard
-                title={panel.name}
-                status={panel.status}
-                cached={panel.cached}
-                lastUpdated={panel.lastUpdated}
-                ttl={panel.ttl}
-                wide={panel.id === 'stripe'}
-                error={panel.error}
-                onRetry={refresh}
-              >
-                {renderPanelContent(panel)}
-              </PanelCard>
-            </ErrorBoundary>
-          ))}
+          {data?.panels.map((panel) => {
+            const wide = WIDE_PANELS.has(panel.id.replace(/-\d+$/, ''))
+            return (
+              <ErrorBoundary key={panel.id} title={panel.name}>
+                <div className={wide ? 'xl:col-span-2' : ''}>
+                  <PanelCard
+                    title={panel.name}
+                    status={panel.status}
+                    cached={panel.cached}
+                    lastUpdated={panel.lastUpdated}
+                    ttl={panel.ttl}
+                    wide={wide}
+                    error={panel.error}
+                    onRetry={refresh}
+                  >
+                    {renderPanelContent(panel)}
+                  </PanelCard>
+                </div>
+              </ErrorBoundary>
+            )
+          })}
         </div>
 
         {data && (
