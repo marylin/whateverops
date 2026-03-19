@@ -47,8 +47,8 @@ export function OpenAIPanel({ data }: { data: OpenAIPanelData }) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
-          <span className="text-sm font-semibold text-[#FF4545]">Invalid API key</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
+          <span className="text-sm font-semibold text-[#EF4444]">Invalid API key</span>
         </div>
       </div>
     )
@@ -66,7 +66,7 @@ export function OpenAIPanel({ data }: { data: OpenAIPanelData }) {
           {trendPct !== null && (
             <div className="flex items-center gap-1 justify-end">
               <span
-                className={`text-sm font-semibold ${trendDown ? 'text-[#00D46A]' : trendUp ? 'text-[#FF4545]' : 'text-gray-400'}`}
+                className={`text-sm font-semibold ${trendDown ? 'text-[#10B981]' : trendUp ? 'text-[#EF4444]' : 'text-gray-400'}`}
               >
                 {trendDown ? '\u2193' : trendUp ? '\u2191' : '\u2192'} {Math.abs(trendPct)}%
               </span>
@@ -80,12 +80,12 @@ export function OpenAIPanel({ data }: { data: OpenAIPanelData }) {
       {(projectedHigh || rateLimitCritical) && (
         <div className="flex flex-wrap gap-1.5">
           {projectedHigh && (
-            <span className="text-[10px] px-2 py-0.5 bg-[#FFB80020] text-[#FFB800] rounded font-semibold">
+            <span className="text-[10px] px-2 py-0.5 bg-[#F59E0B20] text-[#F59E0B] rounded font-semibold">
               Projected spend {formatCurrency(projectedSpend)}
             </span>
           )}
           {rateLimitCritical && (
-            <span className="text-[10px] px-2 py-0.5 bg-[#FF454520] text-[#FF4545] rounded font-semibold">
+            <span className="text-[10px] px-2 py-0.5 bg-[#EF444420] text-[#EF4444] rounded font-semibold">
               Rate limit &gt;90%
             </span>
           )}

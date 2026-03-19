@@ -23,7 +23,7 @@ interface PostHogPanelData {
 }
 
 /** Mini sparkline rendered inline via SVG */
-function Sparkline({ data, color = '#7C3AED' }: { data: TrendPoint[]; color?: string }) {
+function Sparkline({ data, color = '#0EA5E9' }: { data: TrendPoint[]; color?: string }) {
   if (data.length < 2) return null
 
   const max = Math.max(...data.map((d) => d.count), 1)
@@ -79,7 +79,7 @@ export function PostHogPanel({ data }: { data: PostHogPanelData }) {
         <Metric label="Events Today" value={smartNumber(data.eventsToday)} />
         <div>
           <p className="text-xs text-gray-500 mb-1">Events (14d)</p>
-          <Sparkline data={data.eventsTrend} color="#00D46A" />
+          <Sparkline data={data.eventsTrend} color="#10B981" />
         </div>
       </div>
 

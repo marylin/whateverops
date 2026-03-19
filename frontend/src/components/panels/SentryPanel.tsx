@@ -39,9 +39,9 @@ function crashFreeColor(rate: number | null): 'green' | 'yellow' | 'red' {
 
 function crashFreeBadgeClass(rate: number | null): string {
   if (rate == null) return 'bg-[#1E1E2E] text-gray-400'
-  if (rate >= 99.5) return 'bg-[#00D46A20] text-[#00D46A]'
-  if (rate >= 99) return 'bg-[#FFB80020] text-[#FFB800]'
-  return 'bg-[#FF454520] text-[#FF4545]'
+  if (rate >= 99.5) return 'bg-[#10B98120] text-[#10B981]'
+  if (rate >= 99) return 'bg-[#F59E0B20] text-[#F59E0B]'
+  return 'bg-[#EF444420] text-[#EF4444]'
 }
 
 export function SentryPanel({ data }: { data: SentryPanelData }) {
@@ -85,25 +85,25 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
       {hasAlerts && (
         <div className="space-y-1">
           {data.newIssues24h > 0 && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
-              <span className="text-xs text-[#FF4545]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#EF444415] border border-[#EF444430]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
+              <span className="text-xs text-[#EF4444]">
                 {data.newIssues24h} NEW error{data.newIssues24h !== 1 ? 's' : ''} since last deploy
               </span>
             </div>
           )}
           {data.crashFreeRate !== null && data.crashFreeRate < 99 && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
-              <span className="text-xs text-[#FF4545]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#EF444415] border border-[#EF444430]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
+              <span className="text-xs text-[#EF4444]">
                 Crash-free rate below 99% ({data.crashFreeRate}%)
               </span>
             </div>
           )}
           {data.errorTrendDirection === 'up' && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
-              <span className="text-xs text-[#FFB800]">Error trend is increasing</span>
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#F59E0B15] border border-[#F59E0B30]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
+              <span className="text-xs text-[#F59E0B]">Error trend is increasing</span>
             </div>
           )}
         </div>
@@ -131,7 +131,7 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
               return (
                 <div
                   key={i}
-                  className="flex-1 bg-[#FF454560] rounded-sm transition-all"
+                  className="flex-1 bg-[#EF444460] rounded-sm transition-all"
                   style={{ height: `${height}%` }}
                   title={`${point.date}: ${point.count} events`}
                 />
@@ -163,10 +163,10 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
                     )}
                     <span className="text-gray-600">{issue.count}&times;</span>
                     {issue.level === 'error' && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
                     )}
                     {issue.level === 'warning' && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
                     )}
                   </div>
                 </div>

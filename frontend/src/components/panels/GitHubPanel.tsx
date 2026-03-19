@@ -139,17 +139,17 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
         <div className="flex items-center gap-2">
           {ciFailing ? (
             <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
-              <span className="text-sm font-semibold text-[#FF4545]">CI Failing</span>
+              <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
+              <span className="text-sm font-semibold text-[#EF4444]">CI Failing</span>
             </>
           ) : ciPassing ? (
             <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#00D46A]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
               <span className="text-sm font-semibold text-white">CI Passing</span>
             </>
           ) : (
             <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FFB800]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
               <span className="text-sm font-semibold text-white">
                 {data.cicd.lastRunConclusion ?? 'No CI runs'}
               </span>
@@ -167,18 +167,18 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
       {(ciFailing || data.dependabot.criticalCount > 0 || (data.externalPRs ?? 0) > 0) && (
         <div className="flex flex-wrap gap-1.5">
           {ciFailing && (
-            <span className="text-[10px] px-2 py-0.5 bg-[#FF454520] text-[#FF4545] rounded font-semibold">
+            <span className="text-[10px] px-2 py-0.5 bg-[#EF444420] text-[#EF4444] rounded font-semibold">
               CI failing
             </span>
           )}
           {data.dependabot.criticalCount > 0 && (
-            <span className="text-[10px] px-2 py-0.5 bg-[#FF454520] text-[#FF4545] rounded font-semibold">
+            <span className="text-[10px] px-2 py-0.5 bg-[#EF444420] text-[#EF4444] rounded font-semibold">
               {data.dependabot.criticalCount} critical alert
               {data.dependabot.criticalCount !== 1 ? 's' : ''}
             </span>
           )}
           {(data.externalPRs ?? 0) > 0 && (
-            <span className="text-[10px] px-2 py-0.5 bg-[#FFB80020] text-[#FFB800] rounded font-semibold">
+            <span className="text-[10px] px-2 py-0.5 bg-[#F59E0B20] text-[#F59E0B] rounded font-semibold">
               {data.externalPRs} external PR{data.externalPRs !== 1 ? 's' : ''} waiting
             </span>
           )}
@@ -232,7 +232,7 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
         <div className="space-y-3">
           {/* Last commit */}
           {data.lastCommit && (
-            <div className="border border-[#1E1E2E] rounded-lg px-3 py-2">
+            <div className="border border-[#252535] rounded-lg px-3 py-2">
               <span className="text-[10px] text-gray-600 uppercase tracking-wider">
                 Last Commit
               </span>
@@ -322,7 +322,7 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
           </div>
 
           {showRepoList && (
-            <div className="mb-2 max-h-48 overflow-y-auto border border-[#1E1E2E] rounded-lg divide-y divide-[#1E1E2E]">
+            <div className="mb-2 max-h-48 overflow-y-auto border border-[#252535] rounded-lg divide-y divide-[#252535]">
               {data.repos.map((repo) => {
                 const activity = activities.find((a) => a.name === repo.name)
                 const isSelected = selectedRepo === repo.name
@@ -350,8 +350,8 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
           )}
 
           {selectedActivity && (
-            <div className="border border-[#1E1E2E] rounded-lg">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-[#1E1E2E]">
+            <div className="border border-[#252535] rounded-lg">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-[#252535]">
                 <ExternalLink
                   href={selectedActivity.htmlUrl}
                   className="text-xs text-gray-300 font-medium"
@@ -427,7 +427,7 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
                 <button
                   key={repo.fullName}
                   onClick={() => selectRepo(repo.name)}
-                  className="w-full flex items-center justify-between px-3 py-2 text-xs border border-[#1E1E2E] rounded-lg hover:bg-[#1E1E2E20] transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 text-xs border border-[#252535] rounded-lg hover:bg-[#1E1E2E20] transition-colors"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <ExternalLink href={repo.htmlUrl} className="text-gray-300 truncate">

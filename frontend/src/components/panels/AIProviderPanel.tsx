@@ -28,8 +28,8 @@ export function AIProviderPanel({ data }: { data: AIProviderData }) {
       {/* Hero: rate limit status */}
       {!data.keyValid && (
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
-          <span className="text-sm font-semibold text-[#FF4545]">Invalid API key</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
+          <span className="text-sm font-semibold text-[#EF4444]">Invalid API key</span>
         </div>
       )}
 

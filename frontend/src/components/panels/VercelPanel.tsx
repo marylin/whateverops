@@ -60,17 +60,17 @@ interface VercelPanelData {
 
 function deployStatusBadgeClass(status: string): string {
   const s = status.toUpperCase()
-  if (s === 'READY') return 'bg-[#00D46A20] text-[#00D46A]'
-  if (s === 'ERROR') return 'bg-[#FF454520] text-[#FF4545]'
-  if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#FFB80020] text-[#FFB800]'
+  if (s === 'READY') return 'bg-[#10B98120] text-[#10B981]'
+  if (s === 'ERROR') return 'bg-[#EF444420] text-[#EF4444]'
+  if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#F59E0B20] text-[#F59E0B]'
   return 'bg-[#1E1E2E] text-gray-400'
 }
 
 function statusDot(status: string): string {
   const s = status.toUpperCase()
-  if (s === 'READY') return 'bg-[#00D46A]'
-  if (s === 'ERROR') return 'bg-[#FF4545]'
-  if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#FFB800]'
+  if (s === 'READY') return 'bg-[#10B981]'
+  if (s === 'ERROR') return 'bg-[#EF4444]'
+  if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#F59E0B]'
   return 'bg-gray-600'
 }
 
@@ -128,19 +128,19 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
           {failedProjects.map((p) => (
             <div
               key={p.id}
-              className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]"
+              className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#EF444415] border border-[#EF444430]"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
-              <span className="text-xs text-[#FF4545] truncate">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
+              <span className="text-xs text-[#EF4444] truncate">
                 {p.name} deploy failed
                 {p.latestDeploy?.errorMessage ? `: ${p.latestDeploy.errorMessage}` : ''}
               </span>
             </div>
           ))}
           {hasMisconfiguredDomain && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
-              <span className="text-xs text-[#FFB800]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#F59E0B15] border border-[#F59E0B30]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
+              <span className="text-xs text-[#F59E0B]">
                 {data.domains.filter((d) => d.misconfigured).length} domain
                 {data.domains.filter((d) => d.misconfigured).length !== 1 ? 's' : ''} misconfigured
               </span>

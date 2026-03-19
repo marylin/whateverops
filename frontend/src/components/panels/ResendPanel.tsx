@@ -44,10 +44,10 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
 
   const deliveryColor =
     data.deliveryRate >= 95
-      ? 'bg-[#00D46A20] text-[#00D46A]'
+      ? 'bg-[#10B98120] text-[#10B981]'
       : data.deliveryRate >= 90
-        ? 'bg-[#FFB80020] text-[#FFB800]'
-        : 'bg-[#FF454520] text-[#FF4545]'
+        ? 'bg-[#F59E0B20] text-[#F59E0B]'
+        : 'bg-[#EF444420] text-[#EF4444]'
 
   const bounceRate = data.totalSent > 0 ? (data.bouncedCount / data.totalSent) * 100 : 0
 
@@ -95,17 +95,17 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
 
       {/* Alert row */}
       {data.deliveryRate < 90 && (
-        <div className="flex items-center gap-2 text-xs bg-[#FF454510] border border-[#FF454515] rounded-lg px-3 py-2">
-          <div className="w-2 h-2 rounded-full bg-[#FF4545] shrink-0" />
-          <span className="text-[#FF6B6B]">
+        <div className="flex items-center gap-2 text-xs bg-[#EF444410] border border-[#EF444415] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#EF4444] shrink-0" />
+          <span className="text-[#F87171]">
             Delivery rate below 90% — check bounces and domain reputation
           </span>
         </div>
       )}
       {bounceRate > 5 && data.deliveryRate >= 90 && (
-        <div className="flex items-center gap-2 text-xs bg-[#FFB80010] border border-[#FFB80015] rounded-lg px-3 py-2">
-          <div className="w-2 h-2 rounded-full bg-[#FFB800] shrink-0" />
-          <span className="text-[#FFB800]">
+        <div className="flex items-center gap-2 text-xs bg-[#F59E0B10] border border-[#F59E0B15] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#F59E0B] shrink-0" />
+          <span className="text-[#F59E0B]">
             Bounce rate at {bounceRate.toFixed(1)}% — exceeds 5% threshold
           </span>
         </div>

@@ -32,12 +32,12 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="bg-[#1E1E2E] border border-[#FF454520] rounded-xl p-5 flex flex-col gap-3">
+        <div className="bg-[#161622] border border-[#EF444420] rounded-xl p-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF4545] flex-shrink-0" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444] flex-shrink-0" />
             <h3 className="text-sm font-semibold text-white">{this.props.title ?? 'Panel'}</h3>
           </div>
-          <div className="rounded-lg bg-[#FF454508] border border-[#FF454515] px-3 py-2.5">
+          <div className="rounded-lg bg-[#EF444408] border border-[#EF444415] px-3 py-2.5">
             <p className="text-sm text-red-400 leading-relaxed">This panel encountered an error</p>
             {this.state.error?.message && (
               <p className="text-xs text-gray-500 mt-1 leading-relaxed font-mono">
@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </div>
           <button
             onClick={this.handleRetry}
-            className="self-start text-xs px-3 py-1.5 bg-[#111118] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors border border-[#2A2A3E]"
+            className="self-start text-xs px-3 py-1.5 bg-[#111118] hover:bg-[#1E1E2E] text-gray-300 rounded-md transition-colors border border-[#252535]"
           >
             Retry
           </button>

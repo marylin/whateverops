@@ -8,7 +8,7 @@ import { fetchSettings, setStorageMode, type SettingsResponse } from '../lib/set
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-[#1E1E2E] border border-[#2A2A3E] p-6">
+    <div className="rounded-xl bg-[#161622] border border-[#252535] p-6">
       <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">{title}</h2>
       {children}
     </div>
@@ -74,7 +74,7 @@ function StorageSelector({
           checked={current === 'env'}
           onChange={() => void handleChange('env')}
           disabled={saving}
-          className="mt-0.5 accent-[#7C3AED]"
+          className="mt-0.5 accent-[#0EA5E9]"
         />
         <div>
           <span className="text-sm font-medium text-white">Environment Variables</span>
@@ -95,7 +95,7 @@ function StorageSelector({
           checked={current === 'db'}
           onChange={() => void handleChange('db')}
           disabled={saving || dbDisabled}
-          className="mt-0.5 accent-[#7C3AED]"
+          className="mt-0.5 accent-[#0EA5E9]"
         />
         <div>
           <span className="text-sm font-medium text-white">Database (Encrypted)</span>
@@ -157,7 +157,7 @@ function IntegrationsGrid({ settings }: { settings: SettingsResponse }) {
       {settings.integrations.map((integration) => (
         <div
           key={integration.id}
-          className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#0A0A0F] border border-[#2A2A3E]"
+          className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#0C0C14] border border-[#252535]"
         >
           <span className="text-sm font-medium text-white">{integration.name}</span>
           <StatusBadge ok={integration.configured} />
@@ -206,14 +206,14 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F]">
+    <div className="min-h-screen bg-[#0C0C14]">
       {/* Header */}
-      <header className="border-b border-[#1E1E2E] bg-[#0A0A0F]/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-[#252535] bg-[#0C0C14]/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               to="/"
-              className="text-lg font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors"
+              className="text-lg font-bold text-[#0EA5E9] hover:text-[#38BDF8] transition-colors"
             >
               WhateverOPS
             </Link>
@@ -239,11 +239,11 @@ export function SettingsPage() {
 
         {error && !settings && (
           <div className="text-center py-20">
-            <p className="text-[#FF4545] mb-2">Failed to load settings</p>
+            <p className="text-[#EF4444] mb-2">Failed to load settings</p>
             <p className="text-sm text-gray-500 mb-4">{error}</p>
             <button
               onClick={() => void load()}
-              className="text-sm px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-lg transition-colors"
+              className="text-sm px-4 py-2 bg-[#0EA5E9] hover:bg-[#0284C7] text-white rounded-lg transition-colors"
             >
               Retry
             </button>

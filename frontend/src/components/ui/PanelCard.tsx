@@ -55,20 +55,20 @@ export function PanelCard({
 
     return (
       <div
-        className={`bg-[#111118] border border-[#FF454520] rounded-xl p-5 ${wide ? 'md:col-span-2' : ''}`}
+        className={`bg-[#161622] border border-[#EF444420] rounded-xl p-5 ${wide ? 'md:col-span-2' : ''}`}
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <StatusDot status="error" />
             <h3 className="text-base font-semibold text-white">{title}</h3>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 bg-[#FF454515] text-[#FF4545] rounded">
+          <span className="text-[10px] px-1.5 py-0.5 bg-[#EF444415] text-[#EF4444] rounded">
             error
           </span>
         </div>
         <div className="space-y-3">
-          <div className="rounded-lg bg-[#FF454508] border border-[#FF454515] px-3 py-2.5">
-            <p className="text-sm text-[#FF6B6B] leading-relaxed">{errorTitle}</p>
+          <div className="rounded-lg bg-[#EF444408] border border-[#EF444415] px-3 py-2.5">
+            <p className="text-sm text-[#F87171] leading-relaxed">{errorTitle}</p>
             {errorHint && (
               <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">{errorHint}</p>
             )}
@@ -80,7 +80,7 @@ export function PanelCard({
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="text-xs px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
+                className="text-sm px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
               >
                 Retry
               </button>
@@ -104,7 +104,7 @@ export function PanelCard({
   if (status === 'loading') {
     return (
       <div
-        className={`bg-[#111118] border border-[#1E1E2E] rounded-xl p-5 animate-pulse ${wide ? 'md:col-span-2' : ''}`}
+        className={`bg-[#161622] border border-[#252535] rounded-xl p-5 animate-pulse ${wide ? 'md:col-span-2' : ''}`}
       >
         <div className="flex items-center gap-2 mb-4">
           <div className="w-3 h-3 rounded-full bg-gray-700" />
@@ -121,7 +121,7 @@ export function PanelCard({
 
   return (
     <div
-      className={`bg-[#111118] border border-[#1E1E2E] rounded-xl p-5 hover:border-[#2A2A3E] transition-colors ${wide ? 'md:col-span-2' : ''}`}
+      className={`bg-[#161622] border border-[#252535] rounded-xl p-5 hover:border-[#353550] transition-colors ${wide ? 'md:col-span-2' : ''}`}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

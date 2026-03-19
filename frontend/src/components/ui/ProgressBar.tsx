@@ -9,10 +9,10 @@ interface ProgressBarProps {
 }
 
 const COLOR_MAP = {
-  green: 'bg-[#00D46A]',
-  red: 'bg-[#FF4545]',
-  yellow: 'bg-[#FFB800]',
-  purple: 'bg-[#7C3AED]',
+  green: 'bg-[#10B981]',
+  red: 'bg-[#EF4444]',
+  yellow: 'bg-[#F59E0B]',
+  purple: 'bg-[#0EA5E9]',
   blue: 'bg-[#3B82F6]',
 }
 

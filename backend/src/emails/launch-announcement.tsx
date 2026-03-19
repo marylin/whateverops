@@ -88,7 +88,7 @@ const container = {
 }
 
 const h1 = {
-  color: '#7c3aed',
+  color: '#0ea5e9',
   fontSize: '28px',
   fontWeight: '700' as const,
   margin: '0 0 24px',
@@ -128,7 +128,7 @@ const ctaSection = {
 }
 
 const ctaButton = {
-  backgroundColor: '#7c3aed',
+  backgroundColor: '#0ea5e9',
   borderRadius: '6px',
   color: '#ffffff',
   display: 'inline-block',

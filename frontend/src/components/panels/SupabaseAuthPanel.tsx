@@ -37,9 +37,9 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
   const hasUsers = data.totalUsers > 0
   const signupBadgeColor =
     data.signupsTrend === 'up'
-      ? 'bg-[#00D46A20] text-[#00D46A]'
+      ? 'bg-[#10B98120] text-[#10B981]'
       : data.signupsTrend === 'down'
-        ? 'bg-[#FF454520] text-[#FF4545]'
+        ? 'bg-[#EF444420] text-[#EF4444]'
         : 'bg-[#1E1E2E] text-gray-400'
 
   return (
@@ -67,18 +67,18 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
 
       {/* Alert row */}
       {data.daysSinceLastSignup !== null && data.daysSinceLastSignup > 3 && (
-        <div className="flex items-center gap-2 text-xs bg-[#FFB80010] border border-[#FFB80015] rounded-lg px-3 py-2">
-          <div className="w-2 h-2 rounded-full bg-[#FFB800] shrink-0" />
-          <span className="text-[#FFB800]">
+        <div className="flex items-center gap-2 text-xs bg-[#F59E0B10] border border-[#F59E0B15] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#F59E0B] shrink-0" />
+          <span className="text-[#F59E0B]">
             No new signups in {data.daysSinceLastSignup} day
             {data.daysSinceLastSignup !== 1 ? 's' : ''}
           </span>
         </div>
       )}
       {hasUsers && data.dauPct < 5 && (
-        <div className="flex items-center gap-2 text-xs bg-[#FFB80010] border border-[#FFB80015] rounded-lg px-3 py-2">
-          <div className="w-2 h-2 rounded-full bg-[#FFB800] shrink-0" />
-          <span className="text-[#FFB800]">DAU at {data.dauPct}% — low daily engagement</span>
+        <div className="flex items-center gap-2 text-xs bg-[#F59E0B10] border border-[#F59E0B15] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#F59E0B] shrink-0" />
+          <span className="text-[#F59E0B]">DAU at {data.dauPct}% — low daily engagement</span>
         </div>
       )}
 

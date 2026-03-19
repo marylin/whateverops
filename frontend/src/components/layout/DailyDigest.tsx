@@ -224,14 +224,14 @@ interface MetricTileProps {
 function MetricTile({ label, value, sub, valueColor, tooltip }: MetricTileProps) {
   return (
     <div className="flex-1 min-w-0 px-4 py-3 relative group" title={tooltip ?? undefined}>
-      <p className="text-[10px] font-medium uppercase tracking-widest text-gray-500 truncate">
+      <p className="text-[11px] font-medium uppercase tracking-[0.5px] text-gray-500 truncate">
         {label}
       </p>
       <p className={`text-lg font-bold leading-tight mt-0.5 truncate ${valueColor}`}>{value}</p>
       {sub && <p className="text-[11px] text-gray-400 mt-0.5 truncate">{sub}</p>}
       {tooltip && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 whitespace-nowrap">
-          <div className="bg-[#2A2A3E] border border-[#3D3D5C] rounded px-2 py-1 text-[11px] text-gray-300 shadow-lg">
+          <div className="bg-[#252535] border border-[#3D3D5C] rounded px-2 py-1 text-[11px] text-gray-300 shadow-lg">
             {tooltip}
           </div>
         </div>
@@ -252,8 +252,8 @@ export function DailyDigest({ panels }: DailyDigestProps) {
   const attention = getAttention(panels)
 
   return (
-    <div className="mb-5 rounded-xl border border-[#2A2A3E] bg-[#1E1E2E] overflow-hidden">
-      <div className="flex flex-wrap divide-x divide-[#2A2A3E]">
+    <div className="mb-5 rounded-xl border border-[#252535] bg-[#161622] overflow-hidden">
+      <div className="flex flex-wrap divide-x divide-[#252535]">
         <MetricTile
           label={money.label}
           value={money.value}

@@ -45,7 +45,7 @@ function ProjectRow({
   const isInactive = project.projectStatus === 'INACTIVE'
 
   return (
-    <div className="border border-[#2A2A3E] rounded-lg overflow-hidden">
+    <div className="border border-[#252535] rounded-lg overflow-hidden">
       {/* Clickable row header */}
       <button
         onClick={onToggle}
@@ -54,7 +54,7 @@ function ProjectRow({
         <div className="flex items-center gap-2 min-w-0">
           <div
             className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-              isInactive ? 'bg-gray-600' : allHealthy ? 'bg-[#00D46A]' : 'bg-[#FF4545]'
+              isInactive ? 'bg-gray-600' : allHealthy ? 'bg-[#10B981]' : 'bg-[#EF4444]'
             }`}
           />
           <span className="text-sm font-medium text-white truncate">{project.projectName}</span>
@@ -83,20 +83,20 @@ function ProjectRow({
 
       {/* Expanded details */}
       {isExpanded && !isInactive && (
-        <div className="px-3 pb-3 space-y-3 border-t border-[#2A2A3E]">
+        <div className="px-3 pb-3 space-y-3 border-t border-[#252535]">
           {/* Alert row */}
           {project.readOnly && (
-            <div className="flex items-center gap-2 text-xs bg-[#FF454510] border border-[#FF454515] rounded px-2.5 py-2 mt-2">
-              <div className="w-2 h-2 rounded-full bg-[#FF4545] shrink-0 animate-pulse" />
-              <span className="text-[#FF6B6B] font-medium">
+            <div className="flex items-center gap-2 text-xs bg-[#EF444410] border border-[#EF444415] rounded px-2.5 py-2 mt-2">
+              <div className="w-2 h-2 rounded-full bg-[#EF4444] shrink-0 animate-pulse" />
+              <span className="text-[#F87171] font-medium">
                 READ-ONLY MODE — immediate action needed
               </span>
             </div>
           )}
           {project.advisorCount > 0 && (
-            <div className="flex items-center gap-2 text-xs bg-[#FFB80010] border border-[#FFB80015] rounded px-2.5 py-2 mt-2">
-              <div className="w-2 h-2 rounded-full bg-[#FFB800] shrink-0" />
-              <span className="text-[#FFB800]">
+            <div className="flex items-center gap-2 text-xs bg-[#F59E0B10] border border-[#F59E0B15] rounded px-2.5 py-2 mt-2">
+              <div className="w-2 h-2 rounded-full bg-[#F59E0B] shrink-0" />
+              <span className="text-[#F59E0B]">
                 {project.advisorCount} performance recommendation
                 {project.advisorCount !== 1 ? 's' : ''}
               </span>
@@ -111,8 +111,8 @@ function ProjectRow({
                   <div
                     className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       check.status === 'ok' || check.status === 'ACTIVE_HEALTHY'
-                        ? 'bg-[#00D46A]'
-                        : 'bg-[#FF4545]'
+                        ? 'bg-[#10B981]'
+                        : 'bg-[#EF4444]'
                     }`}
                   />
                   <span className="text-gray-400">{check.name}</span>
@@ -164,7 +164,7 @@ export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div
-            className={`w-3 h-3 rounded-full ${hasReadOnly ? 'bg-[#FF4545] animate-pulse' : allHealthy ? 'bg-[#00D46A]' : 'bg-[#FF4545]'}`}
+            className={`w-3 h-3 rounded-full ${hasReadOnly ? 'bg-[#EF4444] animate-pulse' : allHealthy ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`}
           />
           <span className="text-lg font-bold text-white">
             {hasReadOnly ? 'Action Required' : allHealthy ? 'All Healthy' : 'Issues Detected'}

@@ -44,17 +44,17 @@ export function NeonPanel({ data }: { data: NeonPanelData }) {
         <div className="flex items-center gap-2">
           {hasError ? (
             <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
-              <span className="text-sm font-semibold text-[#FF4545]">Endpoint Error</span>
+              <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
+              <span className="text-sm font-semibold text-[#EF4444]">Endpoint Error</span>
             </>
           ) : isActive ? (
             <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#00D46A]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
               <span className="text-sm font-semibold text-white">Active</span>
             </>
           ) : (
             <>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FFB800]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
               <span className="text-sm font-semibold text-white">{epStatus}</span>
             </>
           )}
@@ -68,12 +68,12 @@ export function NeonPanel({ data }: { data: NeonPanelData }) {
       {(hasError || storageHigh) && (
         <div className="flex flex-wrap gap-1.5">
           {hasError && (
-            <span className="text-[10px] px-2 py-0.5 bg-[#FF454520] text-[#FF4545] rounded font-semibold">
+            <span className="text-[10px] px-2 py-0.5 bg-[#EF444420] text-[#EF4444] rounded font-semibold">
               Endpoint in error state
             </span>
           )}
           {storageHigh && (
-            <span className="text-[10px] px-2 py-0.5 bg-[#FFB80020] text-[#FFB800] rounded font-semibold">
+            <span className="text-[10px] px-2 py-0.5 bg-[#F59E0B20] text-[#F59E0B] rounded font-semibold">
               Storage &gt;80% ({data.storageUsedPct}%)
             </span>
           )}

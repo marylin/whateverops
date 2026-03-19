@@ -42,9 +42,9 @@ export function StripePanel({ data }: { data: StripePanelData }) {
   const growthArrow = data.mrrGrowthPct > 0 ? '\u2191' : data.mrrGrowthPct < 0 ? '\u2193' : ''
   const growthColor =
     data.mrrGrowthPct > 0
-      ? 'text-[#00D46A]'
+      ? 'text-[#10B981]'
       : data.mrrGrowthPct < 0
-        ? 'text-[#FF4545]'
+        ? 'text-[#EF4444]'
         : 'text-gray-400'
 
   const hasAlerts = data.disputes.count > 0 || data.failedPayments24h > 0 || data.churnRate30d > 5
@@ -69,9 +69,9 @@ export function StripePanel({ data }: { data: StripePanelData }) {
       {hasAlerts && (
         <div className="space-y-1">
           {data.disputes.count > 0 && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
-              <span className="text-xs text-[#FF4545]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#EF444415] border border-[#EF444430]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
+              <span className="text-xs text-[#EF4444]">
                 {data.disputes.count} dispute{data.disputes.count !== 1 ? 's' : ''} (
                 {formatCurrency(data.disputes.totalAmount, data.currency)}) &mdash; respond within 7
                 days
@@ -79,9 +79,9 @@ export function StripePanel({ data }: { data: StripePanelData }) {
             </div>
           )}
           {data.failedPayments24h > 0 && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
-              <span className="text-xs text-[#FF4545]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#EF444415] border border-[#EF444430]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
+              <span className="text-xs text-[#EF4444]">
                 {data.failedPayments24h} failed payment
                 {data.failedPayments24h !== 1 ? 's' : ''} in 24h (
                 {formatCurrency(data.failedPaymentAmount, data.currency)})
@@ -89,9 +89,9 @@ export function StripePanel({ data }: { data: StripePanelData }) {
             </div>
           )}
           {data.churnRate30d > 5 && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
-              <span className="text-xs text-[#FFB800]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#F59E0B15] border border-[#F59E0B30]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
+              <span className="text-xs text-[#F59E0B]">
                 Churn rate {data.churnRate30d}% &mdash; above 5% threshold
               </span>
             </div>

@@ -209,17 +209,17 @@ function GroupedPanels({
               </div>
               <div className="flex items-center gap-2">
                 {errorCount > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FF454520] text-[#FF4545]">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#EF444420] text-[#EF4444]">
                     {errorCount} error{errorCount !== 1 ? 's' : ''}
                   </span>
                 )}
                 {warnCount > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FFB80020] text-[#FFB800]">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F59E0B20] text-[#F59E0B]">
                     {warnCount} warning{warnCount !== 1 ? 's' : ''}
                   </span>
                 )}
                 {errorCount === 0 && warnCount === 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#00D46A20] text-[#00D46A]">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10B98120] text-[#10B981]">
                     all ok
                   </span>
                 )}
@@ -302,17 +302,17 @@ export function Dashboard() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F]">
+    <div className="min-h-screen bg-[#0C0C14]">
       <Header dashboard={data} onRefresh={refresh} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {error && !data && (
           <div className="text-center py-20">
-            <p className="text-[#FF4545] mb-2">Failed to load dashboard</p>
+            <p className="text-[#EF4444] mb-2">Failed to load dashboard</p>
             <p className="text-sm text-gray-500 mb-4">{error}</p>
             <button
               onClick={refresh}
-              className="text-sm px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-lg transition-colors"
+              className="text-sm px-4 py-2 bg-[#0EA5E9] hover:bg-[#0284C7] text-white rounded-lg transition-colors"
             >
               Retry
             </button>

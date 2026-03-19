@@ -42,14 +42,14 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
       <div className="flex items-start justify-between">
         <div>
           {data.allServicesHealthy ? (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#00D46A20]">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#00D46A]" />
-              <span className="text-sm font-bold text-[#00D46A]">All Services Healthy</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#10B98120]">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
+              <span className="text-sm font-bold text-[#10B981]">All Services Healthy</span>
             </div>
           ) : (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FF454520]">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FF4545]" />
-              <span className="text-sm font-bold text-[#FF4545]">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#EF444420]">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
+              <span className="text-sm font-bold text-[#EF4444]">
                 {unhealthyCount} Service{unhealthyCount !== 1 ? 's' : ''} Down
               </span>
             </div>
@@ -77,25 +77,25 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
       {hasAlerts && (
         <div className="space-y-1">
           {unhealthyCount > 0 && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FF454515] border border-[#FF454530]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4545] shrink-0" />
-              <span className="text-xs text-[#FF4545]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#EF444415] border border-[#EF444430]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
+              <span className="text-xs text-[#EF4444]">
                 {unhealthyCount} service{unhealthyCount !== 1 ? 's' : ''} unhealthy
               </span>
             </div>
           )}
           {restartLoopingCount > 0 && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
-              <span className="text-xs text-[#FFB800]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#F59E0B15] border border-[#F59E0B30]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
+              <span className="text-xs text-[#F59E0B]">
                 {restartLoopingCount} service{restartLoopingCount !== 1 ? 's' : ''} restart-looping
               </span>
             </div>
           )}
           {data.deployInProgress && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#FFB80015] border border-[#FFB80030]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB800] shrink-0" />
-              <span className="text-xs text-[#FFB800]">Deploy in progress</span>
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#F59E0B15] border border-[#F59E0B30]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
+              <span className="text-xs text-[#F59E0B]">Deploy in progress</span>
             </div>
           )}
         </div>
@@ -134,13 +134,13 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <div
-                            className={`w-2 h-2 rounded-full shrink-0 ${svc.healthy ? 'bg-[#00D46A]' : 'bg-[#FF4545]'}`}
+                            className={`w-2 h-2 rounded-full shrink-0 ${svc.healthy ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`}
                           />
                           <span className="text-gray-300 truncate">{svc.name}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
                           {svc.restartLooping && (
-                            <span className="text-[10px] text-[#FFB800]">restart loop</span>
+                            <span className="text-[10px] text-[#F59E0B]">restart loop</span>
                           )}
                           {svc.restartCount > 0 && !svc.restartLooping && (
                             <span className="text-[10px] text-gray-600">

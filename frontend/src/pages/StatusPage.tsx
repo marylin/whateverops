@@ -53,11 +53,14 @@ export function StatusPage() {
   }, [refresh])
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F]">
-      <header className="border-b border-[#1E1E2E] bg-[#0A0A0F]/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-[#0C0C14]">
+      <header className="border-b border-[#252535] bg-[#0C0C14]/80 backdrop-blur-sm">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-lg font-bold text-[#7C3AED] hover:text-[#6D28D9]">
+            <a
+              href="/"
+              className="text-2xl font-semibold tracking-[-0.5px] text-[#0EA5E9] hover:text-[#38BDF8]"
+            >
               WhateverOPS
             </a>
             <span className="text-sm text-gray-500">Status</span>
@@ -74,11 +77,11 @@ export function StatusPage() {
 
         {error && !data && (
           <div className="text-center py-20">
-            <p className="text-[#FF4545] mb-2">Failed to load status</p>
+            <p className="text-[#EF4444] mb-2">Failed to load status</p>
             <p className="text-sm text-gray-500 mb-4">{error}</p>
             <button
               onClick={refresh}
-              className="text-sm px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-lg"
+              className="text-sm px-4 py-2 bg-[#0EA5E9] hover:bg-[#38BDF8] text-white rounded-lg"
             >
               Retry
             </button>
@@ -88,7 +91,7 @@ export function StatusPage() {
         {data && (
           <>
             <div className="mb-8 text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E1E2E]">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#161622]">
                 <StatusDot status={data.globalHealth} />
                 <span className="text-sm font-medium text-white">
                   {data.globalHealth === 'ok'
@@ -104,7 +107,7 @@ export function StatusPage() {
               {data.services.map((service) => (
                 <div
                   key={service.id}
-                  className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#1E1E2E] border border-[#2A2A3E]"
+                  className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#161622] border border-[#252535]"
                 >
                   <div className="flex items-center gap-3">
                     <StatusDot status={service.status} />

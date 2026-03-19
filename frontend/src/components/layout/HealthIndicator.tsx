@@ -52,8 +52,8 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
       if ((card as HTMLElement).dataset.panelId === panelId) {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' })
         // Brief highlight
-        card.classList.add('ring-2', 'ring-[#7C3AED]', 'ring-opacity-50')
-        setTimeout(() => card.classList.remove('ring-2', 'ring-[#7C3AED]', 'ring-opacity-50'), 2000)
+        card.classList.add('ring-2', 'ring-[#0EA5E9]', 'ring-opacity-50')
+        setTimeout(() => card.classList.remove('ring-2', 'ring-[#0EA5E9]', 'ring-opacity-50'), 2000)
         setShowModal(false)
         return
       }
@@ -88,12 +88,12 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
       </button>
 
       {showModal && (
-        <div className="absolute right-0 top-full mt-2 z-50 bg-[#111118] border border-[#2A2A3E] rounded-xl p-4 w-80 max-h-[70vh] flex flex-col shadow-2xl shadow-black/50">
+        <div className="absolute right-0 top-full mt-2 z-50 bg-[#111118] border border-[#252535] rounded-xl p-4 w-80 max-h-[70vh] flex flex-col shadow-2xl shadow-black/50">
           <div className="flex items-center justify-between mb-3 shrink-0">
             <h2 className="text-sm font-semibold text-white">Integration Status</h2>
             <button
               onClick={() => setShowModal(false)}
-              className="text-gray-500 hover:text-white text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-[#2A2A3E]"
+              className="text-gray-500 hover:text-white text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-[#1E1E2E]"
             >
               &times;
             </button>
@@ -103,7 +103,7 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
               <button
                 key={panel.id}
                 onClick={() => scrollToPanel(panel.id)}
-                className="w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-[#0A0A0F] hover:bg-[#1E1E2E] transition-colors cursor-pointer text-left"
+                className="w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-[#0C0C14] hover:bg-[#1E1E2E] transition-colors cursor-pointer text-left"
               >
                 <div className="flex items-center gap-2">
                   <StatusDot status={panel.status} size="sm" />
@@ -111,14 +111,14 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
                 </div>
                 <div className="flex items-center gap-1.5">
                   {panel.status === 'ok' && (
-                    <span className="text-[10px] text-[#00D46A]">operational</span>
+                    <span className="text-[10px] text-[#10B981]">operational</span>
                   )}
                   {panel.status === 'warn' && (
-                    <span className="text-[10px] text-[#FFB800]">warning</span>
+                    <span className="text-[10px] text-[#F59E0B]">warning</span>
                   )}
                   {panel.status === 'error' && (
                     <span
-                      className="text-[10px] text-[#FF4545] max-w-[140px] truncate"
+                      className="text-[10px] text-[#EF4444] max-w-[140px] truncate"
                       title={panel.error ?? undefined}
                     >
                       {panel.error

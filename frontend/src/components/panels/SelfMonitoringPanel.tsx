@@ -12,20 +12,20 @@ interface SelfMonitoringPanelData {
 const STATUS_CONFIG = {
   ok: {
     label: 'All Systems OK',
-    color: 'bg-[#00D46A]',
-    badgeColor: 'bg-[#00D46A20] text-[#00D46A]',
+    color: 'bg-[#10B981]',
+    badgeColor: 'bg-[#10B98120] text-[#10B981]',
   },
   error: {
     label: 'System Error',
-    color: 'bg-[#FF4545]',
-    badgeColor: 'bg-[#FF454520] text-[#FF4545]',
+    color: 'bg-[#EF4444]',
+    badgeColor: 'bg-[#EF444420] text-[#EF4444]',
   },
 }
 
 const RESPONSE_TIME_CONFIG = {
-  fast: { label: 'Fast', color: 'text-[#00D46A]' },
+  fast: { label: 'Fast', color: 'text-[#10B981]' },
   normal: { label: 'Normal', color: 'text-gray-400' },
-  slow: { label: 'Slow', color: 'text-[#FFB800]' },
+  slow: { label: 'Slow', color: 'text-[#F59E0B]' },
 }
 
 export function SelfMonitoringPanel({ data }: { data: SelfMonitoringPanelData }) {
@@ -48,17 +48,17 @@ export function SelfMonitoringPanel({ data }: { data: SelfMonitoringPanelData })
 
       {/* Alert row */}
       {data.status === 'error' && (
-        <div className="flex items-center gap-2 text-xs bg-[#FF454510] border border-[#FF454515] rounded-lg px-3 py-2">
-          <div className="w-2 h-2 rounded-full bg-[#FF4545] shrink-0 animate-pulse" />
-          <span className="text-[#FF6B6B]">
+        <div className="flex items-center gap-2 text-xs bg-[#EF444410] border border-[#EF444415] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#EF4444] shrink-0 animate-pulse" />
+          <span className="text-[#F87171]">
             System health check failing — investigate immediately
           </span>
         </div>
       )}
       {data.status === 'ok' && data.responseTime_ms > 3000 && (
-        <div className="flex items-center gap-2 text-xs bg-[#FFB80010] border border-[#FFB80015] rounded-lg px-3 py-2">
-          <div className="w-2 h-2 rounded-full bg-[#FFB800] shrink-0" />
-          <span className="text-[#FFB800]">
+        <div className="flex items-center gap-2 text-xs bg-[#F59E0B10] border border-[#F59E0B15] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#F59E0B] shrink-0" />
+          <span className="text-[#F59E0B]">
             Response time {data.responseTime_ms}ms — above 3s threshold
           </span>
         </div>
@@ -83,7 +83,7 @@ export function SelfMonitoringPanel({ data }: { data: SelfMonitoringPanelData })
       </div>
 
       {/* Last checked */}
-      <div className="text-[10px] text-gray-600 pt-1 border-t border-[#1E1E2E]">
+      <div className="text-[10px] text-gray-600 pt-1 border-t border-[#252535]">
         Last checked: {formatTimestamp(data.lastChecked)}
       </div>
     </div>

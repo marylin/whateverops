@@ -39,16 +39,16 @@ interface LinearPanelData {
 }
 
 const PRIORITY_COLORS: Record<number, string> = {
-  1: 'bg-[#FF4545]', // Urgent
-  2: 'bg-[#FFB800]', // High
-  3: 'bg-[#7C3AED]', // Medium
+  1: 'bg-[#EF4444]', // Urgent
+  2: 'bg-[#F59E0B]', // High
+  3: 'bg-[#0EA5E9]', // Medium
   4: 'bg-gray-600', // Low
 }
 
 const PRIORITY_TEXT: Record<number, string> = {
-  1: 'text-[#FF4545]',
-  2: 'text-[#FFB800]',
-  3: 'text-[#A78BFA]',
+  1: 'text-[#EF4444]',
+  2: 'text-[#F59E0B]',
+  3: 'text-[#38BDF8]',
   4: 'text-gray-500',
 }
 
@@ -95,7 +95,7 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
         {data.bugsInProgress > 0 && (
           <>
             <span className="text-xs text-gray-500">·</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FF454520] text-[#FF4545]">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#EF444420] text-[#EF4444]">
               {data.bugsInProgress} bug{data.bugsInProgress !== 1 ? 's' : ''}
             </span>
           </>
@@ -103,7 +103,7 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
         {data.featuresInProgress > 0 && (
           <>
             <span className="text-xs text-gray-500">·</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#BB87FC20] text-[#BB87FC]">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#38BDF820] text-[#38BDF8]">
               {data.featuresInProgress} feature{data.featuresInProgress !== 1 ? 's' : ''}
             </span>
           </>
@@ -116,7 +116,7 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
           {visibleIssues.map((issue) => (
             <div
               key={issue.identifier}
-              className="flex items-center justify-between py-1.5 border-b border-[#2A2A3E] last:border-0"
+              className="flex items-center justify-between py-1.5 border-b border-[#252535] last:border-0"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div
@@ -133,9 +133,9 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
                     key={label}
                     className={`text-[9px] px-1 py-0.5 rounded ${
                       label.toLowerCase() === 'bug'
-                        ? 'bg-[#FF454515] text-[#FF4545]'
+                        ? 'bg-[#EF444415] text-[#EF4444]'
                         : label.toLowerCase() === 'feature'
-                          ? 'bg-[#BB87FC15] text-[#BB87FC]'
+                          ? 'bg-[#38BDF815] text-[#38BDF8]'
                           : 'bg-[#ffffff10] text-gray-500'
                     }`}
                   >
