@@ -46,15 +46,31 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     signal: AbortSignal.timeout(10_000),
   })
 
-  if (!res.ok)
+  if (!res.ok) {
+    // 500 often means auth DB schema issue (common on paused/resumed projects).
+    // Try the health endpoint to distinguish "service down" from "DB issue".
+    if (res.status === 500) {
+      const healthRes = await fetch(`${config.supabaseUrl}/auth/v1/health`, {
+        headers: { apikey: config.apiKey },
+        signal: AbortSignal.timeout(5_000),
+      }).catch(() => null)
+
+      if (healthRes?.ok) {
+        // Auth service is running but can't query users — likely DB schema issue.
+        // Return empty data so the card renders with a warning instead of a hard error.
+        return { users: [], totalUsers: 0 }
+      }
+    }
+
     throw new Error(
       apiError(res.status, {
         401: 'Service key invalid — check SUPABASE_SERVICE_KEY in .env (must be the service_role key)',
         404: 'Project not found — verify SUPABASE_URL in .env',
+        500: 'Auth DB error — check Supabase dashboard → Authentication. The auth schema may need repair (common after project pause/resume).',
       }),
     )
+  }
 
-  // Supabase Admin API returns total count in x-total-count header, not in JSON body
   const totalFromHeader = parseInt(res.headers.get('x-total-count') ?? '', 10)
 
   const body = (await res.json()) as {
@@ -136,5 +152,7 @@ export function getCacheKey(config: IntegrationConfig): string {
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
   if (raw.totalUsers == null) return 'error'
+  // 0 users with empty array = likely auth DB issue (fallback mode) or new project
+  if (raw.totalUsers === 0 && raw.users.length === 0) return 'warn'
   return 'ok'
 }

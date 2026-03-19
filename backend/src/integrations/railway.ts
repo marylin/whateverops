@@ -182,35 +182,33 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
           config.apiKey,
           `query($envId: String!, $serviceId: String!) {
             serviceInstance(environmentId: $envId, serviceId: $serviceId) {
-              latestDeployment { status }
+              latestDeployment { status createdAt }
               healthcheckPath
               numReplicas
-              restartCountSinceDeploy
-              upSince
+              serviceName
+              domains { serviceDomains { domain } }
             }
           }`,
           { envId, serviceId: service.id },
         )) as {
           serviceInstance?: {
-            latestDeployment?: { status?: string }
+            latestDeployment?: { status?: string; createdAt?: string }
             healthcheckPath?: string | null
             numReplicas?: number
-            restartCountSinceDeploy?: number
-            upSince?: string | null
+            serviceName?: string
+            domains?: { serviceDomains?: Array<{ domain: string }> }
           }
         }
         const inst = instData?.serviceInstance
-        // Always push a record — fall back to stub data if serviceInstance is null
-        // so every service in the project appears in the panel
         serviceInstances.push({
           serviceId: service.id,
-          serviceName: service.name,
+          serviceName: inst?.serviceName ?? service.name,
           projectName: project.name,
           latestDeployStatus: inst?.latestDeployment?.status ?? null,
           healthcheckPath: inst?.healthcheckPath ?? null,
           numReplicas: inst?.numReplicas ?? 0,
-          restartCount: inst?.restartCountSinceDeploy ?? 0,
-          upSince: inst?.upSince ?? null,
+          restartCount: 0,
+          upSince: inst?.latestDeployment?.createdAt ?? null,
         })
       } catch {
         // If the serviceInstance query fails entirely, still push a stub so the
@@ -238,7 +236,9 @@ export function parsePanel(raw: RawData): PanelData {
   const deploys = raw.deployments ?? []
 
   const services = (raw.serviceInstances ?? []).map((si) => {
-    const healthy = si.latestDeployStatus === 'SUCCESS' && si.restartCount < 5 && si.numReplicas > 0
+    // A service is healthy if latest deploy succeeded. numReplicas can be null
+    // (Railway uses auto-scaling or defaults), so don't require > 0.
+    const healthy = si.latestDeployStatus === 'SUCCESS' || si.latestDeployStatus === 'DEPLOYING'
 
     // Restart looping: restartCount > 3 AND upSince < 1 hour ago
     let restartLooping = false
