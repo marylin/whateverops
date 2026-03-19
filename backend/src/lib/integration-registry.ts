@@ -89,7 +89,12 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
   // Anthropic
   const anthropicKey = envOrSkip('ANTHROPIC_API_KEY')
   if (anthropicKey) {
-    integrations.push(runIntegration(anthropic, { apiKey: anthropicKey }))
+    integrations.push(
+      runIntegration(anthropic, {
+        apiKey: anthropicKey,
+        adminApiKey: process.env.ANTHROPIC_ADMIN_API_KEY ?? '',
+      }),
+    )
   }
 
   // OpenAI
@@ -121,23 +126,24 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
     integrations.push(runIntegration(replit, { apiKey: replitKey }))
   }
 
-  // Supabase Management
-  const supabaseServiceKey = envOrSkip('SUPABASE_SERVICE_KEY')
-  if (supabaseServiceKey) {
+  // Supabase Management — uses an Access Token (api.supabase.com/v1), NOT service_role
+  const supabaseManagementKey = envOrSkip('SUPABASE_MANAGEMENT_KEY')
+  if (supabaseManagementKey) {
     integrations.push(
       runIntegration(supabaseManagement, {
-        apiKey: supabaseServiceKey,
+        apiKey: supabaseManagementKey,
         projectRef: process.env.SUPABASE_PROJECT_REF ?? '',
       }),
     )
   }
 
-  // Supabase Auth
+  // Supabase Auth — uses service_role key for Auth admin API
   const supabaseUrl = envOrSkip('SUPABASE_URL')
+  const supabaseServiceKey = envOrSkip('SUPABASE_SERVICE_KEY')
   if (supabaseUrl && supabaseServiceKey) {
     integrations.push(
       runIntegration(supabaseAuth, {
-        apiKey: supabaseServiceKey!,
+        apiKey: supabaseServiceKey,
         supabaseUrl,
         projectRef: process.env.SUPABASE_PROJECT_REF ?? '',
       }),
