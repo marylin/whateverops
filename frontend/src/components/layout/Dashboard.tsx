@@ -23,7 +23,7 @@ import { DailyDigest } from './DailyDigest'
 import type { IntegrationResult } from '../../lib/api'
 
 /** Wide panels that span 2 columns on xl (3-col) desktop layout */
-const WIDE_PANELS = new Set(['stripe', 'github', 'sentry'])
+const WIDE_PANELS = new Set(['stripe', 'github', 'sentry', 'supabase-management'])
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
