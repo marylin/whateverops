@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ExternalLink } from '../ui/ExternalLink'
 import { ProgressBar } from '../ui/ProgressBar'
 
@@ -52,9 +53,21 @@ const PRIORITY_TEXT: Record<number, string> = {
 }
 
 export function LinearPanel({ data }: { data: LinearPanelData }) {
+  const [issuesExpanded, setIssuesExpanded] = useState(false)
+  const [projectsExpanded, setProjectsExpanded] = useState(false)
+
   const issues = data.inProgressIssues ?? []
   const hasIssues = issues.length > 0
-  const teamUrl = `https://linear.app/${data.teamKey?.toLowerCase() || 'team'}`
+
+  // Collapsed: hero (index 0) + 2 more = 3 total visible; expanded: all
+  const ISSUES_COLLAPSED_COUNT = 3
+  const visibleIssues = issuesExpanded ? issues.slice(1) : issues.slice(1, ISSUES_COLLAPSED_COUNT)
+  const hiddenIssueCount = issues.length - ISSUES_COLLAPSED_COUNT
+
+  const PROJECTS_COLLAPSED_COUNT = 2
+  const projects = data.projects ?? []
+  const visibleProjects = projectsExpanded ? projects : projects.slice(0, PROJECTS_COLLAPSED_COUNT)
+  const hiddenProjectCount = projects.length - PROJECTS_COLLAPSED_COUNT
 
   return (
     <div className="space-y-3">
@@ -100,7 +113,7 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
       {/* In-progress issue list */}
       {issues.length > 1 && (
         <div className="space-y-1">
-          {issues.slice(1, 6).map((issue) => (
+          {visibleIssues.map((issue) => (
             <div
               key={issue.identifier}
               className="flex items-center justify-between py-1.5 border-b border-[#2A2A3E] last:border-0"
@@ -135,10 +148,14 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
               </div>
             </div>
           ))}
-          {issues.length > 6 && (
-            <ExternalLink href={teamUrl} className="text-[10px] text-gray-600 pt-1 block">
-              +{issues.length - 6} more in progress
-            </ExternalLink>
+          {hiddenIssueCount > 0 && (
+            <button
+              onClick={() => setIssuesExpanded(!issuesExpanded)}
+              className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+            >
+              <span>{issuesExpanded ? '▼' : '►'}</span>
+              {issuesExpanded ? 'Show less' : `Show all (${issues.length})`}
+            </button>
           )}
         </div>
       )}
@@ -162,16 +179,30 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
       )}
 
       {/* Active projects */}
-      {data.projects.length > 0 && (
+      {projects.length > 0 && (
         <div>
-          <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-1">Active Projects</p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[10px] text-gray-600 uppercase tracking-wider">Active Projects</p>
+            {hiddenProjectCount > 0 && (
+              <button
+                onClick={() => setProjectsExpanded(!projectsExpanded)}
+                className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+              >
+                <span>{projectsExpanded ? '▼' : '►'}</span>
+                {projectsExpanded ? 'Show less' : `Show all (${projects.length})`}
+              </button>
+            )}
+          </div>
           <div className="space-y-1">
-            {data.projects.slice(0, 4).map((project) => (
+            {visibleProjects.map((project) => (
               <div key={project.name} className="flex items-center justify-between text-xs">
                 <span className="text-gray-300 truncate">{project.name}</span>
                 <span className="text-gray-500 shrink-0 ml-2">{project.progress}%</span>
               </div>
             ))}
+            {!projectsExpanded && hiddenProjectCount > 0 && (
+              <span className="text-[10px] text-gray-600">... +{hiddenProjectCount} more</span>
+            )}
           </div>
         </div>
       )}

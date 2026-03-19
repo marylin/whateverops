@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { StatusBadge } from '../ui/StatusBadge'
 import { ExternalLink } from '../ui/ExternalLink'
 import { timeAgo, formatDuration } from '../../lib/format'
@@ -74,6 +75,8 @@ function statusDot(status: string): string {
 }
 
 export function VercelPanel({ data }: { data: VercelPanelData }) {
+  const [activityExpanded, setActivityExpanded] = useState(false)
+
   const prodDeploy = data.lastProductionDeploy
   const hasMisconfiguredDomain = data.domains.some((d) => d.misconfigured)
 
@@ -211,43 +214,53 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
         </div>
       )}
 
-      {/* Recent deploys activity feed (top 3-5 across all projects) */}
+      {/* Recent deploys activity feed — collapsed by default */}
       {data.recentDeploys.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">Recent Activity</span>
-          <div className="mt-1.5 space-y-1.5">
-            {data.recentDeploys.slice(0, 5).map((deploy) => (
-              <div key={deploy.id} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 min-w-0">
-                  <StatusBadge status={deploy.status} />
-                  <span className="text-gray-400 truncate">
-                    {deploy.url ? (
-                      <ExternalLink href={deploy.url} className="text-gray-400">
-                        {deploy.project}
-                      </ExternalLink>
-                    ) : (
-                      deploy.project
+          <button
+            onClick={() => setActivityExpanded(!activityExpanded)}
+            className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+          >
+            <span>{activityExpanded ? '▼' : '►'}</span>
+            {activityExpanded ? 'Show less' : `Recent Activity (${data.recentDeploys.length})`}
+          </button>
+          {activityExpanded && (
+            <div className="mt-1.5 space-y-1.5">
+              {data.recentDeploys.slice(0, 5).map((deploy) => (
+                <div key={deploy.id} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <StatusBadge status={deploy.status} />
+                    <span className="text-gray-400 truncate">
+                      {deploy.url ? (
+                        <ExternalLink href={deploy.url} className="text-gray-400">
+                          {deploy.project}
+                        </ExternalLink>
+                      ) : (
+                        deploy.project
+                      )}
+                      {deploy.commitMessage && (
+                        <span className="text-gray-600">
+                          {' '}
+                          &mdash; {deploy.commitMessage.split('\n')[0]?.slice(0, 30)}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    {deploy.target && (
+                      <span className="text-[10px] text-gray-600">{deploy.target}</span>
                     )}
-                    {deploy.commitMessage && (
+                    {deploy.buildDurationSec !== null && (
                       <span className="text-gray-600">
-                        {' '}
-                        &mdash; {deploy.commitMessage.split('\n')[0]?.slice(0, 30)}
+                        {formatDuration(deploy.buildDurationSec)}
                       </span>
                     )}
-                  </span>
+                    <span className="text-gray-600">{timeAgo(deploy.created)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0 ml-2">
-                  {deploy.target && (
-                    <span className="text-[10px] text-gray-600">{deploy.target}</span>
-                  )}
-                  {deploy.buildDurationSec !== null && (
-                    <span className="text-gray-600">{formatDuration(deploy.buildDurationSec)}</span>
-                  )}
-                  <span className="text-gray-600">{timeAgo(deploy.created)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

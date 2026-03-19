@@ -40,6 +40,7 @@ interface ResendPanelData {
 
 export function ResendPanel({ data }: { data: ResendPanelData }) {
   const [showDomains, setShowDomains] = useState(false)
+  const [showRecentEmails, setShowRecentEmails] = useState(false)
 
   const deliveryColor =
     data.deliveryRate >= 95
@@ -163,23 +164,31 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
         </div>
       )}
 
-      {/* De-emphasized: recent emails (first 3 only) */}
+      {/* De-emphasized: recent emails — collapsed by default */}
       {data.recentEmails.length > 0 && (
         <div>
-          <span className="text-[10px] text-gray-600">Recent</span>
-          <div className="mt-1 space-y-1">
-            {data.recentEmails.slice(0, 3).map((email, i) => (
-              <div key={i} className="flex items-center justify-between text-[10px]">
-                <span className="text-gray-500 truncate max-w-[60%]">
-                  {truncate(email.subject || '(no subject)', 30)}
-                </span>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <StatusBadge status={email.status} />
-                  <span className="text-gray-600">{timeAgo(email.sent)}</span>
+          <button
+            onClick={() => setShowRecentEmails(!showRecentEmails)}
+            className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+          >
+            <span>{showRecentEmails ? '▼' : '►'}</span>
+            {showRecentEmails ? 'Show less' : `Recent (${Math.min(data.recentEmails.length, 3)})`}
+          </button>
+          {showRecentEmails && (
+            <div className="mt-1 space-y-1">
+              {data.recentEmails.slice(0, 3).map((email, i) => (
+                <div key={i} className="flex items-center justify-between text-[10px]">
+                  <span className="text-gray-500 truncate max-w-[60%]">
+                    {truncate(email.subject || '(no subject)', 30)}
+                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <StatusBadge status={email.status} />
+                    <span className="text-gray-600">{timeAgo(email.sent)}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
