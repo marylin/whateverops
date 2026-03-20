@@ -42,7 +42,7 @@ function getExtraInstances(baseEnvVar: string): number[] {
  * Override a module's INTEGRATION_ID and INTEGRATION_NAME for a numbered instance.
  * Returns a patched module proxy so runIntegration uses the right id/name.
  */
-function withInstance<T extends { INTEGRATION_ID: string; INTEGRATION_NAME: string }>(
+export function withInstance<T extends { INTEGRATION_ID: string; INTEGRATION_NAME: string }>(
   mod: T,
   instanceNum: number,
 ): T {
