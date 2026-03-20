@@ -83,6 +83,12 @@ docs/05-Plans/.session-*
 docs/08-Feedback/
 docs/05-Plans/phase-4.1d-*
 
+# Documentation (internal — keep locally)
+docs/
+
+# n8n workflows (local-only automation)
+n8n/
+
 # Editor temps
 .eslintcache
 *.swp
