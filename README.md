@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/logo.svg" alt="WhateverOPS" width="80" />
+  <img src="frontend/public/logo.svg" alt="WhateverOPS" width="80" />
 </p>
 
 <h1 align="center">WhateverOPS</h1>
@@ -26,7 +26,6 @@
 ---
 
 <!-- TODO: Replace with actual demo GIF once recorded -->
-<!-- ![WhateverOPS Dashboard](docs/assets/demo.gif) -->
 
 ## Why WhateverOPS?
 
@@ -94,26 +93,42 @@ All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall
 
 ## Self-Hosting
 
-See the full [Self-Hosting Guide](docs/06-Development/SETUP.md) — target: first panel live in under 15 minutes.
+Target: first panel showing real data in under 15 minutes.
 
-**TL;DR:**
+### Prerequisites
 
-1. Deploy backend to [Railway](https://railway.app) (or any Bun/Node host)
-2. Deploy frontend to [Vercel](https://vercel.com) (or any static host)
-3. Set env vars per service you want to monitor
-4. Optional: add Upstash Redis for persistent cache
+- Bun >= 1.0 (or Node.js >= 18)
+- pnpm >= 8
+- Git
+
+### Deploy Backend (Railway)
+
+1. Install Railway CLI: `npm i -g @railway/cli && railway login`
+2. Create project: `railway init && railway add`
+3. Set env vars: `railway variables set PORT=3000 CACHE_BACKEND=memory`
+4. Add integration API keys (see `.env.example`)
+5. Deploy: `railway up`
+
+**Optional:** Add [Upstash Redis](https://console.upstash.com) for persistent cache:
+`railway variables set CACHE_BACKEND=redis UPSTASH_REDIS_REST_URL=... UPSTASH_REDIS_REST_TOKEN=...`
+
+### Deploy Frontend (Vercel)
+
+1. Install Vercel CLI: `npm i -g vercel && vercel login`
+2. Deploy: `cd frontend && vercel`
+3. Set API URL: `vercel env add VITE_API_URL` (enter your Railway backend URL)
+
+### Troubleshooting
+
+- **No panels?** Check at least one API key is set and backend is reachable
+- **CORS errors?** Ensure `FRONTEND_URL` matches your frontend origin exactly
+- **Cache not persisting?** Set `CACHE_BACKEND=redis` with Upstash credentials
 
 ## Building in Public
 
-WhateverOPS ships with 5 [n8n automation workflows](n8n/workflows/) for building in public:
+WhateverOPS is built with automation for building in public — deploy changelogs, star milestones, weekly metrics digests, payment celebrations, and error transparency posts.
 
-| Workflow           | Trigger                             | Output                         |
-| ------------------ | ----------------------------------- | ------------------------------ |
-| Deploy Changelog   | New Vercel deploy                   | Twitter/blog post with changes |
-| Stars Milestone    | GitHub stars hit 10/25/50/100…      | Celebration post               |
-| Weekly Digest      | Every Monday 9am                    | Metrics summary thread         |
-| First Payment      | Stripe `checkout.session.completed` | Auto thank-you post            |
-| Error Transparency | Sentry spike detected               | Public incident update         |
+These automations run on a self-hosted [n8n](https://n8n.io) instance and are not included in the repository. See the [n8n docs](https://docs.n8n.io/hosting/) to set up your own instance.
 
 ## Development
 
@@ -127,7 +142,7 @@ pnpm test             # all tests (unit + integration)
 
 ### Adding an Integration
 
-Every integration follows a strict contract. See [CONTRIBUTING.md](CONTRIBUTING.md) for the template and the [Integration Pattern docs](docs/06-Development/INTEGRATION-PATTERN.md) for the full spec.
+Every integration follows a strict contract. See [CONTRIBUTING.md](CONTRIBUTING.md) for the template and required files checklist.
 
 ## Contributing
 
