@@ -38,7 +38,7 @@ The existing granular `docs/05-Plans/*` and `docs/08-Feedback/` patterns become 
 
 ```bash
 git rm --cached -r docs/
-git rm --cached -r n8n/workflows/
+git rm --cached -r n8n/
 ```
 
 This removes them from git tracking without deleting local files.
@@ -70,7 +70,7 @@ Create `SECURITY.md` at repo root:
 
 **Do not open a public issue for security vulnerabilities.**
 
-Email: [maintainer email from package.json or repo]
+Email: security@whateverops.dev (or marylin-alarcon@live.com)
 
 ### What to expect
 
