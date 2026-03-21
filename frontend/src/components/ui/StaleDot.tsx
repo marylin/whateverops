@@ -10,7 +10,7 @@ function getStaleness(
   error: string | null,
 ): { color: string; label: string } {
   if (error) {
-    return { color: 'bg-[#FF4545]', label: 'Last call failed' }
+    return { color: 'bg-[#EF4444]', label: 'Last call failed' }
   }
 
   const ageMs = Date.now() - new Date(lastUpdated).getTime()
@@ -18,12 +18,12 @@ function getStaleness(
   const staleFactor = ageMs / ttlMs
 
   if (staleFactor <= 1) {
-    return { color: 'bg-[#00D46A]', label: 'Fresh data' }
+    return { color: 'bg-[#10B981]', label: 'Fresh data' }
   }
   if (staleFactor <= 2) {
-    return { color: 'bg-[#FFB800]', label: 'Data is aging' }
+    return { color: 'bg-[#F59E0B]', label: 'Data is aging' }
   }
-  return { color: 'bg-[#FF4545]', label: 'Stale data' }
+  return { color: 'bg-[#EF4444]', label: 'Stale data' }
 }
 
 export function StaleDot({ lastUpdated, ttl, error }: StaleDotProps) {

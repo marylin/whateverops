@@ -14,6 +14,13 @@ export const CONFIG_SCHEMA = z.object({
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
+export interface ReleaseData {
+  version: string
+  dateCreated: string
+  newGroups: number
+  lastDeploy: { dateFinished: string; environment: string } | null
+}
+
 export interface RawData {
   unresolvedIssues: number
   latestIssues: Array<{
@@ -24,15 +31,21 @@ export interface RawData {
     firstSeen: string
     lastSeen: string
     level: string
+    userCount?: number
   }>
   stats: {
     events24h: number
   }
+  crashFreeRate: number | null
+  errorTrend: Array<{ timestamp: number; count: number }>
+  releases: ReleaseData[]
 }
 
 export interface PanelData {
   unresolvedCount: number
   events24h: number
+  newIssues24h: number
+  usersAffected24h: number
   latestIssues: Array<{
     id: string
     title: string
@@ -40,19 +53,39 @@ export interface PanelData {
     count: number
     level: string
     lastSeen: string
+    userCount: number
   }>
+  crashFreeRate: number | null
+  errorTrend: Array<{ date: string; count: number }>
+  errorTrendDirection: 'up' | 'down' | 'stable'
+  latestRelease: { version: string; date: string } | null
+  issuesSinceRelease: number
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const headers = { Authorization: `Bearer ${config.apiKey}` }
   const base = `https://sentry.io/api/0/projects/${config.org}/${config.project}`
 
-  const [issuesRes, statsRes] = await Promise.all([
+  const orgBase = `https://sentry.io/api/0/organizations/${config.org}`
+
+  const [issuesRes, statsRes, sessionsRes, errorVolumeRes, releasesRes] = await Promise.all([
     fetch(`${base}/issues/?query=is:unresolved&limit=5&sort=date`, {
       headers,
       signal: AbortSignal.timeout(10_000),
     }),
     fetch(`${base}/stats/?stat=received&resolution=1d`, {
+      headers,
+      signal: AbortSignal.timeout(10_000),
+    }),
+    fetch(
+      `${orgBase}/sessions/?project=${config.project}&field=crash_free_rate(session)&statsPeriod=24h`,
+      { headers, signal: AbortSignal.timeout(10_000) },
+    ),
+    fetch(
+      `${orgBase}/stats_v2/?project=${config.project}&category=error&interval=1d&statsPeriod=7d`,
+      { headers, signal: AbortSignal.timeout(10_000) },
+    ),
+    fetch(`${orgBase}/releases/?per_page=5`, {
       headers,
       signal: AbortSignal.timeout(10_000),
     }),
@@ -71,25 +104,115 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const statsData = statsRes.ok ? ((await statsRes.json()) as Array<[number, number]>) : []
   const events24h = statsData.length > 0 ? (statsData[statsData.length - 1]![1] ?? 0) : 0
 
+  // Crash-free rate
+  let crashFreeRate: number | null = null
+  if (sessionsRes.ok) {
+    const sessionsBody = (await sessionsRes.json()) as {
+      groups?: Array<{ totals?: { 'crash_free_rate(session)'?: number } }>
+    }
+    const rate = sessionsBody.groups?.[0]?.totals?.['crash_free_rate(session)']
+    if (rate != null) crashFreeRate = Math.round(rate * 10000) / 100
+  }
+
+  // Error volume trend (7 days)
+  let errorTrend: Array<{ timestamp: number; count: number }> = []
+  if (errorVolumeRes.ok) {
+    const errorBody = (await errorVolumeRes.json()) as {
+      intervals?: string[]
+      groups?: Array<{ series?: { 'sum(quantity)'?: number[] } }>
+    }
+    const intervals = errorBody.intervals ?? []
+    const quantities = errorBody.groups?.[0]?.series?.['sum(quantity)'] ?? []
+    errorTrend = intervals.map((ts, i) => ({
+      timestamp: new Date(ts).getTime(),
+      count: quantities[i] ?? 0,
+    }))
+  }
+
+  // Releases
+  let releases: ReleaseData[] = []
+  if (releasesRes.ok) {
+    const releasesBody = (await releasesRes.json()) as Array<{
+      version?: string
+      dateCreated?: string
+      newGroups?: number
+      lastDeploy?: { dateFinished?: string; environment?: string } | null
+    }>
+    releases = (releasesBody ?? []).map((r) => ({
+      version: r.version ?? '',
+      dateCreated: r.dateCreated ?? '',
+      newGroups: r.newGroups ?? 0,
+      lastDeploy: r.lastDeploy
+        ? {
+            dateFinished: r.lastDeploy.dateFinished ?? '',
+            environment: r.lastDeploy.environment ?? '',
+          }
+        : null,
+    }))
+  }
+
   return {
     unresolvedIssues: issues.length,
     latestIssues: issues,
     stats: { events24h },
+    crashFreeRate,
+    errorTrend,
+    releases,
   }
 }
 
 export function parsePanel(raw: RawData): PanelData {
+  const trend = raw.errorTrend ?? []
+  let direction: 'up' | 'down' | 'stable' = 'stable'
+  if (trend.length >= 2) {
+    const recent = trend.slice(-2)
+    const prev = recent[0]!.count
+    const curr = recent[1]!.count
+    if (curr > prev * 1.2) direction = 'up'
+    else if (curr < prev * 0.8) direction = 'down'
+  }
+
+  // New issues in last 24h (computed from latestIssues firstSeen)
+  const now24h = Date.now() - 24 * 60 * 60 * 1000
+  const issues = raw.latestIssues ?? []
+  const newIssues24h = issues.filter((i) => new Date(i.firstSeen).getTime() > now24h).length
+  const usersAffected24h = issues
+    .filter((i) => new Date(i.lastSeen).getTime() > now24h)
+    .reduce((sum, i) => sum + (i.userCount ?? 0), 0)
+
+  // Latest release info
+  const releases = raw.releases ?? []
+  const latestRelease =
+    releases.length > 0 ? { version: releases[0]!.version, date: releases[0]!.dateCreated } : null
+
+  // Issues since latest release
+  const issuesSinceRelease = latestRelease
+    ? issues.filter((i) => new Date(i.firstSeen).getTime() > new Date(latestRelease.date).getTime())
+        .length
+    : 0
+
   return {
     unresolvedCount: raw.unresolvedIssues ?? 0,
     events24h: raw.stats?.events24h ?? 0,
-    latestIssues: (raw.latestIssues ?? []).map((i) => ({
+    newIssues24h,
+    usersAffected24h,
+    latestIssues: issues.map((i) => ({
       id: i.id,
       title: i.title,
       culprit: i.culprit,
       count: parseInt(i.count, 10) || 0,
       level: i.level,
       lastSeen: i.lastSeen,
+      userCount: i.userCount ?? 0,
     })),
+    crashFreeRate: raw.crashFreeRate ?? null,
+    errorTrend: trend.map((t) => ({
+      date: new Date(t.timestamp).toISOString().split('T')[0]!,
+      count: t.count,
+    })),
+    errorTrendDirection: direction,
+    latestRelease,
+    issuesSinceRelease,
   }
 }
 
@@ -102,6 +225,13 @@ export function getCacheKey(config: IntegrationConfig): string {
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
   if (!raw.latestIssues) return 'error'
+
+  // Crash-free rate below 99% → error; below 99.5% → warn
+  if (raw.crashFreeRate != null) {
+    if (raw.crashFreeRate < 99) return 'error'
+    if (raw.crashFreeRate < 99.5) return 'warn'
+  }
+
   const hasError = raw.latestIssues.some((i) => i.level === 'error' || i.level === 'fatal')
   if (hasError) return 'warn'
   return 'ok'

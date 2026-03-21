@@ -14,6 +14,13 @@ export const CONFIG_SCHEMA = z.object({
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
+export interface SslCertPack {
+  id: string
+  type: string
+  status: string
+  hosts: string[]
+}
+
 export interface RawData {
   totals: {
     requests: number
@@ -24,6 +31,9 @@ export interface RawData {
   }
   zoneName: string
   zoneStatus: string
+  sslCerts: SslCertPack[]
+  responseStatusCounts: Record<string, number>
+  firewallEventsCount: number
 }
 
 export interface PanelData {
@@ -33,6 +43,10 @@ export interface PanelData {
   cacheHitRatio: number
   zoneName: string
   zoneStatus: string
+  sslStatus: string
+  sslCertCount: number
+  responseBreakdown: { status2xx: number; status3xx: number; status4xx: number; status5xx: number }
+  firewallEventsCount: number
 }
 
 function formatBytes(bytes: number): string {
@@ -75,7 +89,7 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     ? ((await analyticsRes.json()) as {
         result?: {
           totals?: {
-            requests?: { all?: number; cached?: number }
+            requests?: { all?: number; cached?: number; http_status?: Record<string, number> }
             bandwidth?: { all?: number; cached?: number }
             threats?: { all?: number }
           }
@@ -84,6 +98,40 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     : { result: { totals: {} } }
 
   const totals = analyticsBody.result?.totals ?? {}
+
+  // Fetch SSL cert packs
+  let sslCerts: SslCertPack[] = []
+  try {
+    const sslRes = await fetch(`${base}/zones/${config.zoneId}/ssl/certificate_packs?status=all`, {
+      headers,
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (sslRes.ok) {
+      const sslBody = (await sslRes.json()) as {
+        result?: Array<{ id: string; type: string; status: string; hosts: string[] }>
+      }
+      sslCerts = (sslBody.result ?? []).map((c) => ({
+        id: c.id,
+        type: c.type,
+        status: c.status,
+        hosts: c.hosts,
+      }))
+    }
+  } catch {
+    // graceful fallback
+  }
+
+  // Extract response status codes from analytics
+  const statusCounts: Record<string, number> = {}
+  const httpStatuses = totals.requests?.http_status
+  if (httpStatuses) {
+    for (const [code, count] of Object.entries(httpStatuses)) {
+      statusCounts[code] = count as number
+    }
+  }
+
+  // Firewall events count from threats
+  const firewallEventsCount = totals.threats?.all ?? 0
 
   return {
     totals: {
@@ -95,6 +143,9 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     },
     zoneName: zoneBody.result?.name ?? '',
     zoneStatus: zoneBody.result?.status ?? 'unknown',
+    sslCerts,
+    responseStatusCounts: statusCounts,
+    firewallEventsCount,
   }
 }
 
@@ -103,6 +154,16 @@ export function parsePanel(raw: RawData): PanelData {
   const cachedReqs = raw.totals?.cachedRequests ?? 0
   const cacheHitRatio = totalReqs > 0 ? Math.round((cachedReqs / totalReqs) * 100) : 0
 
+  const statusCounts = raw.responseStatusCounts ?? {}
+  const sumRange = (min: number, max: number) =>
+    Object.entries(statusCounts)
+      .filter(([code]) => Number(code) >= min && Number(code) <= max)
+      .reduce((sum, [, count]) => sum + count, 0)
+
+  const activeCerts = (raw.sslCerts ?? []).filter((c) => c.status === 'active')
+  const sslStatus =
+    raw.sslCerts?.length === 0 ? 'none' : activeCerts.length > 0 ? 'active' : 'pending'
+
   return {
     requests24h: totalReqs,
     bandwidth24h: formatBytes(raw.totals?.bandwidth ?? 0),
@@ -110,6 +171,15 @@ export function parsePanel(raw: RawData): PanelData {
     cacheHitRatio,
     zoneName: raw.zoneName ?? '',
     zoneStatus: raw.zoneStatus ?? 'unknown',
+    sslStatus,
+    sslCertCount: (raw.sslCerts ?? []).length,
+    responseBreakdown: {
+      status2xx: sumRange(200, 299),
+      status3xx: sumRange(300, 399),
+      status4xx: sumRange(400, 499),
+      status5xx: sumRange(500, 599),
+    },
+    firewallEventsCount: raw.firewallEventsCount ?? 0,
   }
 }
 
@@ -124,5 +194,8 @@ export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
   if (raw.zoneStatus === 'deactivated') return 'error'
   if (raw.zoneStatus !== 'active') return 'warn'
   if ((raw.totals?.threats ?? 0) > 100) return 'warn'
+  // SSL certs all pending/expired → warn
+  if ((raw.sslCerts ?? []).length > 0 && (raw.sslCerts ?? []).every((c) => c.status !== 'active'))
+    return 'warn'
   return 'ok'
 }

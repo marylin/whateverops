@@ -5,9 +5,9 @@ interface StatusDotProps {
 }
 
 const colorMap = {
-  ok: 'bg-[#00D46A]',
-  warn: 'bg-[#FFB800]',
-  error: 'bg-[#FF4545]',
+  ok: 'bg-[#10B981]',
+  warn: 'bg-[#F59E0B]',
+  error: 'bg-[#EF4444]',
   loading: 'bg-gray-400',
   offline: 'bg-gray-600',
 }

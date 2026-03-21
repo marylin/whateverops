@@ -1,16 +1,28 @@
 {
   "ok": {
     "projects": [
-      { "id": "p1", "name": "backend", "services": [{ "id": "s1", "name": "api" }], "environments": [{ "id": "e1", "name": "production" }] }
+      {
+        "id": "p1",
+        "name": "backend",
+        "services": [{ "id": "s1", "name": "api" }],
+        "environments": [{ "id": "e1", "name": "production" }]
+      }
     ],
-    "deployments": [{ "id": "d1", "status": "SUCCESS", "createdAt": "2026-03-08T10:00:00Z", "serviceName": "api" }]
+    "deployments": [
+      { "id": "d1", "status": "SUCCESS", "createdAt": "2026-03-08T10:00:00Z", "serviceName": "api" }
+    ],
+    "serviceInstances": []
   },
   "error": {
     "projects": [],
-    "deployments": [{ "id": "d1", "status": "FAILED", "createdAt": "2026-03-08T10:00:00Z", "serviceName": "api" }]
+    "deployments": [
+      { "id": "d1", "status": "FAILED", "createdAt": "2026-03-08T10:00:00Z", "serviceName": "api" }
+    ],
+    "serviceInstances": []
   },
   "empty": {
     "projects": [],
-    "deployments": []
+    "deployments": [],
+    "serviceInstances": []
   }
 }

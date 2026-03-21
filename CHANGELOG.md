@@ -3,6 +3,60 @@
 All notable changes to WhateverOPS are documented here.
 Generated from git history using conventional commits.
 
+## [0.1.0.0] - 2026-03-20
+
+### Added
+
+- **integrations:** rich panel data for all 15 integrations (GitHub, Linear, Vercel, Railway, PostHog, Resend, Anthropic, OpenAI, Cloudflare, Supabase Auth, Supabase Management, Neon, Sentry, Stripe, self-monitoring)
+- **integrations:** multi-instance support — monitor multiple accounts per service (e.g., `GITHUB_PAT_2`)
+- **integration-registry:** centralized integration loader with global health computation
+- **status page:** public `/status` endpoint with per-integration health
+- **settings page:** storage mode selector and integration configuration overview
+- **rate limiting:** in-memory sliding window middleware with proper 429 responses
+- **crypto:** AES-256-GCM encryption utilities for future credential storage
+- **frontend:** 15 custom panel components with staleness indicators
+- **frontend:** daily digest, health indicator, error boundary components
+- **frontend:** format utilities (timestamps, currency, bytes, percentages)
+- **design:** DESIGN.md — mono-first control room aesthetic (JetBrains Mono, sky blue accent)
+- **email:** launch announcement React Email template
+- **ci:** comprehensive CI pipeline with secret scanning, CodeQL, deploy checks
+- **oss:** MIT LICENSE, SECURITY.md, CONTRIBUTING.md, GitHub issue templates
+- **oss:** inline self-hosting guide in README (Railway + Vercel)
+
+### Changed
+
+- **dashboard:** founder-first card grouping (What's broken → What shipped → What's growing)
+- **panels:** collapsible tall cards, wide layout, health modal from navbar
+- **readme:** inline self-hosting content, remove dead docs/ links, update n8n section
+- **contributing:** inline integration contract rules, remove external doc references
+- **gitignore:** exclude docs/ and n8n/ from OSS repo (local-only)
+
+### Removed
+
+- **replit:** removed Replit integration (API deprecated)
+- **n8n workflows:** moved to local-only (not tracked in git)
+- **docs/:** internal planning and development docs excluded from OSS repo
+
+### Fixed
+
+- **linear:** auto-detect team when LINEAR_TEAM_ID not set
+- **supabase:** fetch all projects, fix health checks, split Management/Auth env vars
+- **anthropic:** correct Admin API parameter names
+- **email:** remove hardcoded domain, read from RESEND_FROM_EMAIL
+- **timeout:** configurable per-integration fetch timeout
+
+### Tests
+
+- unit tests for all 15 integration contracts (parsePanel, getHealthStatus, getCacheKey)
+- unit tests for crypto encrypt/decrypt (11 tests)
+- unit tests for rate limiter middleware (14 tests)
+- unit tests for integration registry (9 tests)
+- unit tests for status page health logic
+- E2E tests for dashboard and status page flows
+- cache integration and webhook endpoint tests
+
+---
+
 ## 2026-03-09
 
 ### Features

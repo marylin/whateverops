@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'bun:test'
-import { parsePanel, getHealthStatus, getCacheKey } from '../../../../backend/src/integrations/resend'
+import {
+  parsePanel,
+  getHealthStatus,
+  getCacheKey,
+} from '../../../../backend/src/integrations/resend'
 import fixture from '../../../fixtures/mock-responses/resend.json'
 
 describe('resend integration', () => {

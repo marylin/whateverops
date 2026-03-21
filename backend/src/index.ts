@@ -4,9 +4,12 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { secureHeaders } from 'hono/secure-headers'
 import { errorHandler } from './middleware/error.js'
+import { rateLimit } from './middleware/rate-limit.js'
 import dashboard from './routes/dashboard.js'
 import webhooks from './routes/webhooks.js'
+import status from './routes/status.js'
 
 const app = new Hono()
 
@@ -21,7 +24,14 @@ app.use(
     },
   }),
 )
+// Security headers — applied after CORS so CORS headers are not overwritten
+app.use('*', secureHeaders())
 app.use('*', logger())
+
+// Route-level rate limits (sliding window, in-memory)
+app.use('/api/dashboard/*', rateLimit('dashboard', { limit: 60, windowMs: 60_000 }))
+app.use('/api/status/*', rateLimit('status', { limit: 120, windowMs: 60_000 }))
+app.use('/api/webhooks/*', rateLimit('webhooks', { limit: 30, windowMs: 60_000 }))
 
 app.get('/health', (c) =>
   c.json({
@@ -33,6 +43,7 @@ app.get('/health', (c) =>
 
 app.route('/api/dashboard', dashboard)
 app.route('/api/webhooks', webhooks)
+app.route('/api/status', status)
 
 const port = Number(process.env.PORT ?? 3000)
 

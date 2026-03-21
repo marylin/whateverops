@@ -1,29 +1,43 @@
 {
   "ok": {
-    "project": {
-      "id": "proj1",
-      "name": "my-project",
-      "status": "ACTIVE_HEALTHY",
-      "region": "us-east-1",
-      "database": { "host": "db.example.supabase.co", "version": "15.1" }
-    },
-    "health": [
-      { "name": "database", "status": "HEALTHY", "error": "" },
-      { "name": "realtime", "status": "HEALTHY", "error": "" }
-    ]
+    "projects": [
+      {
+        "project": {
+          "id": "proj1",
+          "name": "my-project",
+          "status": "ACTIVE_HEALTHY",
+          "region": "us-east-1",
+          "database": { "host": "db.example.supabase.co", "version": "15.1" }
+        },
+        "health": [
+          { "name": "database", "status": "HEALTHY", "error": "" },
+          { "name": "realtime", "status": "HEALTHY", "error": "" }
+        ],
+        "readOnly": false,
+        "advisors": []
+      }
+    ],
+    "apiRequestCount": null
   },
   "error": {
-    "project": null,
-    "health": []
+    "projects": [],
+    "apiRequestCount": null
   },
   "empty": {
-    "project": {
-      "id": "proj1",
-      "name": "empty-project",
-      "status": "INACTIVE",
-      "region": "us-east-1",
-      "database": { "host": "", "version": "" }
-    },
-    "health": []
+    "projects": [
+      {
+        "project": {
+          "id": "proj1",
+          "name": "empty-project",
+          "status": "INACTIVE",
+          "region": "us-east-1",
+          "database": { "host": "", "version": "" }
+        },
+        "health": [],
+        "readOnly": false,
+        "advisors": []
+      }
+    ],
+    "apiRequestCount": null
   }
 }

@@ -1,1 +1,39 @@
 @import 'tailwindcss';
+
+/* Global typography — JetBrains Mono everywhere */
+body {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Tabular numbers for all numeric displays */
+.tabular-nums,
+[data-metric],
+.metric,
+time,
+.number {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbar — dark theme, thin, unobtrusive */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #252535 #0c0c14;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #252535;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #3a3a4e;
+}

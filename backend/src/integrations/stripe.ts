@@ -12,6 +12,42 @@ export const CONFIG_SCHEMA = z.object({
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
+export interface RefundData {
+  id: string
+  amount: number
+  currency: string
+  status: string
+  created: number
+  reason: string | null
+}
+
+export interface DisputeData {
+  id: string
+  amount: number
+  currency: string
+  status: string
+  created: number
+  reason: string | null
+}
+
+export interface InvoiceData {
+  id: string
+  amount_due: number
+  currency: string
+  status: string
+  created: number
+  customer_email: string | null
+}
+
+export interface PayoutData {
+  id: string
+  amount: number
+  currency: string
+  status: string
+  arrival_date: number
+  created: number
+}
+
 export interface RawData {
   subscriptions: Array<{
     id: string
@@ -34,13 +70,23 @@ export interface RawData {
   }>
   balance: number
   currency: string
+  refunds: RefundData[]
+  netRevenue: number
+  customerCount: number
+  disputes: DisputeData[]
+  openInvoices: InvoiceData[]
+  recentPayouts: PayoutData[]
 }
 
 export interface PanelData {
   mrr: number
   mrrDelta30d: number
+  mrrGrowthPct: number
+  projectedAnnualRevenue: number
+  arpu: number
   activeSubscriptions: number
   newSubscriptions24h: number
+  daysSinceLastNewSub: number | null
   canceledSubscriptions30d: number
   failedPayments24h: number
   failedPaymentAmount: number
@@ -52,7 +98,15 @@ export interface PanelData {
     date: string
     description: string | null
   }>
+  churnRate30d: number
   currency: string
+  refundCount30d: number
+  refundAmount30d: number
+  netRevenue30d: number
+  customerCount: number
+  disputes: { count: number; totalAmount: number }
+  openInvoices: { count: number; totalAmount: number }
+  recentPayouts: Array<{ amount: number; arrivalDate: string; status: string }>
 }
 
 async function stripeGet(
@@ -82,7 +136,17 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const now = Math.floor(Date.now() / 1000)
   const thirtyDaysAgo = now - 30 * 86400
 
-  const [subsRes, chargesRes, balanceRes] = await Promise.all([
+  const [
+    subsRes,
+    chargesRes,
+    balanceRes,
+    refundsRes,
+    balanceTxRes,
+    customersRes,
+    disputesRes,
+    invoicesRes,
+    payoutsRes,
+  ] = await Promise.all([
     stripeGet(config.apiKey, '/subscriptions', {
       limit: '100',
       status: 'all',
@@ -92,6 +156,19 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       'created[gte]': thirtyDaysAgo.toString(),
     }),
     stripeGet(config.apiKey, '/balance'),
+    stripeGet(config.apiKey, '/refunds', {
+      limit: '25',
+      'created[gte]': thirtyDaysAgo.toString(),
+    }),
+    stripeGet(config.apiKey, '/balance_transactions', {
+      limit: '100',
+      'created[gte]': thirtyDaysAgo.toString(),
+      type: 'charge',
+    }),
+    stripeGet(config.apiKey, '/customers', { limit: '1' }),
+    stripeGet(config.apiKey, '/disputes', { limit: '10' }),
+    stripeGet(config.apiKey, '/invoices', { status: 'open', limit: '10' }),
+    stripeGet(config.apiKey, '/payouts', { limit: '5' }),
   ])
 
   const subs = subsRes as { data?: RawData['subscriptions'] }
@@ -99,12 +176,92 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const balance = balanceRes as {
     available?: Array<{ amount?: number; currency?: string }>
   }
+  const refundsBody = refundsRes as {
+    data?: Array<{
+      id: string
+      amount: number
+      currency: string
+      status: string
+      created: number
+      reason: string | null
+    }>
+  }
+  const balanceTxBody = balanceTxRes as {
+    data?: Array<{ net: number }>
+  }
+  const customersBody = customersRes as { total_count?: number }
+  const disputesBody = disputesRes as {
+    data?: Array<{
+      id: string
+      amount: number
+      currency: string
+      status: string
+      created: number
+      reason: string | null
+    }>
+  }
+  const invoicesBody = invoicesRes as {
+    data?: Array<{
+      id: string
+      amount_due: number
+      currency: string
+      status: string
+      created: number
+      customer_email: string | null
+    }>
+  }
+  const payoutsBody = payoutsRes as {
+    data?: Array<{
+      id: string
+      amount: number
+      currency: string
+      status: string
+      arrival_date: number
+      created: number
+    }>
+  }
+
+  const netRevenue = (balanceTxBody.data ?? []).reduce((sum, tx) => sum + tx.net, 0)
 
   return {
     subscriptions: subs.data ?? [],
     recentCharges: charges.data ?? [],
     balance: balance.available?.[0]?.amount ?? 0,
     currency: balance.available?.[0]?.currency ?? 'usd',
+    refunds: (refundsBody.data ?? []).map((r) => ({
+      id: r.id,
+      amount: r.amount,
+      currency: r.currency,
+      status: r.status,
+      created: r.created,
+      reason: r.reason,
+    })),
+    netRevenue,
+    customerCount: customersBody.total_count ?? 0,
+    disputes: (disputesBody.data ?? []).map((d) => ({
+      id: d.id,
+      amount: d.amount,
+      currency: d.currency,
+      status: d.status,
+      created: d.created,
+      reason: d.reason,
+    })),
+    openInvoices: (invoicesBody.data ?? []).map((inv) => ({
+      id: inv.id,
+      amount_due: inv.amount_due,
+      currency: inv.currency,
+      status: inv.status,
+      created: inv.created,
+      customer_email: inv.customer_email,
+    })),
+    recentPayouts: (payoutsBody.data ?? []).map((p) => ({
+      id: p.id,
+      amount: p.amount,
+      currency: p.currency,
+      status: p.status,
+      arrival_date: p.arrival_date,
+      created: p.created,
+    })),
   }
 }
 
@@ -147,11 +304,50 @@ export function parsePanel(raw: RawData): PanelData {
   const charges = raw.recentCharges ?? []
   const failedCharges24h = charges.filter((c) => c.status === 'failed' && c.created > oneDayAgo)
 
+  // MRR growth percentage: mrrDelta / previousMrr
+  const previousMrr = mrr - mrrDelta30d
+  const mrrGrowthPct = previousMrr > 0 ? Math.round((mrrDelta30d / previousMrr) * 1000) / 10 : 0
+
+  // ARPU: MRR / active subs
+  const arpu = activeSubs.length > 0 ? Math.round(mrr / activeSubs.length) / 100 : 0
+
+  // Days since last new subscription
+  const newestSub = activeSubs
+    .filter((s) => s.status === 'active' || s.status === 'trialing')
+    .sort((a, b) => b.created - a.created)[0]
+  const daysSinceLastNewSub = newestSub ? Math.floor((now - newestSub.created) / 86400) : null
+
+  // Disputes summary
+  const activeDisputes = (raw.disputes ?? []).filter(
+    (d) =>
+      d.status === 'needs_response' ||
+      d.status === 'warning_needs_response' ||
+      d.status === 'under_review',
+  )
+  const disputeCount = activeDisputes.length
+  const disputeTotalAmount = activeDisputes.reduce((sum, d) => sum + d.amount, 0) / 100
+
+  // Open invoices summary
+  const openInvs = raw.openInvoices ?? []
+  const openInvoiceCount = openInvs.length
+  const openInvoiceTotalAmount = openInvs.reduce((sum, inv) => sum + inv.amount_due, 0) / 100
+
+  // Recent payouts
+  const recentPayouts = (raw.recentPayouts ?? []).slice(0, 5).map((p) => ({
+    amount: p.amount / 100,
+    arrivalDate: new Date(p.arrival_date * 1000).toISOString(),
+    status: p.status,
+  }))
+
   return {
     mrr: Math.round(mrr) / 100,
     mrrDelta30d: Math.round(mrrDelta30d) / 100,
+    mrrGrowthPct,
+    projectedAnnualRevenue: Math.round(mrr * 12) / 100,
+    arpu,
     activeSubscriptions: activeSubs.length,
     newSubscriptions24h,
+    daysSinceLastNewSub,
     canceledSubscriptions30d: canceledSubs30d.length,
     failedPayments24h: failedCharges24h.length,
     failedPaymentAmount: failedCharges24h.reduce((sum, c) => sum + c.amount, 0) / 100,
@@ -163,7 +359,20 @@ export function parsePanel(raw: RawData): PanelData {
       date: new Date(c.created * 1000).toISOString(),
       description: c.description,
     })),
+    churnRate30d:
+      activeSubs.length + canceledSubs30d.length > 0
+        ? Math.round(
+            (canceledSubs30d.length / (activeSubs.length + canceledSubs30d.length)) * 1000,
+          ) / 10
+        : 0,
     currency: raw.currency ?? 'usd',
+    refundCount30d: (raw.refunds ?? []).length,
+    refundAmount30d: (raw.refunds ?? []).reduce((sum, r) => sum + r.amount, 0) / 100,
+    netRevenue30d: (raw.netRevenue ?? 0) / 100,
+    customerCount: raw.customerCount ?? 0,
+    disputes: { count: disputeCount, totalAmount: disputeTotalAmount },
+    openInvoices: { count: openInvoiceCount, totalAmount: openInvoiceTotalAmount },
+    recentPayouts,
   }
 }
 
@@ -174,6 +383,13 @@ export function getCacheKey(config: IntegrationConfig): string {
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
   if (!raw.subscriptions) return 'error'
+
+  // Active disputes are critical
+  const activeDisputes = (raw.disputes ?? []).filter(
+    (d) => d.status === 'needs_response' || d.status === 'warning_needs_response',
+  )
+  if (activeDisputes.length > 0) return 'error'
+
   const now = Math.floor(Date.now() / 1000)
   const oneDayAgo = now - 86400
   const recentFailed = (raw.recentCharges ?? []).filter(
