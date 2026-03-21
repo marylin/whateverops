@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Unified ops dashboard for solo developer-founders.</strong><br/>
-  15 integrations. One real-time view. Self-host in 5 minutes.
+  14 integrations. One real-time view. Self-host in 5 minutes.
 </p>
 
 <p align="center">
@@ -24,8 +24,6 @@
 </p>
 
 ---
-
-<!-- TODO: Replace with actual demo GIF once recorded -->
 
 ## Why WhateverOPS?
 
@@ -61,13 +59,12 @@ That's it. Add more API keys to `.env` to light up more panels. Each integration
 | **Anthropic**  | API key status, available models                    | ![Anthropic](https://img.shields.io/badge/Anthropic-191919?style=flat-square&logoColor=white)                   |
 | **OpenAI**     | API key status, available models                    | ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)             |
 | **Cloudflare** | Requests, bandwidth, cache hit ratio                | ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white) |
-| **Replit**     | Repls, languages                                    | ![Replit](https://img.shields.io/badge/Replit-F26207?style=flat-square&logo=replit&logoColor=white)             |
 | **Supabase**   | Project health, database, auth users                | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)       |
 | **Neon**       | Projects, regions, PG versions                      | ![Neon](https://img.shields.io/badge/Neon-00E5A0?style=flat-square&logoColor=black)                             |
 | **Sentry**     | Unresolved issues, events, error levels             | ![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat-square&logo=sentry&logoColor=white)             |
 | **Stripe**     | MRR, active subs, failed payments                   | ![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=flat-square&logo=stripe&logoColor=white)             |
 
-All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
+All 14 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
 
 ## Architecture
 
@@ -80,7 +77,7 @@ All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall
                    │ REST
 ┌──────────────────▼──────────────────────────┐
 │  Hono.js on Bun (Railway)                   │
-│  15 integrations via Promise.all()          │
+│  14 integrations via Promise.all()          │
 │  Error retry (2x backoff, 10s timeout)      │
 │  Cache: in-memory or Upstash Redis          │
 └──────────────────┬──────────────────────────┘
