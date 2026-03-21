@@ -32,6 +32,7 @@ export function Header({ dashboard, onRefresh }: HeaderProps) {
           </Link>
           <button
             onClick={onRefresh}
+            aria-label="Refresh dashboard"
             className="text-sm px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
           >
             Refresh

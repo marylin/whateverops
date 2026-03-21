@@ -78,6 +78,7 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
     <div ref={containerRef}>
       <button
         onClick={() => setShowModal(!showModal)}
+        aria-label="Toggle integration status panel"
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[#1E1E2E] transition-colors"
       >
         <StatusDot status={globalHealth} pulse={globalHealth !== 'ok'} />
@@ -93,6 +94,7 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
             <h2 className="text-sm font-semibold text-white">Integration Status</h2>
             <button
               onClick={() => setShowModal(false)}
+              aria-label="Close status panel"
               className="text-gray-500 hover:text-white text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-[#1E1E2E]"
             >
               &times;

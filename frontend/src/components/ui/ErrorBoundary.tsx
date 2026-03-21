@@ -32,7 +32,10 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="bg-[#161622] border border-[#EF444420] rounded-xl p-5 flex flex-col gap-3">
+        <div
+          role="alert"
+          className="bg-[#161622] border border-[#EF444420] rounded-xl p-5 flex flex-col gap-3"
+        >
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444] flex-shrink-0" />
             <h3 className="text-sm font-semibold text-white">{this.props.title ?? 'Panel'}</h3>
