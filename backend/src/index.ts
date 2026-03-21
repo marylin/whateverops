@@ -3,7 +3,7 @@ config({ path: '../.env' })
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
+import { logger, requestLogger } from './lib/logger.js'
 import { secureHeaders } from 'hono/secure-headers'
 import { errorHandler } from './middleware/error.js'
 import { rateLimit } from './middleware/rate-limit.js'
@@ -26,7 +26,7 @@ app.use(
 )
 // Security headers — applied after CORS so CORS headers are not overwritten
 app.use('*', secureHeaders())
-app.use('*', logger())
+app.use('*', requestLogger())
 
 // Route-level rate limits (sliding window, in-memory)
 app.use('/api/dashboard/*', rateLimit('dashboard', { limit: 60, windowMs: 60_000 }))
@@ -48,5 +48,5 @@ app.route('/api/status', status)
 const port = Number(process.env.PORT ?? 3000)
 
 serve({ fetch: app.fetch, port }, () => {
-  console.log(`Backend running on http://localhost:${port}`)
+  logger.info({ port }, 'Backend running')
 })

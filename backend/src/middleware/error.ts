@@ -1,4 +1,5 @@
 import type { Context, Next } from 'hono'
+import { logger } from '../lib/logger.js'
 
 /**
  * Global error handler — catches any unhandled errors in routes
@@ -11,7 +12,10 @@ export async function errorHandler(c: Context, next: Next) {
     const message = err instanceof Error ? err.message : 'Internal server error'
     const status = (err as { status?: number }).status ?? 500
 
-    console.error(`[error] ${c.req.method} ${c.req.path}:`, message)
+    logger.error(
+      { method: c.req.method, path: c.req.path, status, requestId: c.get?.('requestId') },
+      message,
+    )
 
     return c.json(
       {

@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { logger } from '../lib/logger.js'
 
 const webhooks = new Hono()
 
@@ -17,7 +18,7 @@ webhooks.post('/n8n/:event', async (c) => {
   const event = c.req.param('event')
   const payload = await c.req.json()
 
-  console.log(`[webhook] n8n event: ${event}`, JSON.stringify(payload).slice(0, 200))
+  logger.info({ event, payload: JSON.stringify(payload).slice(0, 200) }, 'n8n webhook received')
 
   return c.json({
     received: true,
