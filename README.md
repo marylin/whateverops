@@ -117,9 +117,23 @@ Target: first panel showing real data in under 15 minutes.
 
 ### Troubleshooting
 
-- **No panels?** Check at least one API key is set and backend is reachable
-- **CORS errors?** Ensure `FRONTEND_URL` matches your frontend origin exactly
-- **Cache not persisting?** Set `CACHE_BACKEND=redis` with Upstash credentials
+| Problem              | Cause                              | Fix                                          |
+| -------------------- | ---------------------------------- | -------------------------------------------- |
+| No panels showing    | No API keys configured             | Add at least one key to `.env`               |
+| CORS errors          | `FRONTEND_URL` mismatch            | Set to exact frontend origin (with port)     |
+| Railway deploy fails | Missing required env vars          | Check `railway variables` includes PORT      |
+| Health check timeout | Backend not listening on PORT      | Verify PORT matches Railway config           |
+| Docker won't start   | Port 3000 already in use           | Change PORT in `.env` or docker-compose      |
+| Panels show "error"  | Invalid API key or rate limited    | Check key validity in provider dashboard     |
+| Cache not persisting | Using in-memory (default)          | Set `CACHE_BACKEND=redis` with Upstash creds |
+| Stale data (red dot) | Integration fetch failing silently | Check backend logs for errors                |
+
+### Production Hardening
+
+For production use, we recommend:
+
+- **HTTPS**: Use a reverse proxy like [Caddy](https://caddyserver.com) (automatic TLS) or nginx with Let's Encrypt
+- **Process manager**: Run via Docker with `restart: unless-stopped` or use Railway/Fly.io managed hosting
 
 ## Building in Public
 
