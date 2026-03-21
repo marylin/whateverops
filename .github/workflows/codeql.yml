@@ -7,6 +7,8 @@ on:
     - cron: '0 4 * * 1' # Every Monday at 4am UTC
   workflow_dispatch:
 
+# CodeQL requires GitHub Advanced Security (public repos or GHAS license)
+
 permissions:
   actions: read
   contents: read
@@ -15,6 +17,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze
+    if: github.repository_visibility == 'public'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
