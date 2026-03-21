@@ -2,7 +2,7 @@ name: CodeQL
 
 on:
   pull_request:
-    branches: [main]
+    branches: [master]
   schedule:
     - cron: '0 4 * * 1' # Every Monday at 4am UTC
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
         language: [javascript-typescript]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4

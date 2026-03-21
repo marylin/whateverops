@@ -4,7 +4,7 @@ on:
   issues:
     types: [opened]
   pull_request_target:
-    types: [opened]
+    types: [opened, reopened]
 
 permissions:
   issues: write
@@ -14,25 +14,40 @@ jobs:
   welcome:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/first-interaction@v3
+      - uses: actions/github-script@v7
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: |
-            Thanks for opening your first issue! 🎉
+          script: |
+            // Skip dependabot PRs
+            const author = context.payload?.pull_request?.user?.login || context.payload?.issue?.user?.login;
+            if (author === 'dependabot[bot]' || author === 'github-actions[bot]') return;
 
-            A few helpful links:
-            - **Self-hosting guide:** [docs/06-Development/SETUP.md](https://github.com/whateverops-dev/whateverops/blob/main/docs/06-Development/SETUP.md)
-            - **Environment variables:** [.env.example](https://github.com/whateverops-dev/whateverops/blob/main/.env.example)
-            - **Discussions:** [GitHub Discussions](https://github.com/whateverops-dev/whateverops/discussions)
+            // Check if this is the user's first contribution
+            const { owner, repo } = context.repo;
+            const username = author;
 
-            We'll take a look as soon as we can.
-          pr-message: |
-            Thanks for your first pull request! 🎉
+            if (context.eventName === 'issues') {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner, repo, creator: username, state: 'all', per_page: 2
+              });
+              if (issues.length > 1) return;
 
-            Please make sure:
-            - [ ] `bun run typecheck` passes
-            - [ ] `bun run lint` passes
-            - [ ] Tests cover new functionality
-            - [ ] Commit messages follow [conventional commits](https://www.conventionalcommits.org/)
+              await github.rest.issues.createComment({
+                owner, repo,
+                issue_number: context.issue.number,
+                body: `Thanks for opening your first issue! 🎉\n\nA few helpful links:\n- **Self-hosting guide:** [docs/06-Development/SETUP.md](https://github.com/${owner}/${repo}/blob/main/docs/06-Development/SETUP.md)\n- **Environment variables:** [.env.example](https://github.com/${owner}/${repo}/blob/main/.env.example)\n- **Discussions:** [GitHub Discussions](https://github.com/${owner}/${repo}/discussions)\n\nWe'll take a look as soon as we can.`
+              });
+            }
 
-            We'll review this shortly.
+            if (context.eventName === 'pull_request_target') {
+              const { data: prs } = await github.rest.pulls.list({
+                owner, repo, state: 'all', per_page: 2,
+              });
+              const userPrs = prs.filter(pr => pr.user.login === username);
+              if (userPrs.length > 1) return;
+
+              await github.rest.issues.createComment({
+                owner, repo,
+                issue_number: context.payload.pull_request.number,
+                body: `Thanks for your first pull request! 🎉\n\nPlease make sure:\n- [ ] \`bun run typecheck\` passes\n- [ ] \`bun run lint\` passes\n- [ ] Tests cover new functionality\n- [ ] Commit messages follow [conventional commits](https://www.conventionalcommits.org/)\n\nWe'll review this shortly.`
+              });
+            }
