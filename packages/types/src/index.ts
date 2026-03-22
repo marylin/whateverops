@@ -13,7 +13,6 @@ export const INTEGRATION_IDS = [
   'stripe',
   'sentry',
   'cloudflare',
-  'replit',
 ] as const
 
 export type IntegrationId = (typeof INTEGRATION_IDS)[number]

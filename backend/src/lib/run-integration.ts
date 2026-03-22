@@ -16,6 +16,8 @@ interface IntegrationModule<TConfig, TRaw, TPanel> {
   INTEGRATION_ID: string
   INTEGRATION_NAME: string
   DEFAULT_TTL: number
+  /** Override the per-attempt timeout (default 10s). Multi-call integrations need more. */
+  FETCH_TIMEOUT_MS?: number
   fetchData: (config: TConfig) => Promise<TRaw>
   parsePanel: (raw: TRaw) => TPanel
   getCacheKey: (config: TConfig) => string
@@ -47,10 +49,9 @@ export async function runIntegration<TConfig, TRaw, TPanel>(
   }
 
   try {
-    // 10s timeout per attempt, 2 retries (3 total), exponential backoff
     const raw = await withRetry(() => mod.fetchData(config), {
       maxAttempts: 3,
-      timeoutMs: 10_000,
+      timeoutMs: mod.FETCH_TIMEOUT_MS ?? 10_000,
       baseDelayMs: 1_000,
     })
     const panel = mod.parsePanel(raw)

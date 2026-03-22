@@ -13,18 +13,36 @@ function formatValue(value: unknown): string {
   return String(value)
 }
 
+// Abbreviations that should stay uppercase in labels
+const ABBREVS = new Set(['api', 'url', 'id', 'pr', 'prs', 'mrr', 'ttl', 'ip', 'mrr'])
+
 function formatLabel(key: string): string {
-  return key
-    .replace(/([A-Z])/g, ' $1')
+  // Handle _ms suffix specially: "responseTime_ms" → "Response Time (ms)"
+  const normalized = key.replace(/_ms$/, ' (ms)')
+
+  // Split on: transitions from lowercase→uppercase, sequences of uppercase→lowercase,
+  // underscores, and hyphens — then filter empty tokens
+  const tokens = normalized
+    .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase split: openPRs → open PRs
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2') // consecutive caps: PRCount → PR Count
     .replace(/[_-]/g, ' ')
-    .replace(/^\w/, (c) => c.toUpperCase())
     .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  return tokens
+    .map((word) => {
+      const lower = word.toLowerCase()
+      if (ABBREVS.has(lower)) return lower.toUpperCase()
+      // Preserve parenthesized units like "(ms)"
+      if (word.startsWith('(') && word.endsWith(')')) return word
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    })
+    .join(' ')
 }
 
 export function GenericPanel({ data }: GenericPanelProps) {
-  const entries = Object.entries(data).filter(
-    ([_, v]) => !Array.isArray(v) || v.length <= 5,
-  )
+  const entries = Object.entries(data).filter(([_, v]) => !Array.isArray(v) || v.length <= 5)
 
   const metrics = entries.filter(
     ([_, v]) => typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string',

@@ -1,22 +1,31 @@
 import { describe, it, expect } from 'bun:test'
-import { parsePanel, getHealthStatus, getCacheKey } from '../../../../backend/src/integrations/linear'
+import {
+  parsePanel,
+  getHealthStatus,
+  getCacheKey,
+} from '../../../../backend/src/integrations/linear'
 import fixture from '../../../fixtures/mock-responses/linear.json'
 
 describe('linear integration', () => {
   it('parsePanel() with healthy mock response', () => {
     const panel = parsePanel(fixture.ok as Parameters<typeof parsePanel>[0])
-    expect(panel.openIssues).toBe(8)
-    expect(panel.inProgress).toBe(3)
+    expect(panel.openCount).toBe(8)
+    expect(panel.inProgressCount).toBe(3)
     expect(panel.completedThisCycle).toBe(12)
     expect(panel.teamName).toBe('Engineering')
     expect(panel.cycleName).toBe('Sprint 5')
+    expect(panel.bugsInProgress).toBe(1)
+    expect(panel.featuresInProgress).toBe(1)
+    expect(panel.inProgressIssues[0].identifier).toBe('ENG-42')
   })
 
-  it('parsePanel() handles missing optional fields', () => {
+  it('parsePanel() handles empty state', () => {
     const panel = parsePanel(fixture.empty as Parameters<typeof parsePanel>[0])
-    expect(panel.openIssues).toBe(0)
+    expect(panel.openCount).toBe(0)
+    expect(panel.inProgressCount).toBe(0)
     expect(panel.cycleName).toBeNull()
     expect(panel.cycleProgress).toBeNull()
+    expect(panel.projects).toHaveLength(0)
   })
 
   it('getHealthStatus() returns ok for healthy response', () => {

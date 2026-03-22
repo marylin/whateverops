@@ -5,6 +5,9 @@
 *.pem
 *.key
 
+# AI agent instructions (local only)
+CLAUDE.md
+
 # Dependencies
 node_modules/
 bun.lockb
@@ -47,3 +50,55 @@ n8n/data/
 tmp/
 temp/
 .cache/
+
+# Screenshots / images from dev sessions
+*.png
+*.jpg
+*.gif
+!frontend/public/**
+
+# Binary docs (use .md instead)
+*.docx
+*.xlsx
+*.pptx
+
+# gstack / Playwright MCP local state
+.gstack/
+.playwright-mcp/
+
+# Package lock (using pnpm-lock.yaml)
+frontend/package-lock.json
+
+# Internal planning docs (keep locally, exclude from OSS repo)
+docs/05-Plans/CURRENT-PHASE.md
+docs/05-Plans/MASTER-PLAN.md
+docs/05-Plans/PROGRESS.md
+docs/05-Plans/PHASE-*-PLAN.md
+docs/05-Plans/*-plan.md
+docs/05-Plans/whateverops-prd.*
+docs/05-Plans/prd-gap-analysis-plan.md
+docs/05-Plans/oss-launch-review-prompts.md
+docs/05-Plans/phase-3.3-integration-fixes-plan.md
+docs/05-Plans/.session-*
+docs/08-Feedback/
+docs/05-Plans/phase-4.1d-*
+
+# Documentation (internal — keep locally)
+docs/
+
+# n8n workflows (local-only automation)
+n8n/
+
+# Editor temps
+.eslintcache
+*.swp
+*.swo
+*~
+.#*
+**/.DS_Store
+pnpm-debug.log*
+
+# Future-proofing
+.turbo/
+.swc/
+.next/

@@ -4,7 +4,7 @@ Thanks for your interest! WhateverOPS is built for solo developer-founders who w
 
 ## Adding a New Integration
 
-Each integration follows a strict contract. See `docs/06-Development/INTEGRATION-PATTERN.md` for the full spec.
+Each integration follows a strict contract defined below.
 
 ### Quick Template
 
@@ -68,6 +68,14 @@ export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
 - [ ] `tests/fixtures/mock-responses/your-service.json` — ok, error, empty fixtures
 - [ ] `.env.example` updated with new env vars
 - [ ] `backend/src/routes/dashboard.ts` updated to include integration
+
+### Integration Contract Rules
+
+- `INTEGRATION_ID`: kebab-case, stable forever (never rename after merge)
+- `fetchData()`: must have 10s timeout via `AbortSignal.timeout(10_000)`
+- `parsePanel()`: pure function — no async, no side effects, no throws. Handle null/undefined with fallback defaults.
+- Frontend panel: must handle 4 states — loading (skeleton), error (actionable message), empty, data
+- 6 required unit tests (see test template above)
 
 ## Development Workflow
 

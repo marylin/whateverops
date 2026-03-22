@@ -45,6 +45,9 @@ jobs:
       - name: Integration tests
         run: bun test tests/integration/
 
+      - name: Frontend tests
+        run: pnpm --filter frontend test
+
       - name: Security audit
         run: pnpm audit --audit-level=high || true
 

@@ -7,7 +7,7 @@ interface MetricProps {
 
 export function Metric({ label, value, subValue, trend }: MetricProps) {
   const trendColor =
-    trend === 'up' ? 'text-[#00D46A]' : trend === 'down' ? 'text-[#FF4545]' : 'text-gray-400'
+    trend === 'up' ? 'text-[#10B981]' : trend === 'down' ? 'text-[#EF4444]' : 'text-gray-400'
 
   return (
     <div>

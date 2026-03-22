@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="docs/assets/logo.svg" alt="WhateverOPS" width="80" />
+  <img src="frontend/public/logo.svg" alt="WhateverOPS" width="80" />
 </p>
 
 <h1 align="center">WhateverOPS</h1>
 
 <p align="center">
   <strong>Unified ops dashboard for solo developer-founders.</strong><br/>
-  15 integrations. One real-time view. Self-host in 5 minutes.
+  14 integrations. One real-time view. Self-host in 5 minutes.
 </p>
 
 <p align="center">
@@ -24,9 +24,6 @@
 </p>
 
 ---
-
-<!-- TODO: Replace with actual demo GIF once recorded -->
-<!-- ![WhateverOPS Dashboard](docs/assets/demo.gif) -->
 
 ## Why WhateverOPS?
 
@@ -62,13 +59,12 @@ That's it. Add more API keys to `.env` to light up more panels. Each integration
 | **Anthropic**  | API key status, available models                    | ![Anthropic](https://img.shields.io/badge/Anthropic-191919?style=flat-square&logoColor=white)                   |
 | **OpenAI**     | API key status, available models                    | ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)             |
 | **Cloudflare** | Requests, bandwidth, cache hit ratio                | ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white) |
-| **Replit**     | Repls, languages                                    | ![Replit](https://img.shields.io/badge/Replit-F26207?style=flat-square&logo=replit&logoColor=white)             |
 | **Supabase**   | Project health, database, auth users                | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)       |
 | **Neon**       | Projects, regions, PG versions                      | ![Neon](https://img.shields.io/badge/Neon-00E5A0?style=flat-square&logoColor=black)                             |
 | **Sentry**     | Unresolved issues, events, error levels             | ![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat-square&logo=sentry&logoColor=white)             |
 | **Stripe**     | MRR, active subs, failed payments                   | ![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=flat-square&logo=stripe&logoColor=white)             |
 
-All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
+All 14 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
 
 ## Architecture
 
@@ -81,7 +77,7 @@ All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall
                    │ REST
 ┌──────────────────▼──────────────────────────┐
 │  Hono.js on Bun (Railway)                   │
-│  15 integrations via Promise.all()          │
+│  14 integrations via Promise.all()          │
 │  Error retry (2x backoff, 10s timeout)      │
 │  Cache: in-memory or Upstash Redis          │
 └──────────────────┬──────────────────────────┘
@@ -94,26 +90,56 @@ All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall
 
 ## Self-Hosting
 
-See the full [Self-Hosting Guide](docs/06-Development/SETUP.md) — target: first panel live in under 15 minutes.
+Target: first panel showing real data in under 15 minutes.
 
-**TL;DR:**
+### Prerequisites
 
-1. Deploy backend to [Railway](https://railway.app) (or any Bun/Node host)
-2. Deploy frontend to [Vercel](https://vercel.com) (or any static host)
-3. Set env vars per service you want to monitor
-4. Optional: add Upstash Redis for persistent cache
+- Bun >= 1.0 (or Node.js >= 18)
+- pnpm >= 8
+- Git
+
+### Deploy Backend (Railway)
+
+1. Install Railway CLI: `npm i -g @railway/cli && railway login`
+2. Create project: `railway init && railway add`
+3. Set env vars: `railway variables set PORT=3000 CACHE_BACKEND=memory`
+4. Add integration API keys (see `.env.example`)
+5. Deploy: `railway up`
+
+**Optional:** Add [Upstash Redis](https://console.upstash.com) for persistent cache:
+`railway variables set CACHE_BACKEND=redis UPSTASH_REDIS_REST_URL=... UPSTASH_REDIS_REST_TOKEN=...`
+
+### Deploy Frontend (Vercel)
+
+1. Install Vercel CLI: `npm i -g vercel && vercel login`
+2. Deploy: `cd frontend && vercel`
+3. Set API URL: `vercel env add VITE_API_URL` (enter your Railway backend URL)
+
+### Troubleshooting
+
+| Problem              | Cause                              | Fix                                          |
+| -------------------- | ---------------------------------- | -------------------------------------------- |
+| No panels showing    | No API keys configured             | Add at least one key to `.env`               |
+| CORS errors          | `FRONTEND_URL` mismatch            | Set to exact frontend origin (with port)     |
+| Railway deploy fails | Missing required env vars          | Check `railway variables` includes PORT      |
+| Health check timeout | Backend not listening on PORT      | Verify PORT matches Railway config           |
+| Docker won't start   | Port 3000 already in use           | Change PORT in `.env` or docker-compose      |
+| Panels show "error"  | Invalid API key or rate limited    | Check key validity in provider dashboard     |
+| Cache not persisting | Using in-memory (default)          | Set `CACHE_BACKEND=redis` with Upstash creds |
+| Stale data (red dot) | Integration fetch failing silently | Check backend logs for errors                |
+
+### Production Hardening
+
+For production use, we recommend:
+
+- **HTTPS**: Use a reverse proxy like [Caddy](https://caddyserver.com) (automatic TLS) or nginx with Let's Encrypt
+- **Process manager**: Run via Docker with `restart: unless-stopped` or use Railway/Fly.io managed hosting
 
 ## Building in Public
 
-WhateverOPS ships with 5 [n8n automation workflows](n8n/workflows/) for building in public:
+WhateverOPS is built with automation for building in public — deploy changelogs, star milestones, weekly metrics digests, payment celebrations, and error transparency posts.
 
-| Workflow           | Trigger                             | Output                         |
-| ------------------ | ----------------------------------- | ------------------------------ |
-| Deploy Changelog   | New Vercel deploy                   | Twitter/blog post with changes |
-| Stars Milestone    | GitHub stars hit 10/25/50/100…      | Celebration post               |
-| Weekly Digest      | Every Monday 9am                    | Metrics summary thread         |
-| First Payment      | Stripe `checkout.session.completed` | Auto thank-you post            |
-| Error Transparency | Sentry spike detected               | Public incident update         |
+These automations run on a self-hosted [n8n](https://n8n.io) instance and are not included in the repository. See the [n8n docs](https://docs.n8n.io/hosting/) to set up your own instance.
 
 ## Development
 
@@ -127,7 +153,7 @@ pnpm test             # all tests (unit + integration)
 
 ### Adding an Integration
 
-Every integration follows a strict contract. See [CONTRIBUTING.md](CONTRIBUTING.md) for the template and the [Integration Pattern docs](docs/06-Development/INTEGRATION-PATTERN.md) for the full spec.
+Every integration follows a strict contract. See [CONTRIBUTING.md](CONTRIBUTING.md) for the template and required files checklist.
 
 ## Contributing
 
