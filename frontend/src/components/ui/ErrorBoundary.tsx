@@ -38,19 +38,19 @@ export class ErrorBoundary extends Component<Props, State> {
         >
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444] flex-shrink-0" />
-            <h3 className="text-sm font-semibold text-white">{this.props.title ?? 'Panel'}</h3>
+            <h3 className="text-sm font-semibold text-[#E2E2E8]">{this.props.title ?? 'Panel'}</h3>
           </div>
           <div className="rounded-lg bg-[#EF444408] border border-[#EF444415] px-3 py-2.5">
             <p className="text-sm text-red-400 leading-relaxed">This panel encountered an error</p>
             {this.state.error?.message && (
-              <p className="text-xs text-gray-500 mt-1 leading-relaxed font-mono">
+              <p className="text-xs text-[#606070] mt-1 leading-relaxed font-mono">
                 {this.state.error.message}
               </p>
             )}
           </div>
           <button
             onClick={this.handleRetry}
-            className="self-start text-xs px-3 py-1.5 bg-[#111118] hover:bg-[#1E1E2E] text-gray-300 rounded-md transition-colors border border-[#252535]"
+            className="self-start text-xs px-3 py-1.5 bg-[#0C0C14] hover:bg-[#1E1E2E] text-[#E2E2E8] rounded-lg transition-colors border border-[#252535]"
           >
             Retry
           </button>

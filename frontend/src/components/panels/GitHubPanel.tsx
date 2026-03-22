@@ -145,19 +145,19 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
           ) : ciPassing ? (
             <>
               <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-              <span className="text-sm font-semibold text-white">CI Passing</span>
+              <span className="text-sm font-semibold text-[#E2E2E8]">CI Passing</span>
             </>
           ) : (
             <>
               <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-              <span className="text-sm font-semibold text-white">
+              <span className="text-sm font-semibold text-[#E2E2E8]">
                 {data.cicd.lastRunConclusion ?? 'No CI runs'}
               </span>
             </>
           )}
         </div>
         {data.lastCommit && (
-          <span className="text-xs text-gray-500 truncate max-w-[50%]">
+          <span className="text-xs text-[#606070] truncate max-w-[50%]">
             {shortSha(data.lastCommit.sha)} · {timeAgo(data.lastCommit.date)}
           </span>
         )}
@@ -223,7 +223,7 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
       {/* Expandable details */}
       <button
         onClick={() => setShowDetails(!showDetails)}
-        className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
+        className="text-[10px] text-[#606070] hover:text-[#E2E2E8] transition-colors"
       >
         {showDetails ? 'Hide details' : 'Show details'}
       </button>
@@ -233,19 +233,19 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
           {/* Last commit */}
           {data.lastCommit && (
             <div className="border border-[#252535] rounded-lg px-3 py-2">
-              <span className="text-[10px] text-gray-600 uppercase tracking-wider">
+              <span className="text-[10px] text-[#606070] uppercase tracking-wider">
                 Last Commit
               </span>
-              <p className="text-xs text-gray-300 mt-1">
+              <p className="text-xs text-[#E2E2E8] mt-1">
                 {data.lastCommit.url ? (
-                  <ExternalLink href={data.lastCommit.url} className="text-gray-300">
+                  <ExternalLink href={data.lastCommit.url} className="text-[#E2E2E8]">
                     {commitMsg(data.lastCommit.message, 60)}
                   </ExternalLink>
                 ) : (
                   commitMsg(data.lastCommit.message, 60)
                 )}
               </p>
-              <p className="text-[10px] text-gray-600 mt-0.5">
+              <p className="text-[10px] text-[#606070] mt-0.5">
                 {data.lastCommit.author} · {shortSha(data.lastCommit.sha)} ·{' '}
                 {timeAgo(data.lastCommit.date)}
               </p>
@@ -255,15 +255,15 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
           {/* Recent CI runs */}
           {data.cicd.recentRuns.length > 0 && (
             <div>
-              <span className="text-xs text-gray-500 font-medium">Recent CI Runs</span>
+              <span className="text-xs text-[#606070] font-medium">Recent CI Runs</span>
               <div className="mt-1 space-y-1">
                 {data.cicd.recentRuns.slice(0, 3).map((run) => (
                   <div key={run.id} className="flex items-center justify-between text-xs">
-                    <ExternalLink href={run.url} className="text-gray-400 truncate max-w-[50%]">
+                    <ExternalLink href={run.url} className="text-[#9090A0] truncate max-w-[50%]">
                       {run.name}
                     </ExternalLink>
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-600">{run.branch}</span>
+                      <span className="text-[#606070]">{run.branch}</span>
                       <StatusBadge status={run.conclusion ?? run.status} />
                     </div>
                   </div>
@@ -275,11 +275,11 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
           {/* Dependabot alerts detail */}
           {data.dependabot.alerts.length > 0 && (
             <div>
-              <span className="text-xs text-gray-500 font-medium">Security Alerts</span>
+              <span className="text-xs text-[#606070] font-medium">Security Alerts</span>
               <div className="mt-1 space-y-1">
                 {data.dependabot.alerts.slice(0, 3).map((alert) => (
                   <div key={alert.number} className="text-xs">
-                    <ExternalLink href={alert.url} className="text-gray-400">
+                    <ExternalLink href={alert.url} className="text-[#9090A0]">
                       {alert.package}: {alert.summary.slice(0, 50)}
                     </ExternalLink>
                   </div>
@@ -289,17 +289,17 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
           )}
 
           {/* De-emphasized info */}
-          <div className="grid grid-cols-3 gap-2 text-[10px] text-gray-600">
+          <div className="grid grid-cols-3 gap-2 text-[10px] text-[#606070]">
             <div>
-              <span className="block text-gray-700">Watchers</span>
+              <span className="block text-[#606070]">Watchers</span>
               {data.watchers}
             </div>
             <div>
-              <span className="block text-gray-700">Forks</span>
+              <span className="block text-[#606070]">Forks</span>
               {data.forks}
             </div>
             <div>
-              <span className="block text-gray-700">Last push</span>
+              <span className="block text-[#606070]">Last push</span>
               {timeAgo(data.lastPush)}
             </div>
           </div>
@@ -310,12 +310,12 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
       {data.repos.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-xs text-[#606070] font-medium">
               Repositories ({data.repos.length})
             </span>
             <button
               onClick={() => setShowRepoList(!showRepoList)}
-              className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-[10px] text-[#606070] hover:text-[#E2E2E8] transition-colors"
             >
               {showRepoList ? 'Hide' : 'Browse All'}
             </button>
@@ -333,15 +333,15 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
                     className={`w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-[#1E1E2E40] transition-colors ${isSelected ? 'bg-[#1E1E2E60]' : ''}`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-gray-300 truncate">{repo.name}</span>
+                      <span className="text-[#E2E2E8] truncate">{repo.name}</span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {activity && (
-                        <span className="text-[10px] text-gray-600">
+                        <span className="text-[10px] text-[#606070]">
                           {activity.activitySummary}
                         </span>
                       )}
-                      <span className="text-gray-600 text-[10px]">{timeAgo(repo.lastPush)}</span>
+                      <span className="text-[#606070] text-[10px]">{timeAgo(repo.lastPush)}</span>
                     </div>
                   </button>
                 )
@@ -354,13 +354,13 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
               <div className="flex items-center justify-between px-3 py-2 border-b border-[#252535]">
                 <ExternalLink
                   href={selectedActivity.htmlUrl}
-                  className="text-xs text-gray-300 font-medium"
+                  className="text-xs text-[#E2E2E8] font-medium"
                 >
                   {selectedActivity.fullName}
                 </ExternalLink>
                 <button
                   onClick={() => setSelectedRepo(null)}
-                  className="text-[10px] text-gray-600 hover:text-gray-400"
+                  className="text-[10px] text-[#606070] hover:text-[#9090A0]"
                 >
                   x
                 </button>
@@ -368,7 +368,7 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
               <div className="px-3 pb-2 space-y-2">
                 {selectedActivity.openPRs.length > 0 && (
                   <div className="pt-2">
-                    <span className="text-[10px] text-gray-600 uppercase tracking-wider">
+                    <span className="text-[10px] text-[#606070] uppercase tracking-wider">
                       Pull Requests
                     </span>
                     <div className="mt-1 space-y-1">
@@ -376,17 +376,17 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
                         <div key={pr.number} className="flex items-center justify-between text-xs">
                           <ExternalLink
                             href={pr.url}
-                            className="text-gray-400 truncate max-w-[70%]"
+                            className="text-[#9090A0] truncate max-w-[70%]"
                           >
                             #{pr.number} {pr.title}
                           </ExternalLink>
                           <div className="flex items-center gap-1.5 shrink-0">
                             {pr.draft && (
-                              <span className="text-[10px] px-1 py-0.5 bg-[#1E1E2E] text-gray-500 rounded">
+                              <span className="text-[10px] px-1 py-0.5 bg-[#1E1E2E] text-[#606070] rounded">
                                 draft
                               </span>
                             )}
-                            <span className="text-gray-600">{timeAgo(pr.updated)}</span>
+                            <span className="text-[#606070]">{timeAgo(pr.updated)}</span>
                           </div>
                         </div>
                       ))}
@@ -395,18 +395,18 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
                 )}
                 {selectedActivity.recentRuns.length > 0 && (
                   <div className="pt-1">
-                    <span className="text-[10px] text-gray-600 uppercase tracking-wider">
+                    <span className="text-[10px] text-[#606070] uppercase tracking-wider">
                       Actions
                     </span>
                     <div className="mt-1 space-y-1">
                       {selectedActivity.recentRuns.map((run) => (
                         <div key={run.id} className="flex items-center justify-between text-xs">
-                          <ExternalLink href={run.url} className="text-gray-400 truncate">
+                          <ExternalLink href={run.url} className="text-[#9090A0] truncate">
                             {run.name}
                           </ExternalLink>
                           <div className="flex items-center gap-2 shrink-0">
                             <StatusBadge status={run.conclusion ?? 'pending'} />
-                            <span className="text-gray-600">{timeAgo(run.created)}</span>
+                            <span className="text-[#606070]">{timeAgo(run.created)}</span>
                           </div>
                         </div>
                       ))}
@@ -415,7 +415,7 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
                 )}
                 {selectedActivity.openPRs.length === 0 &&
                   selectedActivity.recentRuns.length === 0 && (
-                    <p className="text-[10px] text-gray-600 pt-2">No recent activity</p>
+                    <p className="text-[10px] text-[#606070] pt-2">No recent activity</p>
                   )}
               </div>
             </div>
@@ -430,11 +430,11 @@ export function GitHubPanel({ data }: { data: GitHubPanelData }) {
                   className="w-full flex items-center justify-between px-3 py-2 text-xs border border-[#252535] rounded-lg hover:bg-[#1E1E2E20] transition-colors"
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <ExternalLink href={repo.htmlUrl} className="text-gray-300 truncate">
+                    <ExternalLink href={repo.htmlUrl} className="text-[#E2E2E8] truncate">
                       {repo.name}
                     </ExternalLink>
                   </div>
-                  <span className="text-gray-600 shrink-0 ml-2">{repo.activitySummary}</span>
+                  <span className="text-[#606070] shrink-0 ml-2">{repo.activitySummary}</span>
                 </button>
               ))}
             </div>

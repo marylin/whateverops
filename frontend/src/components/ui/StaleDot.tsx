@@ -37,7 +37,7 @@ export function StaleDot({ lastUpdated, ttl, error }: StaleDotProps) {
       title={`${label} · Updated: ${time}`}
     >
       <span className={`rounded-full w-2 h-2 ${color}`} />
-      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-[#1E1E2E] text-gray-300 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-[#1E1E2E] text-[#E2E2E8] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
         {label} · {time}
       </span>
     </span>

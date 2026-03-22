@@ -45,7 +45,7 @@ export function StripePanel({ data }: { data: StripePanelData }) {
       ? 'text-[#10B981]'
       : data.mrrGrowthPct < 0
         ? 'text-[#EF4444]'
-        : 'text-gray-400'
+        : 'text-[#9090A0]'
 
   const hasAlerts = data.disputes.count > 0 || data.failedPayments24h > 0 || data.churnRate30d > 5
 
@@ -54,14 +54,16 @@ export function StripePanel({ data }: { data: StripePanelData }) {
       {/* Hero: MRR with % change */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-3xl font-bold text-white">{formatCurrency(data.mrr, data.currency)}</p>
-          <p className="text-xs text-gray-500 mt-0.5">Monthly Recurring Revenue</p>
+          <p className="text-3xl font-bold text-[#E2E2E8]">
+            {formatCurrency(data.mrr, data.currency)}
+          </p>
+          <p className="text-xs text-[#606070] mt-0.5">Monthly Recurring Revenue</p>
         </div>
         <div className="text-right">
           <p className={`text-lg font-semibold ${growthColor}`}>
             {growthArrow} {Math.abs(data.mrrGrowthPct)}%
           </p>
-          <p className="text-[10px] text-gray-600">30d growth</p>
+          <p className="text-[10px] text-[#606070]">30d growth</p>
         </div>
       </div>
 
@@ -111,7 +113,7 @@ export function StripePanel({ data }: { data: StripePanelData }) {
       </div>
 
       {/* Secondary info row */}
-      <div className="flex items-center justify-between text-xs text-gray-500">
+      <div className="flex items-center justify-between text-xs text-[#606070]">
         {data.openInvoices.count > 0 && (
           <span>
             {data.openInvoices.count} open invoice{data.openInvoices.count !== 1 ? 's' : ''} (
@@ -119,7 +121,7 @@ export function StripePanel({ data }: { data: StripePanelData }) {
           </span>
         )}
         {data.recentPayouts.length > 0 && (
-          <span className="text-gray-600">
+          <span className="text-[#606070]">
             Last payout: {formatCurrency(data.recentPayouts[0]!.amount, data.currency)}
           </span>
         )}

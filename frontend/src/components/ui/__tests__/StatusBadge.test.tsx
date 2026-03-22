@@ -29,7 +29,7 @@ describe('StatusBadge', () => {
   it('applies default color for unknown statuses', () => {
     const { container } = render(<StatusBadge status="unknown_thing" />)
     const badge = container.querySelector('span')
-    expect(badge?.className).toContain('text-gray-400')
+    expect(badge?.className).toContain('text-[#9090A0]')
   })
 
   it('normalizes status with spaces and mixed case', () => {

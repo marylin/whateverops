@@ -50,16 +50,16 @@ export function NeonPanel({ data }: { data: NeonPanelData }) {
           ) : isActive ? (
             <>
               <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-              <span className="text-sm font-semibold text-white">Active</span>
+              <span className="text-sm font-semibold text-[#E2E2E8]">Active</span>
             </>
           ) : (
             <>
               <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-              <span className="text-sm font-semibold text-white">{epStatus}</span>
+              <span className="text-sm font-semibold text-[#E2E2E8]">{epStatus}</span>
             </>
           )}
         </div>
-        <ExternalLink href="https://console.neon.tech" className="text-[10px] text-gray-600">
+        <ExternalLink href="https://console.neon.tech" className="text-[10px] text-[#606070]">
           {data.projectCount} project{data.projectCount !== 1 ? 's' : ''}
         </ExternalLink>
       </div>
@@ -108,14 +108,14 @@ export function NeonPanel({ data }: { data: NeonPanelData }) {
       {/* Project list (de-emphasized) */}
       {data.projects.length > 1 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">Projects</span>
+          <span className="text-xs text-[#606070] font-medium">Projects</span>
           <div className="mt-1.5 space-y-1">
             {data.projects.slice(0, 5).map((proj) => (
               <div key={proj.name} className="flex items-center justify-between text-xs">
-                <ExternalLink href="https://console.neon.tech" className="text-gray-400 truncate">
+                <ExternalLink href="https://console.neon.tech" className="text-[#9090A0] truncate">
                   {proj.name}
                 </ExternalLink>
-                <div className="flex items-center gap-2 shrink-0 ml-2 text-gray-600">
+                <div className="flex items-center gap-2 shrink-0 ml-2 text-[#606070]">
                   <span>{proj.endpointCount} ep</span>
                   {proj.storageMB > 0 && (
                     <span>{proj.storageMB < 1 ? '< 1' : Math.round(proj.storageMB)} MB</span>

@@ -64,7 +64,7 @@ export function AIProviderPanel({ data }: { data: AIProviderData }) {
 
       {/* Token reset */}
       {rl.tokensReset && (
-        <p className="text-[10px] text-gray-600">
+        <p className="text-[10px] text-[#606070]">
           Resets: {new Date(rl.tokensReset).toLocaleTimeString()}
         </p>
       )}
