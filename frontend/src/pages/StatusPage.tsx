@@ -17,7 +17,7 @@ const STATUS_TEXT: Record<string, string> = {
 function StatusDot({ status }: { status: string }) {
   return (
     <span
-      className={`inline-block w-2.5 h-2.5 rounded-full ${STATUS_COLORS[status] ?? 'bg-gray-500'}`}
+      className={`inline-block w-2.5 h-2.5 rounded-full ${STATUS_COLORS[status] ?? 'bg-[#606070]'}`}
     />
   )
 }
@@ -63,7 +63,7 @@ export function StatusPage() {
             >
               WhateverOPS
             </a>
-            <span className="text-sm text-gray-500">Status</span>
+            <span className="text-sm text-[#606070]">Status</span>
           </div>
         </div>
       </header>
@@ -71,14 +71,14 @@ export function StatusPage() {
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {loading && !data && (
           <div className="text-center py-20">
-            <p className="text-gray-400">Loading status...</p>
+            <p className="text-[#9090A0]">Loading status...</p>
           </div>
         )}
 
         {error && !data && (
           <div className="text-center py-20">
             <p className="text-[#EF4444] mb-2">Failed to load status</p>
-            <p className="text-sm text-gray-500 mb-4">{error}</p>
+            <p className="text-sm text-[#606070] mb-4">{error}</p>
             <button
               onClick={refresh}
               className="text-sm px-4 py-2 bg-[#0EA5E9] hover:bg-[#38BDF8] text-white rounded-lg"
@@ -93,7 +93,7 @@ export function StatusPage() {
             <div className="mb-8 text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#161622]">
                 <StatusDot status={data.globalHealth} />
-                <span className="text-sm font-medium text-white">
+                <span className="text-sm font-medium text-[#E2E2E8]">
                   {data.globalHealth === 'ok'
                     ? 'All Systems Operational'
                     : data.globalHealth === 'warn'
@@ -111,10 +111,10 @@ export function StatusPage() {
                 >
                   <div className="flex items-center gap-3">
                     <StatusDot status={service.status} />
-                    <span className="text-sm font-medium text-white">{service.name}</span>
+                    <span className="text-sm font-medium text-[#E2E2E8]">{service.name}</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-[#606070]">
                       {formatTimestamp(service.lastChecked)}
                     </span>
                     <span
@@ -134,7 +134,7 @@ export function StatusPage() {
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-[#606070]">
                 Last refresh: {formatTimestamp(data.lastRefresh)}
                 {' · '}
                 Auto-refreshes every 30s

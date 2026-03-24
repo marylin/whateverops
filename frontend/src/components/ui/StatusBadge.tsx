@@ -33,11 +33,11 @@ const STATUS_COLORS: Record<string, string> = {
   unresolved: 'bg-[#EF444420] text-[#EF4444]',
 
   // Neutral
-  removed: 'bg-[#1E1E2E] text-gray-500',
-  inactive: 'bg-[#1E1E2E] text-gray-500',
+  removed: 'bg-[#1E1E2E] text-[#606070]',
+  inactive: 'bg-[#1E1E2E] text-[#606070]',
 }
 
-const DEFAULT_COLOR = 'bg-[#1E1E2E] text-gray-400'
+const DEFAULT_COLOR = 'bg-[#1E1E2E] text-[#9090A0]'
 
 export function StatusBadge({ status, size = 'sm' }: StatusBadgeProps) {
   const normalized = status.toLowerCase().replace(/\s+/g, '_')

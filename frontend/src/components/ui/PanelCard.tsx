@@ -60,7 +60,7 @@ export function PanelCard({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <StatusDot status="error" />
-            <h3 className="text-base font-semibold text-white">{title}</h3>
+            <h3 className="text-base font-semibold text-[#E2E2E8]">{title}</h3>
           </div>
           <span className="text-[10px] px-1.5 py-0.5 bg-[#EF444415] text-[#EF4444] rounded">
             error
@@ -70,17 +70,17 @@ export function PanelCard({
           <div className="rounded-lg bg-[#EF444408] border border-[#EF444415] px-3 py-2.5">
             <p className="text-sm text-[#F87171] leading-relaxed">{errorTitle}</p>
             {errorHint && (
-              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">{errorHint}</p>
+              <p className="text-xs text-[#9090A0] mt-1.5 leading-relaxed">{errorHint}</p>
             )}
           </div>
           {lastUpdated && (
-            <p className="text-xs text-gray-500">Last success: {formatTimestamp(lastUpdated)}</p>
+            <p className="text-xs text-[#606070]">Last success: {formatTimestamp(lastUpdated)}</p>
           )}
           <div className="flex gap-2">
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="text-sm px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
+                className="text-sm px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-[#E2E2E8] rounded-lg transition-colors"
               >
                 Retry
               </button>
@@ -90,7 +90,7 @@ export function PanelCard({
                 href={statusPage}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs px-3 py-1.5 min-h-[44px] flex items-center bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
+                className="text-xs px-3 py-1.5 min-h-[44px] flex items-center bg-[#1E1E2E] hover:bg-[#2A2A3E] text-[#E2E2E8] rounded-lg transition-colors"
               >
                 Status page
               </a>
@@ -107,13 +107,13 @@ export function PanelCard({
         className={`bg-[#161622] border border-[#252535] rounded-xl p-5 animate-pulse ${wide ? 'md:col-span-2' : ''}`}
       >
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-3 h-3 rounded-full bg-gray-700" />
-          <div className="h-4 w-24 bg-gray-700 rounded" />
+          <div className="w-3 h-3 rounded-full bg-[#252535]" />
+          <div className="h-4 w-24 bg-[#252535] rounded" />
         </div>
         <div className="space-y-3">
-          <div className="h-8 w-20 bg-gray-700 rounded" />
-          <div className="h-3 w-full bg-gray-800 rounded" />
-          <div className="h-3 w-3/4 bg-gray-800 rounded" />
+          <div className="h-8 w-20 bg-[#252535] rounded" />
+          <div className="h-3 w-full bg-[#1E1E2E] rounded" />
+          <div className="h-3 w-3/4 bg-[#1E1E2E] rounded" />
         </div>
       </div>
     )
@@ -126,14 +126,14 @@ export function PanelCard({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <StatusDot status={status} />
-          <h3 className="text-base font-semibold text-white">{title}</h3>
+          <h3 className="text-base font-semibold text-[#E2E2E8]">{title}</h3>
         </div>
         <div className="flex items-center gap-2">
           {lastUpdated && ttl && (
             <StaleDot lastUpdated={lastUpdated} ttl={ttl} error={error ?? null} />
           )}
           {lastUpdated && (
-            <span className="text-[10px] text-gray-600">{formatTimestamp(lastUpdated)}</span>
+            <span className="text-[10px] text-[#606070]">{formatTimestamp(lastUpdated)}</span>
           )}
         </div>
       </div>

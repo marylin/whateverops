@@ -54,8 +54,8 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
               </span>
             </div>
           )}
-          <p className="text-xs text-gray-500 mt-1.5">
-            <ExternalLink href="https://railway.app/dashboard" className="text-gray-500">
+          <p className="text-xs text-[#606070] mt-1.5">
+            <ExternalLink href="https://railway.app/dashboard" className="text-[#606070]">
               {data.serviceCount} service{data.serviceCount !== 1 ? 's' : ''}
             </ExternalLink>
           </p>
@@ -63,12 +63,12 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
         <div className="text-right">
           {data.lastDeployTime && (
             <>
-              <p className="text-xs text-gray-500">Last deploy</p>
-              <p className="text-xs text-gray-400">{timeAgo(data.lastDeployTime)}</p>
+              <p className="text-xs text-[#606070]">Last deploy</p>
+              <p className="text-xs text-[#9090A0]">{timeAgo(data.lastDeployTime)}</p>
             </>
           )}
           {data.longestUptime && (
-            <p className="text-[10px] text-gray-600 mt-1">Uptime: {data.longestUptime}</p>
+            <p className="text-[10px] text-[#606070] mt-1">Uptime: {data.longestUptime}</p>
           )}
         </div>
       </div>
@@ -119,12 +119,12 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
               {projectEntries.map(([projectName, svcs]) => (
                 <div key={projectName}>
                   {showProjectHeaders && (
-                    <p className="text-[10px] text-gray-600 font-medium uppercase tracking-wide mb-1">
+                    <p className="text-[10px] text-[#606070] font-medium uppercase tracking-wide mb-1">
                       {projectName}
                     </p>
                   )}
                   {!showProjectHeaders && (
-                    <span className="text-xs text-gray-500 font-medium">Services</span>
+                    <span className="text-xs text-[#606070] font-medium">Services</span>
                   )}
                   <div className="mt-1 space-y-1.5">
                     {svcs.map((svc) => (
@@ -136,19 +136,19 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
                           <div
                             className={`w-2 h-2 rounded-full shrink-0 ${svc.healthy ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`}
                           />
-                          <span className="text-gray-300 truncate">{svc.name}</span>
+                          <span className="text-[#E2E2E8] truncate">{svc.name}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
                           {svc.restartLooping && (
                             <span className="text-[10px] text-[#F59E0B]">restart loop</span>
                           )}
                           {svc.restartCount > 0 && !svc.restartLooping && (
-                            <span className="text-[10px] text-gray-600">
+                            <span className="text-[10px] text-[#606070]">
                               {svc.restartCount} restart{svc.restartCount !== 1 ? 's' : ''}
                             </span>
                           )}
                           {svc.upSince && (
-                            <span className="text-[10px] text-gray-600">
+                            <span className="text-[10px] text-[#606070]">
                               up {timeAgo(svc.upSince)}
                             </span>
                           )}
@@ -168,15 +168,15 @@ export function RailwayPanel({ data }: { data: RailwayPanelData }) {
       {/* Recent deploys (compact, max 3) */}
       {data.recentDeploys.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">Recent Deploys</span>
+          <span className="text-xs text-[#606070] font-medium">Recent Deploys</span>
           <div className="mt-1.5 space-y-1">
             {data.recentDeploys.slice(0, 3).map((deploy) => (
               <div key={deploy.id} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 min-w-0">
                   <StatusBadge status={deploy.status} />
-                  <span className="text-gray-400 truncate">{deploy.serviceName}</span>
+                  <span className="text-[#9090A0] truncate">{deploy.serviceName}</span>
                 </div>
-                <span className="text-gray-600 shrink-0 ml-2">{timeAgo(deploy.createdAt)}</span>
+                <span className="text-[#606070] shrink-0 ml-2">{timeAgo(deploy.createdAt)}</span>
               </div>
             ))}
           </div>

@@ -9,7 +9,9 @@ import { fetchSettings, setStorageMode, type SettingsResponse } from '../lib/set
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl bg-[#161622] border border-[#252535] p-6">
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">{title}</h2>
+      <h2 className="text-sm font-semibold text-[#E2E2E8] uppercase tracking-wider mb-4">
+        {title}
+      </h2>
       {children}
     </div>
   )
@@ -19,10 +21,10 @@ function StatusBadge({ ok }: { ok: boolean }) {
   return (
     <span
       className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${
-        ok ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-700/50 text-gray-500'
+        ok ? 'bg-emerald-500/15 text-emerald-400' : 'bg-[#252535]/50 text-[#606070]'
       }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-400' : 'bg-gray-500'}`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-400' : 'bg-[#606070]'}`} />
       {ok ? 'Connected' : 'Not set'}
     </span>
   )
@@ -77,8 +79,8 @@ function StorageSelector({
           className="mt-0.5 accent-[#0EA5E9]"
         />
         <div>
-          <span className="text-sm font-medium text-white">Environment Variables</span>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <span className="text-sm font-medium text-[#E2E2E8]">Environment Variables</span>
+          <p className="text-xs text-[#606070] mt-0.5">
             Credentials are read directly from server env vars. Default for self-hosted deployments.
           </p>
         </div>
@@ -98,8 +100,8 @@ function StorageSelector({
           className="mt-0.5 accent-[#0EA5E9]"
         />
         <div>
-          <span className="text-sm font-medium text-white">Database (Encrypted)</span>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <span className="text-sm font-medium text-[#E2E2E8]">Database (Encrypted)</span>
+          <p className="text-xs text-[#606070] mt-0.5">
             Credentials stored AES-256-GCM encrypted in Neon PostgreSQL. Required for multi-user
             hosted mode.
           </p>
@@ -115,7 +117,7 @@ function StorageSelector({
       </label>
 
       {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-      {saving && <p className="text-xs text-gray-500 mt-2">Saving…</p>}
+      {saving && <p className="text-xs text-[#606070] mt-2">Saving…</p>}
     </div>
   )
 }
@@ -139,8 +141,8 @@ function SystemInfo({ settings }: { settings: SettingsResponse }) {
         { label: 'Encryption Key', value: settings.encryptionKeySet ? 'Set' : 'Not set' },
       ].map(({ label, value }) => (
         <div key={label} className="flex flex-col gap-1">
-          <dt className="text-xs text-gray-500">{label}</dt>
-          <dd className="text-sm font-medium text-white">{value}</dd>
+          <dt className="text-xs text-[#606070]">{label}</dt>
+          <dd className="text-sm font-medium text-[#E2E2E8]">{value}</dd>
         </div>
       ))}
     </dl>
@@ -159,7 +161,7 @@ function IntegrationsGrid({ settings }: { settings: SettingsResponse }) {
           key={integration.id}
           className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#0C0C14] border border-[#252535]"
         >
-          <span className="text-sm font-medium text-white">{integration.name}</span>
+          <span className="text-sm font-medium text-[#E2E2E8]">{integration.name}</span>
           <StatusBadge ok={integration.configured} />
         </div>
       ))}
@@ -217,12 +219,12 @@ export function SettingsPage() {
             >
               WhateverOPS
             </Link>
-            <span className="text-sm text-gray-500">Settings</span>
+            <span className="text-sm text-[#606070]">Settings</span>
           </div>
           <div className="flex items-center gap-3">
             <Link
               to="/status"
-              className="text-xs px-3 py-1.5 text-gray-400 hover:text-white transition-colors"
+              className="text-xs px-3 py-1.5 text-[#9090A0] hover:text-[#E2E2E8] transition-colors"
             >
               Status
             </Link>
@@ -233,14 +235,14 @@ export function SettingsPage() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {loading && !settings && (
           <div className="text-center py-20">
-            <p className="text-gray-400">Loading settings…</p>
+            <p className="text-[#9090A0]">Loading settings…</p>
           </div>
         )}
 
         {error && !settings && (
           <div className="text-center py-20">
             <p className="text-[#EF4444] mb-2">Failed to load settings</p>
-            <p className="text-sm text-gray-500 mb-4">{error}</p>
+            <p className="text-sm text-[#606070] mb-4">{error}</p>
             <button
               onClick={() => void load()}
               className="text-sm px-4 py-2 bg-[#0EA5E9] hover:bg-[#0284C7] text-white rounded-lg transition-colors"

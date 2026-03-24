@@ -42,14 +42,14 @@ const PRIORITY_COLORS: Record<number, string> = {
   1: 'bg-[#EF4444]', // Urgent
   2: 'bg-[#F59E0B]', // High
   3: 'bg-[#0EA5E9]', // Medium
-  4: 'bg-gray-600', // Low
+  4: 'bg-[#606070]', // Low
 }
 
 const PRIORITY_TEXT: Record<number, string> = {
   1: 'text-[#EF4444]',
   2: 'text-[#F59E0B]',
   3: 'text-[#38BDF8]',
-  4: 'text-gray-500',
+  4: 'text-[#606070]',
 }
 
 export function LinearPanel({ data }: { data: LinearPanelData }) {
@@ -76,25 +76,27 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
         <div>
           {hasIssues ? (
             <>
-              <p className="text-[10px] text-gray-600 uppercase tracking-wider">Working on</p>
-              <ExternalLink href={issues[0]!.url} className="text-sm font-semibold text-white">
+              <p className="text-[10px] text-[#606070] uppercase tracking-wider">Working on</p>
+              <ExternalLink href={issues[0]!.url} className="text-sm font-semibold text-[#E2E2E8]">
                 {issues[0]!.identifier}: {issues[0]!.title}
               </ExternalLink>
             </>
           ) : (
-            <p className="text-sm text-gray-400">No issues in progress</p>
+            <p className="text-sm text-[#9090A0]">No issues in progress</p>
           )}
         </div>
       </div>
 
       {/* Quick stats row */}
       <div className="flex items-center gap-3">
-        <span className="text-xs text-white font-medium">{data.inProgressCount} in progress</span>
-        <span className="text-xs text-gray-500">·</span>
-        <span className="text-xs text-gray-400">{data.openCount} open</span>
+        <span className="text-xs text-[#E2E2E8] font-medium">
+          {data.inProgressCount} in progress
+        </span>
+        <span className="text-xs text-[#606070]">·</span>
+        <span className="text-xs text-[#9090A0]">{data.openCount} open</span>
         {data.bugsInProgress > 0 && (
           <>
-            <span className="text-xs text-gray-500">·</span>
+            <span className="text-xs text-[#606070]">·</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#EF444420] text-[#EF4444]">
               {data.bugsInProgress} bug{data.bugsInProgress !== 1 ? 's' : ''}
             </span>
@@ -102,7 +104,7 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
         )}
         {data.featuresInProgress > 0 && (
           <>
-            <span className="text-xs text-gray-500">·</span>
+            <span className="text-xs text-[#606070]">·</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#38BDF820] text-[#38BDF8]">
               {data.featuresInProgress} feature{data.featuresInProgress !== 1 ? 's' : ''}
             </span>
@@ -120,10 +122,10 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div
-                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${PRIORITY_COLORS[issue.priority] ?? 'bg-gray-600'}`}
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${PRIORITY_COLORS[issue.priority] ?? 'bg-[#606070]'}`}
                 />
-                <ExternalLink href={issue.url} className="text-xs text-gray-300 truncate">
-                  <span className="text-gray-500 mr-1">{issue.identifier}</span>
+                <ExternalLink href={issue.url} className="text-xs text-[#E2E2E8] truncate">
+                  <span className="text-[#606070] mr-1">{issue.identifier}</span>
                   {issue.title}
                 </ExternalLink>
               </div>
@@ -136,13 +138,13 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
                         ? 'bg-[#EF444415] text-[#EF4444]'
                         : label.toLowerCase() === 'feature'
                           ? 'bg-[#38BDF815] text-[#38BDF8]'
-                          : 'bg-[#ffffff10] text-gray-500'
+                          : 'bg-[#ffffff10] text-[#606070]'
                     }`}
                   >
                     {label}
                   </span>
                 ))}
-                <span className={`text-[9px] ${PRIORITY_TEXT[issue.priority] ?? 'text-gray-600'}`}>
+                <span className={`text-[9px] ${PRIORITY_TEXT[issue.priority] ?? 'text-[#606070]'}`}>
                   {issue.priorityLabel}
                 </span>
               </div>
@@ -151,7 +153,7 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
           {hiddenIssueCount > 0 && (
             <button
               onClick={() => setIssuesExpanded(!issuesExpanded)}
-              className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+              className="text-[10px] text-[#606070] hover:text-[#9090A0] flex items-center gap-1"
             >
               <span>{issuesExpanded ? '▼' : '►'}</span>
               {issuesExpanded ? 'Show less' : `Show all (${issues.length})`}
@@ -164,9 +166,9 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
       {data.cycleName && data.cycleProgress != null && (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-400">{data.cycleName}</span>
+            <span className="text-xs text-[#9090A0]">{data.cycleName}</span>
             {data.daysLeftInCycle != null && (
-              <span className="text-[10px] text-gray-600">{data.daysLeftInCycle}d left</span>
+              <span className="text-[10px] text-[#606070]">{data.daysLeftInCycle}d left</span>
             )}
           </div>
           <ProgressBar
@@ -182,11 +184,11 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
       {projects.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-[10px] text-gray-600 uppercase tracking-wider">Active Projects</p>
+            <p className="text-[10px] text-[#606070] uppercase tracking-wider">Active Projects</p>
             {hiddenProjectCount > 0 && (
               <button
                 onClick={() => setProjectsExpanded(!projectsExpanded)}
-                className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+                className="text-[10px] text-[#606070] hover:text-[#9090A0] flex items-center gap-1"
               >
                 <span>{projectsExpanded ? '▼' : '►'}</span>
                 {projectsExpanded ? 'Show less' : `Show all (${projects.length})`}
@@ -196,12 +198,12 @@ export function LinearPanel({ data }: { data: LinearPanelData }) {
           <div className="space-y-1">
             {visibleProjects.map((project) => (
               <div key={project.name} className="flex items-center justify-between text-xs">
-                <span className="text-gray-300 truncate">{project.name}</span>
-                <span className="text-gray-500 shrink-0 ml-2">{project.progress}%</span>
+                <span className="text-[#E2E2E8] truncate">{project.name}</span>
+                <span className="text-[#606070] shrink-0 ml-2">{project.progress}%</span>
               </div>
             ))}
             {!projectsExpanded && hiddenProjectCount > 0 && (
-              <span className="text-[10px] text-gray-600">... +{hiddenProjectCount} more</span>
+              <span className="text-[10px] text-[#606070]">... +{hiddenProjectCount} more</span>
             )}
           </div>
         </div>

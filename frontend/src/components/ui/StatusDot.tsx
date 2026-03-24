@@ -8,8 +8,8 @@ const colorMap = {
   ok: 'bg-[#10B981]',
   warn: 'bg-[#F59E0B]',
   error: 'bg-[#EF4444]',
-  loading: 'bg-gray-400',
-  offline: 'bg-gray-600',
+  loading: 'bg-[#9090A0]',
+  offline: 'bg-[#606070]',
 }
 
 const sizeMap = {

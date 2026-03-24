@@ -38,7 +38,7 @@ function crashFreeColor(rate: number | null): 'green' | 'yellow' | 'red' {
 }
 
 function crashFreeBadgeClass(rate: number | null): string {
-  if (rate == null) return 'bg-[#1E1E2E] text-gray-400'
+  if (rate == null) return 'bg-[#1E1E2E] text-[#9090A0]'
   if (rate >= 99.5) return 'bg-[#10B98120] text-[#10B981]'
   if (rate >= 99) return 'bg-[#F59E0B20] text-[#F59E0B]'
   return 'bg-[#EF444420] text-[#EF4444]'
@@ -61,14 +61,14 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
           >
             {data.crashFreeRate !== null ? `${data.crashFreeRate}%` : 'N/A'}
           </div>
-          <p className="text-xs text-gray-500 mt-1">Crash-free rate (24h)</p>
+          <p className="text-xs text-[#606070] mt-1">Crash-free rate (24h)</p>
         </div>
         {data.latestRelease && (
           <div className="text-right">
-            <p className="text-xs text-gray-400 font-mono">
+            <p className="text-xs text-[#9090A0] font-mono">
               {data.latestRelease.version.slice(0, 12)}
             </p>
-            <p className="text-[10px] text-gray-600">Latest release</p>
+            <p className="text-[10px] text-[#606070]">Latest release</p>
           </div>
         )}
       </div>
@@ -123,7 +123,7 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
       {/* Error trend mini chart */}
       {data.errorTrend.length > 1 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">7-day trend</span>
+          <span className="text-xs text-[#606070] font-medium">7-day trend</span>
           <div className="flex items-end gap-1 mt-1.5 h-8">
             {data.errorTrend.map((point, i) => {
               const max = Math.max(...data.errorTrend.map((p) => p.count), 1)
@@ -144,24 +144,24 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
       {/* Latest issues (compact) */}
       {data.latestIssues.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">Latest Issues</span>
+          <span className="text-xs text-[#606070] font-medium">Latest Issues</span>
           <div className="mt-1.5 space-y-1.5">
             {data.latestIssues.slice(0, 3).map((issue) => (
               <div key={issue.id} className="text-xs">
                 <div className="flex items-center justify-between">
                   <ExternalLink
                     href={`https://sentry.io/issues/${issue.id}/`}
-                    className="text-gray-300 truncate max-w-[70%]"
+                    className="text-[#E2E2E8] truncate max-w-[70%]"
                   >
                     {issue.title}
                   </ExternalLink>
                   <div className="flex items-center gap-2 shrink-0">
                     {issue.userCount > 0 && (
-                      <span className="text-gray-600">
+                      <span className="text-[#606070]">
                         {issue.userCount} user{issue.userCount !== 1 ? 's' : ''}
                       </span>
                     )}
-                    <span className="text-gray-600">{issue.count}&times;</span>
+                    <span className="text-[#606070]">{issue.count}&times;</span>
                     {issue.level === 'error' && (
                       <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
                     )}
@@ -170,7 +170,7 @@ export function SentryPanel({ data }: { data: SentryPanelData }) {
                     )}
                   </div>
                 </div>
-                <p className="text-gray-600 truncate">
+                <p className="text-[#606070] truncate">
                   {issue.culprit} &middot; {timeAgo(issue.lastSeen)}
                 </p>
               </div>

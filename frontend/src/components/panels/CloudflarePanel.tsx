@@ -41,7 +41,7 @@ export function CloudflarePanel({ data }: { data: CloudflarePanelData }) {
           <div className={`w-3 h-3 rounded-full ${zoneActive ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`} />
           <ExternalLink
             href={`https://dash.cloudflare.com/?search=${data.zoneName}`}
-            className="text-sm font-semibold text-white"
+            className="text-sm font-semibold text-[#E2E2E8]"
           >
             {data.zoneName}
           </ExternalLink>
@@ -97,13 +97,13 @@ export function CloudflarePanel({ data }: { data: CloudflarePanelData }) {
       {/* Response breakdown */}
       {totalResponses > 0 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium mb-1.5 block">Response Codes</span>
+          <span className="text-xs text-[#606070] font-medium mb-1.5 block">Response Codes</span>
           <MiniBar segments={responseSegments} height={8} />
         </div>
       )}
 
       {/* De-emphasized: bandwidth, cache hit ratio, SSL */}
-      <div className="flex items-center justify-between text-[10px] text-gray-600 pt-1 border-t border-[#252535]">
+      <div className="flex items-center justify-between text-[10px] text-[#606070] pt-1 border-t border-[#252535]">
         <span>Bandwidth: {data.bandwidth24h}</span>
         <span>Cache hit: {data.cacheHitRatio}%</span>
         <span>SSL: {data.sslStatus}</span>
