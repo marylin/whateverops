@@ -9,6 +9,7 @@ import { secureHeaders } from 'hono/secure-headers'
 import { errorHandler } from './middleware/error.js'
 import { rateLimit } from './middleware/rate-limit.js'
 import dashboard from './routes/dashboard.js'
+import settings from './routes/settings.js'
 import webhooks from './routes/webhooks.js'
 import status from './routes/status.js'
 
@@ -43,6 +44,7 @@ app.get('/health', (c) =>
 )
 
 app.route('/api/dashboard', dashboard)
+app.route('/api/settings', settings)
 app.route('/api/webhooks', webhooks)
 app.route('/api/status', status)
 
