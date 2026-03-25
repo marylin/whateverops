@@ -51,7 +51,7 @@ jobs:
             // Integration-related
             const integrations = [
               'github', 'linear', 'vercel', 'railway', 'posthog',
-              'resend', 'anthropic', 'openai', 'cloudflare', 'replit',
+              'resend', 'anthropic', 'openai', 'cloudflare',
               'supabase', 'neon', 'sentry', 'stripe'
             ];
             for (const name of integrations) {

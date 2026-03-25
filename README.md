@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/whateverops-dev/whateverops/actions"><img src="https://img.shields.io/github/actions/workflow/status/whateverops-dev/whateverops/ci.yml?branch=master&label=CI&style=flat-square" alt="CI" /></a>
-  <a href="https://github.com/whateverops-dev/whateverops/blob/master/LICENSE"><img src="https://img.shields.io/github/license/whateverops-dev/whateverops?style=flat-square" alt="License" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT" /></a>
   <a href="https://github.com/whateverops-dev/whateverops/stargazers"><img src="https://img.shields.io/github/stars/whateverops-dev/whateverops?style=flat-square" alt="Stars" /></a>
   <a href="https://github.com/whateverops-dev/whateverops/issues"><img src="https://img.shields.io/github/issues/whateverops-dev/whateverops?style=flat-square" alt="Issues" /></a>
 </p>
