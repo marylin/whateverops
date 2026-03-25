@@ -240,6 +240,24 @@ function MetricTile({ label, value, sub, valueColor, tooltip }: MetricTileProps)
   )
 }
 
+// ── loading skeleton ─────────────────────────────────────────────────────────
+
+export function DailyDigestSkeleton() {
+  return (
+    <div className="mb-5 rounded-xl border border-[#252535] bg-[#161622] overflow-hidden animate-pulse">
+      <div className="flex flex-wrap divide-x divide-[#252535]">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex-1 min-w-0 px-4 py-3">
+            <div className="h-3 w-12 bg-[#252535] rounded mb-2" />
+            <div className="h-5 w-16 bg-[#252535] rounded mb-1.5" />
+            <div className="h-3 w-20 bg-[#1E1E2E] rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── main component ────────────────────────────────────────────────────────────
 
 export function DailyDigest({ panels }: DailyDigestProps) {

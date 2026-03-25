@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { Dashboard } from './components/layout/Dashboard'
 import { StatusPage } from './pages/StatusPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 
 function NotFound() {
@@ -25,6 +26,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/status" element={<StatusPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

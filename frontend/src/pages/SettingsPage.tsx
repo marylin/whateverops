@@ -66,7 +66,10 @@ function StorageSelector({
   const dbDisabled = !dbAvailable || !encryptionKeySet
 
   return (
-    <div className="space-y-3">
+    <div role="radiogroup" aria-labelledby="storage-mode-label" className="space-y-3">
+      <span id="storage-mode-label" className="sr-only">
+        Credential storage mode
+      </span>
       {/* Env option */}
       <label className="flex items-start gap-3 cursor-pointer group">
         <input
@@ -234,8 +237,54 @@ export function SettingsPage() {
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {loading && !settings && (
-          <div className="text-center py-20">
-            <p className="text-[#9090A0]">Loading settings…</p>
+          <div className="animate-pulse space-y-6">
+            {/* Credential Storage skeleton */}
+            <div className="rounded-xl bg-[#161622] border border-[#252535] p-6">
+              <div className="h-4 w-36 bg-[#252535] rounded mb-4" />
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-4 h-4 rounded-full bg-[#252535] mt-0.5" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-4 w-40 bg-[#252535] rounded" />
+                    <div className="h-3 w-64 bg-[#1E1E2E] rounded" />
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-4 h-4 rounded-full bg-[#252535] mt-0.5" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-4 w-36 bg-[#252535] rounded" />
+                    <div className="h-3 w-72 bg-[#1E1E2E] rounded" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* System Info skeleton */}
+            <div className="rounded-xl bg-[#161622] border border-[#252535] p-6">
+              <div className="h-4 w-24 bg-[#252535] rounded mb-4" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <div className="h-3 w-16 bg-[#1E1E2E] rounded" />
+                    <div className="h-4 w-24 bg-[#252535] rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Integrations skeleton */}
+            <div className="rounded-xl bg-[#161622] border border-[#252535] p-6">
+              <div className="h-4 w-28 bg-[#252535] rounded mb-4" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#0C0C14] border border-[#252535]"
+                  >
+                    <div className="h-4 w-24 bg-[#252535] rounded" />
+                    <div className="h-5 w-20 bg-[#1E1E2E] rounded-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
