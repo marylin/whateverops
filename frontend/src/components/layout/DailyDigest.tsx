@@ -223,7 +223,7 @@ interface MetricTileProps {
 
 function MetricTile({ label, value, sub, valueColor, tooltip }: MetricTileProps) {
   return (
-    <div className="flex-1 min-w-0 px-4 py-3 relative group" title={tooltip ?? undefined}>
+    <div className="flex-1 min-w-0 px-4 py-3 relative group" aria-label={tooltip ?? undefined}>
       <p className="text-[11px] font-medium uppercase tracking-[0.5px] text-[#606070] truncate">
         {label}
       </p>
