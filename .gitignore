@@ -102,3 +102,4 @@ pnpm-debug.log*
 .turbo/
 .swc/
 .next/
+.env*
