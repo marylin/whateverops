@@ -78,7 +78,7 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
   const [activityExpanded, setActivityExpanded] = useState(false)
 
   const prodDeploy = data.lastProductionDeploy
-  const hasMisconfiguredDomain = data.domains.some((d) => d.misconfigured)
+  const hasMisconfiguredDomain = (data.domains ?? []).some((d) => d.misconfigured)
 
   // Projects with a failed latest deploy
   const failedProjects = (data.projects ?? []).filter((p) => p.latestDeploy?.status === 'ERROR')
@@ -100,15 +100,15 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
                 Production &middot; {timeAgo(prodDeploy.created)}
               </p>
             </>
-          ) : data.recentDeploys.length > 0 ? (
+          ) : (data.recentDeploys ?? []).length > 0 ? (
             <>
               <div
-                className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xl font-bold ${deployStatusBadgeClass(data.recentDeploys[0]!.status)}`}
+                className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xl font-bold ${deployStatusBadgeClass(data.recentDeploys[0]?.status ?? 'UNKNOWN')}`}
               >
-                {data.recentDeploys[0]!.status}
+                {data.recentDeploys[0]?.status ?? 'UNKNOWN'}
               </div>
               <p className="text-xs text-[#606070] mt-1">
-                Latest deploy &middot; {timeAgo(data.recentDeploys[0]!.created)}
+                Latest deploy &middot; {timeAgo(data.recentDeploys[0]?.created ?? '')}
               </p>
             </>
           ) : (
@@ -141,8 +141,9 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
             <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#F59E0B15] border border-[#F59E0B30]">
               <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
               <span className="text-xs text-[#F59E0B]">
-                {data.domains.filter((d) => d.misconfigured).length} domain
-                {data.domains.filter((d) => d.misconfigured).length !== 1 ? 's' : ''} misconfigured
+                {(data.domains ?? []).filter((d) => d.misconfigured).length} domain
+                {(data.domains ?? []).filter((d) => d.misconfigured).length !== 1 ? 's' : ''}{' '}
+                misconfigured
               </span>
             </div>
           )}
@@ -217,18 +218,20 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
       )}
 
       {/* Recent deploys activity feed — collapsed by default */}
-      {data.recentDeploys.length > 0 && (
+      {(data.recentDeploys ?? []).length > 0 && (
         <div>
           <button
             onClick={() => setActivityExpanded(!activityExpanded)}
             className="text-[10px] text-[#606070] hover:text-[#9090A0] flex items-center gap-1"
           >
             <span>{activityExpanded ? '▼' : '►'}</span>
-            {activityExpanded ? 'Show less' : `Recent Activity (${data.recentDeploys.length})`}
+            {activityExpanded
+              ? 'Show less'
+              : `Recent Activity (${(data.recentDeploys ?? []).length})`}
           </button>
           {activityExpanded && (
             <div className="mt-1.5 space-y-1.5">
-              {data.recentDeploys.slice(0, 5).map((deploy) => (
+              {(data.recentDeploys ?? []).slice(0, 5).map((deploy) => (
                 <div key={deploy.id} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 min-w-0">
                     <StatusBadge status={deploy.status} />
