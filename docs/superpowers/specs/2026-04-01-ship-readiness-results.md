@@ -1,18 +1,20 @@
 # Ship Readiness Test Results
 
-**Date:** 2026-04-01
+**Date:** 2026-04-01 (updated 2026-04-04)
 **Branch:** feature/phase-3.6-quality-polish
 **Methodology:** 4-layer test suite written against code as-is. Failures = real bugs.
 
 ## Summary
 
+All 6 findings fixed as of 2026-04-04. Full suite now passes.
+
 | Layer | Tests | Passed | Failed | Bugs Found |
 |-------|-------|--------|--------|------------|
-| Layer 1: Backend Contracts | 50 | 50 | 0 | 3 (design issues, not test failures) |
+| Layer 1: Backend Contracts | 50 | 50 | 0 | 3 fixed (errorHandler, JSON 404, error shape) |
 | Layer 2: Frontend Smoke | 155 | 155 | 0 | 0 |
-| Layer 3: Error States | 52 | 52 | 0 | 17 (panels crash on null data) |
-| Layer 4: E2E Flows | 34 | 32 | 2 | 3 (responsive + VercelPanel) |
-| **Total** | **291** | **289** | **2** | **23 findings** |
+| Layer 3: Error States | 52 | 52 | 0 | 17 fixed (null guards on all panels) |
+| Layer 4: E2E Flows | 34 | 34 | 0 | 3 fixed (responsive header, VercelPanel crash) |
+| **Total** | **291** | **291** | **0** | **All 23 findings resolved** |
 
 ---
 
