@@ -31,6 +31,7 @@ interface RailwayPanelData {
 }
 
 export function RailwayPanel({ data }: { data: RailwayPanelData }) {
+  if (!data) return null
   const unhealthyCount = data.unhealthyServiceCount
   const restartLoopingCount = data.services.filter((s) => s.restartLooping).length
 

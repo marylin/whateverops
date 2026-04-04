@@ -75,6 +75,7 @@ function statusDot(status: string): string {
 }
 
 export function VercelPanel({ data }: { data: VercelPanelData }) {
+  if (!data) return null
   const [activityExpanded, setActivityExpanded] = useState(false)
 
   const prodDeploy = data.lastProductionDeploy

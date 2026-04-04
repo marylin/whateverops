@@ -17,6 +17,7 @@ interface CloudflarePanelData {
 }
 
 export function CloudflarePanel({ data }: { data: CloudflarePanelData }) {
+  if (!data) return null
   const totalResponses =
     data.responseBreakdown.status2xx +
     data.responseBreakdown.status3xx +

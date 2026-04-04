@@ -46,6 +46,7 @@ function Sparkline({ data, color = '#0EA5E9' }: { data: TrendPoint[]; color?: st
 }
 
 export function PostHogPanel({ data }: { data: PostHogPanelData }) {
+  if (!data) return null
   const trendDir = data.dauChangePercent > 0 ? 'up' : data.dauChangePercent < 0 ? 'down' : 'neutral'
   const trendLabel =
     data.dauChangePercent > 0

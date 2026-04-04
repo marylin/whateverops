@@ -25,6 +25,7 @@ const PROVIDER_COLORS: Record<string, string> = {
 }
 
 export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
+  if (!data) return null
   const [showProviders, setShowProviders] = useState(false)
 
   const providers = Object.entries(data.providerBreakdown)

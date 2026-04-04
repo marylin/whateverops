@@ -19,6 +19,7 @@ interface AIProviderData {
 }
 
 export function AIProviderPanel({ data }: { data: AIProviderData }) {
+  if (!data) return null
   const rl = data.rateLimits
   const hasTokenLimits = rl.tokensUsedPct !== null
   const hasRequestLimits = rl.requestsUsedPct !== null

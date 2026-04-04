@@ -26,6 +26,7 @@ interface NeonPanelData {
 }
 
 export function NeonPanel({ data }: { data: NeonPanelData }) {
+  if (!data) return null
   const epStatus = data.primaryEndpointStatus ?? 'unknown'
   const isActive = epStatus === 'active' || epStatus === 'idle'
   const hasError = data.projects.some(

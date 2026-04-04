@@ -142,6 +142,7 @@ function ProjectRow({
 }
 
 export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
+  if (!data) return null
   const projects = data.projects ?? []
   const activeProjects = projects.filter((p) => p.projectStatus !== 'INACTIVE')
   const allHealthy = activeProjects.every(

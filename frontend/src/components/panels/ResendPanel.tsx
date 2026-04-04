@@ -39,6 +39,7 @@ interface ResendPanelData {
 }
 
 export function ResendPanel({ data }: { data: ResendPanelData }) {
+  if (!data) return null
   const [showDomains, setShowDomains] = useState(false)
   const [showRecentEmails, setShowRecentEmails] = useState(false)
 
