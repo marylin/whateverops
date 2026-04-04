@@ -1,5 +1,3 @@
-import { config } from 'dotenv'
-config({ path: '../.env' })
 import { env } from './lib/env.js'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
