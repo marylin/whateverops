@@ -82,14 +82,16 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[#1E1E2E] transition-colors"
       >
         <StatusDot status={globalHealth} pulse={globalHealth !== 'ok'} />
-        <span className="text-xs text-[#9090A0]">{healthLabels[globalHealth]}</span>
-        <span className="text-[10px] text-[#606070]">
+        <span className="hidden sm:inline text-xs text-[#9090A0]">
+          {healthLabels[globalHealth]}
+        </span>
+        <span className="hidden sm:inline text-[10px] text-[#606070]">
           {configured}/{total}
         </span>
       </button>
 
       {showModal && (
-        <div className="absolute right-0 top-full mt-2 z-50 bg-[#0C0C14] border border-[#252535] rounded-xl p-4 w-80 max-h-[70vh] flex flex-col shadow-2xl shadow-black/50">
+        <div className="absolute right-0 top-full mt-2 z-50 bg-[#0C0C14] border border-[#252535] rounded-xl p-4 w-[min(20rem,calc(100vw-2rem))] max-h-[70vh] flex flex-col shadow-2xl shadow-black/50">
           <div className="flex items-center justify-between mb-3 shrink-0">
             <h2 className="text-sm font-semibold text-[#E2E2E8]">Integration Status</h2>
             <button
