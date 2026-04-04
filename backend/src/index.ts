@@ -3,19 +3,20 @@ config({ path: '../.env' })
 import { env } from './lib/env.js'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { cors } from 'hono/cors'
 import { logger, requestLogger } from './lib/logger.js'
 import { secureHeaders } from 'hono/secure-headers'
-import { errorHandler } from './middleware/error.js'
 import { rateLimit } from './middleware/rate-limit.js'
 import dashboard from './routes/dashboard.js'
 import settings from './routes/settings.js'
 import webhooks from './routes/webhooks.js'
 import status from './routes/status.js'
 
-const app = new Hono()
+type AppEnv = { Variables: { requestId: string } }
 
-app.use('*', errorHandler)
+const app = new Hono<AppEnv>()
+
 app.use(
   '*',
   cors({
@@ -47,6 +48,23 @@ app.route('/api/dashboard', dashboard)
 app.route('/api/settings', settings)
 app.route('/api/webhooks', webhooks)
 app.route('/api/status', status)
+
+app.notFound((c) =>
+  c.json({ error: 'Not found', status: 404, timestamp: new Date().toISOString() }, 404),
+)
+
+app.onError((err, c) => {
+  const message = err instanceof Error ? err.message : 'Internal server error'
+  const status = (err as { status?: number }).status ?? 500
+  logger.error(
+    { method: c.req.method, path: c.req.path, status, requestId: c.get('requestId') },
+    message,
+  )
+  return c.json(
+    { error: message, status, timestamp: new Date().toISOString() },
+    status as ContentfulStatusCode,
+  )
+})
 
 const port = env.PORT
 
