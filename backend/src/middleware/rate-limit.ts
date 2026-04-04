@@ -62,6 +62,8 @@ export function rateLimit(storeId: string, options: RateLimitOptions): Middlewar
       c.res = c.newResponse(
         JSON.stringify({
           error: 'Too Many Requests',
+          status: 429,
+          timestamp: new Date().toISOString(),
           message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
           retryAfter,
         }),

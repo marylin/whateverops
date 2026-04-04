@@ -61,7 +61,10 @@ settings.post('/storage-mode', async (c) => {
   try {
     body = await c.req.json()
   } catch {
-    return c.json({ error: 'Invalid JSON body' }, 400)
+    return c.json(
+      { error: 'Invalid JSON body', status: 400, timestamp: new Date().toISOString() },
+      400,
+    )
   }
 
   if (
@@ -70,7 +73,14 @@ settings.post('/storage-mode', async (c) => {
     !('mode' in body) ||
     (body.mode !== 'env' && body.mode !== 'db')
   ) {
-    return c.json({ error: 'Body must be { mode: "env" | "db" }' }, 400)
+    return c.json(
+      {
+        error: 'Body must be { mode: "env" | "db" }',
+        status: 400,
+        timestamp: new Date().toISOString(),
+      },
+      400,
+    )
   }
 
   try {
@@ -78,7 +88,7 @@ settings.post('/storage-mode', async (c) => {
     return c.json({ storageMode: body.mode })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to set storage mode'
-    return c.json({ error: message }, 422)
+    return c.json({ error: message, status: 422, timestamp: new Date().toISOString() }, 422)
   }
 })
 
