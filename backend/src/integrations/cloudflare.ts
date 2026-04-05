@@ -9,7 +9,7 @@ export const DEFAULT_TTL = 120
 export const CONFIG_SCHEMA = z.object({
   apiKey: z.string().min(1, 'Cloudflare API token required'),
   zoneId: z.string().min(1),
-  accountId: z.string().min(1),
+  accountId: z.string().optional(),
 })
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
@@ -67,8 +67,33 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       headers,
       signal: AbortSignal.timeout(10_000),
     }),
-    fetch(`${base}/zones/${config.zoneId}/analytics/dashboard?since=${since}&continuous=true`, {
-      headers,
+    fetch(`${base}/graphql`, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `query {
+      viewer {
+        zones(filter: { zoneTag: "${config.zoneId}" }) {
+          httpRequests1dGroups(
+            filter: { date_geq: "${since.split('T')[0]}" }
+            limit: 1
+          ) {
+            sum {
+              requests
+              cachedRequests
+              bytes
+              cachedBytes
+              threats
+              responseStatusMap {
+                edgeResponseStatus
+                requests
+              }
+            }
+          }
+        }
+      }
+    }`,
+      }),
       signal: AbortSignal.timeout(10_000),
     }),
   ])
@@ -85,19 +110,15 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const zoneBody = (await zoneRes.json()) as {
     result?: { name?: string; status?: string }
   }
-  const analyticsBody = analyticsRes.ok
-    ? ((await analyticsRes.json()) as {
-        result?: {
-          totals?: {
-            requests?: { all?: number; cached?: number; http_status?: Record<string, number> }
-            bandwidth?: { all?: number; cached?: number }
-            threats?: { all?: number }
-          }
-        }
-      })
-    : { result: { totals: {} } }
+  const gqlBody = analyticsRes.ok ? await analyticsRes.json() : { data: null }
+  const groups = gqlBody?.data?.viewer?.zones?.[0]?.httpRequests1dGroups ?? []
+  const sum = groups[0]?.sum ?? {}
 
-  const totals = analyticsBody.result?.totals ?? {}
+  const totals = {
+    requests: { all: sum.requests ?? 0, cached: sum.cachedRequests ?? 0 },
+    bandwidth: { all: sum.bytes ?? 0, cached: sum.cachedBytes ?? 0 },
+    threats: { all: sum.threats ?? 0 },
+  }
 
   // Fetch SSL cert packs
   let sslCerts: SslCertPack[] = []
@@ -123,11 +144,8 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   // Extract response status codes from analytics
   const statusCounts: Record<string, number> = {}
-  const httpStatuses = totals.requests?.http_status
-  if (httpStatuses) {
-    for (const [code, count] of Object.entries(httpStatuses)) {
-      statusCounts[code] = count as number
-    }
+  for (const entry of sum.responseStatusMap ?? []) {
+    statusCounts[String(entry.edgeResponseStatus)] = entry.requests
   }
 
   // Firewall events count from threats

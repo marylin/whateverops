@@ -208,7 +208,6 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
       runIntegration(cloudflare, {
         apiKey: cfToken,
         zoneId: process.env.CLOUDFLARE_ZONE_ID ?? '',
-        accountId: process.env.CLOUDFLARE_ACCOUNT_ID ?? '',
       }),
     )
     for (const n of getExtraInstances('CLOUDFLARE_API_TOKEN')) {
@@ -216,7 +215,6 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
         runIntegration(withInstance(cloudflare, n), {
           apiKey: process.env[`CLOUDFLARE_API_TOKEN_${n}`]!,
           zoneId: process.env[`CLOUDFLARE_ZONE_ID_${n}`] ?? '',
-          accountId: process.env[`CLOUDFLARE_ACCOUNT_ID_${n}`] ?? '',
         }),
       )
     }
