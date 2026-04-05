@@ -3,6 +3,39 @@
 All notable changes to WhateverOPS are documented here.
 Generated from git history using conventional commits.
 
+## [Unreleased]
+
+### Added
+
+- **supabase-storage:** new integration — lists buckets per project with public/private badges and file size limits
+- **supabase:** shared project discovery utility — auto-fetches all projects + service keys from a single `SUPABASE_ACCESS_TOKEN`
+- **supabase-management:** advisors (performance + security) and edge functions per project
+- **supabase-auth:** multi-project support — shows per-project user counts, signup trends, DAU across all Supabase projects
+- **frontend:** SupabaseStoragePanel component in Health group
+
+### Changed
+
+- **supabase:** simplified from 5+ env vars to single `SUPABASE_ACCESS_TOKEN` — auto-discovers all projects
+- **posthog:** renamed `POSTHOG_PROJECT_API_KEY` to `POSTHOG_PERSONAL_API_KEY` (requires personal API key for query endpoint)
+- **posthog:** bumped cache TTL from 120s to 300s to stay within HogQL rate limits (120 queries/hr)
+- **posthog:** migrated from deprecated `/api/projects/` to `/api/environments/` endpoint
+- **cloudflare:** migrated analytics from deprecated REST endpoint to GraphQL API (REST EOL Dec 2026)
+- **cloudflare:** made `accountId` optional (was required but unused)
+- **backend:** fixed ESM import hoisting race — dotenv now loads in env.ts before zod parse
+- **frontend:** Vite reads `.env` from monorepo root via `envDir: '..'`
+
+### Fixed
+
+- **backend:** replaced broken errorHandler middleware with Hono's `app.onError()` + JSON 404 handler
+- **backend:** standardized all error responses to include `{ error, status, timestamp }`
+- **frontend:** responsive header — icon-only nav at mobile viewport, fixed HealthIndicator modal width
+- **frontend:** VercelPanel crash on missing `recentDeploys` — added optional chaining
+- **frontend:** null data guards on all 17 panel components
+- **supabase-auth:** paused projects show yellow warning instead of red error
+- **self-monitoring:** fixed port mismatch (server on 3000 vs self-monitor on 4890)
+
+---
+
 ## [0.1.0.0] - 2026-03-20
 
 ### Added
