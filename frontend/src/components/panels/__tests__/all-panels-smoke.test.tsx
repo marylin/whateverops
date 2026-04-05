@@ -529,13 +529,25 @@ describe('StripePanel', () => {
 // ---------------------------------------------------------------------------
 describe('SupabaseAuthPanel', () => {
   const mockData = {
-    totalUsers: 250,
-    recentSignups: 12,
-    activeRecently: 80,
-    providerBreakdown: { email: 180, google: 50, github: 20 },
-    signupsTrend: 'up' as const,
-    dauPct: 32,
-    daysSinceLastSignup: 0,
+    projects: [
+      {
+        name: 'my-app',
+        ref: 'proj-1',
+        projectStatus: 'active' as const,
+        totalUsers: 250,
+        recentSignups: 12,
+        activeRecently: 80,
+        signupsTrend: 'up' as const,
+        dauPct: 32,
+        providerBreakdown: { email: 180, google: 50, github: 20 },
+        daysSinceLastSignup: 0,
+      },
+    ],
+    summary: {
+      totalUsersAllProjects: 250,
+      totalActiveRecently: 80,
+      activeProjectCount: 1,
+    },
   }
 
   it('renders without crashing with valid data', () => {
@@ -561,21 +573,18 @@ describe('SupabaseMgmtPanel', () => {
         healthyCount: 1,
         totalChecks: 1,
         readOnly: false,
-        advisorCount: 0,
-        advisors: [],
+        advisors: {
+          performance: [],
+          security: [],
+          totalCount: 0,
+        },
+        edgeFunctions: {
+          total: 0,
+          active: 0,
+          items: [],
+        },
       },
     ],
-    projectName: 'my-app',
-    projectStatus: 'ACTIVE_HEALTHY',
-    region: 'us-east-1',
-    dbVersion: '15.1',
-    healthChecks: [{ name: 'database', status: 'ok' }],
-    healthyCount: 1,
-    totalChecks: 1,
-    readOnly: false,
-    advisorCount: 0,
-    advisors: [],
-    apiRequestCount: 5000,
   }
 
   it('renders without crashing with valid data', () => {
