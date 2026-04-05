@@ -10,12 +10,19 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+  pull-requests: read
+
 jobs:
   quality:
     name: Lint · Typecheck · Test · Audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v4
         with:
@@ -31,7 +38,25 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
+        if: github.actor != 'dependabot[bot]'
         run: pnpm install --frozen-lockfile
+
+      - name: Install dependencies (dependabot — update lockfile)
+        if: github.actor == 'dependabot[bot]'
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Commit lockfile update (dependabot only)
+        if: github.actor == 'dependabot[bot]'
+        run: |
+          if git diff --quiet pnpm-lock.yaml; then
+            echo "Lockfile unchanged"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add pnpm-lock.yaml
+            git commit -m "chore: update pnpm-lock.yaml"
+            git push
+          fi
 
       - name: Lint
         run: pnpm lint
