@@ -25,7 +25,7 @@ function getMoney(panels: IntegrationResult[]): {
   color: string
 } {
   const stripe = getPanel(panels, 'stripe')
-  if (!stripe) return { label: 'Revenue', value: 'N/A', sub: null, color: 'text-gray-500' }
+  if (!stripe) return { label: 'Revenue', value: 'N/A', sub: null, color: 'text-[#606070]' }
 
   const mrr = typeof stripe.mrr === 'number' ? stripe.mrr : 0
   const growthPct = typeof stripe.mrrGrowthPct === 'number' ? stripe.mrrGrowthPct : 0
@@ -92,7 +92,7 @@ function getUsers(panels: IntegrationResult[]): {
     return { label: 'Users', value: fmt(total), sub: trendLabel, color }
   }
 
-  return { label: 'Users', value: 'N/A', sub: null, color: 'text-gray-500' }
+  return { label: 'Users', value: 'N/A', sub: null, color: 'text-[#606070]' }
 }
 
 interface CostDetail {
@@ -121,7 +121,7 @@ function getCosts(panels: IntegrationResult[]): CostDetail {
   const hasOpenAI = openaiSpend >= 0
 
   if (!hasAnthropic && !hasOpenAI) {
-    return { label: 'AI Costs', value: 'N/A', sub: null, color: 'text-gray-500', breakdown: null }
+    return { label: 'AI Costs', value: 'N/A', sub: null, color: 'text-[#606070]', breakdown: null }
   }
 
   const total = (hasAnthropic ? anthropicSpend : 0) + (hasOpenAI ? openaiSpend : 0)
@@ -224,14 +224,14 @@ interface MetricTileProps {
 function MetricTile({ label, value, sub, valueColor, tooltip }: MetricTileProps) {
   return (
     <div className="flex-1 min-w-0 px-4 py-3 relative group" title={tooltip ?? undefined}>
-      <p className="text-[11px] font-medium uppercase tracking-[0.5px] text-gray-500 truncate">
+      <p className="text-[11px] font-medium uppercase tracking-[0.5px] text-[#606070] truncate">
         {label}
       </p>
       <p className={`text-lg font-bold leading-tight mt-0.5 truncate ${valueColor}`}>{value}</p>
-      {sub && <p className="text-[11px] text-gray-400 mt-0.5 truncate">{sub}</p>}
+      {sub && <p className="text-[11px] text-[#9090A0] mt-0.5 truncate">{sub}</p>}
       {tooltip && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 whitespace-nowrap">
-          <div className="bg-[#252535] border border-[#3D3D5C] rounded px-2 py-1 text-[11px] text-gray-300 shadow-lg">
+          <div className="bg-[#252535] border border-[#353545] rounded px-2 py-1 text-[11px] text-[#E2E2E8] shadow-lg">
             {tooltip}
           </div>
         </div>

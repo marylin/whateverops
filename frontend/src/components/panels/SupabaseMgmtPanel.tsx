@@ -54,24 +54,24 @@ function ProjectRow({
         <div className="flex items-center gap-2 min-w-0">
           <div
             className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-              isInactive ? 'bg-gray-600' : allHealthy ? 'bg-[#10B981]' : 'bg-[#EF4444]'
+              isInactive ? 'bg-[#606070]' : allHealthy ? 'bg-[#10B981]' : 'bg-[#EF4444]'
             }`}
           />
-          <span className="text-sm font-medium text-white truncate">{project.projectName}</span>
+          <span className="text-sm font-medium text-[#E2E2E8] truncate">{project.projectName}</span>
           {isInactive && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-500">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1E1E2E] text-[#606070]">
               paused
             </span>
           )}
         </div>
         <div className="flex items-center gap-3 shrink-0">
           {!isInactive && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[#606070]">
               {project.healthyCount}/{project.totalChecks}
             </span>
           )}
           <svg
-            className={`w-3.5 h-3.5 text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            className={`w-3.5 h-3.5 text-[#606070] transition-transform ${isExpanded ? 'rotate-180' : ''}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -115,14 +115,14 @@ function ProjectRow({
                         : 'bg-[#EF4444]'
                     }`}
                   />
-                  <span className="text-gray-400">{check.name}</span>
+                  <span className="text-[#9090A0]">{check.name}</span>
                 </div>
               ))}
             </div>
           )}
 
           {/* Footer: region, version, link */}
-          <div className="flex items-center justify-between text-[10px] text-gray-600 pt-1">
+          <div className="flex items-center justify-between text-[10px] text-[#606070] pt-1">
             <div className="flex items-center gap-2">
               <StatusBadge status={project.projectStatus} />
               <span>{project.region}</span>
@@ -130,7 +130,7 @@ function ProjectRow({
             </div>
             <ExternalLink
               href={`https://supabase.com/dashboard/project/${project.id}`}
-              className="text-gray-600 hover:text-gray-400"
+              className="text-[#606070] hover:text-[#9090A0]"
             >
               Dashboard
             </ExternalLink>
@@ -166,11 +166,11 @@ export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
           <div
             className={`w-3 h-3 rounded-full ${hasReadOnly ? 'bg-[#EF4444] animate-pulse' : allHealthy ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`}
           />
-          <span className="text-lg font-bold text-white">
+          <span className="text-lg font-bold text-[#E2E2E8]">
             {hasReadOnly ? 'Action Required' : allHealthy ? 'All Healthy' : 'Issues Detected'}
           </span>
         </div>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-[#606070]">
           {totalHealthy}/{totalChecks} checks passing
         </span>
       </div>
@@ -188,7 +188,7 @@ export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
       </div>
 
       {/* Footer */}
-      <div className="text-[10px] text-gray-600">
+      <div className="text-[10px] text-[#606070]">
         {projects.length} project{projects.length !== 1 ? 's' : ''} · {activeProjects.length} active
       </div>
     </div>

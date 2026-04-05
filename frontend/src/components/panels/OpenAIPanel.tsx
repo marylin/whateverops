@@ -59,20 +59,20 @@ export function OpenAIPanel({ data }: { data: OpenAIPanelData }) {
       {/* Hero: cost this month with trend arrow */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-2xl font-bold text-white">{formatCurrency(usage.totalCost30d)}</p>
-          <p className="text-xs text-gray-500">This month</p>
+          <p className="text-2xl font-bold text-[#E2E2E8]">{formatCurrency(usage.totalCost30d)}</p>
+          <p className="text-xs text-[#606070]">This month</p>
         </div>
         <div className="text-right">
           {trendPct !== null && (
             <div className="flex items-center gap-1 justify-end">
               <span
-                className={`text-sm font-semibold ${trendDown ? 'text-[#10B981]' : trendUp ? 'text-[#EF4444]' : 'text-gray-400'}`}
+                className={`text-sm font-semibold ${trendDown ? 'text-[#10B981]' : trendUp ? 'text-[#EF4444]' : 'text-[#9090A0]'}`}
               >
                 {trendDown ? '\u2193' : trendUp ? '\u2191' : '\u2192'} {Math.abs(trendPct)}%
               </span>
             </div>
           )}
-          <p className="text-[10px] text-gray-600">vs last week</p>
+          <p className="text-[10px] text-[#606070]">vs last week</p>
         </div>
       </div>
 

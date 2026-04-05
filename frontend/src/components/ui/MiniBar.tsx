@@ -36,7 +36,7 @@ export function MiniBar({ segments, height = 6 }: MiniBarProps) {
             seg.value > 0 && (
               <div key={i} className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: seg.color }} />
-                <span className="text-[10px] text-gray-500">
+                <span className="text-[10px] text-[#606070]">
                   {seg.label ?? ''} {seg.value.toLocaleString()}
                 </span>
               </div>

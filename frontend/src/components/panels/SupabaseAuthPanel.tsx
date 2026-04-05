@@ -40,12 +40,12 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
       ? 'bg-[#10B98120] text-[#10B981]'
       : data.signupsTrend === 'down'
         ? 'bg-[#EF444420] text-[#EF4444]'
-        : 'bg-[#1E1E2E] text-gray-400'
+        : 'bg-[#1E1E2E] text-[#9090A0]'
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <ExternalLink href="https://supabase.com/dashboard" className="text-xs text-gray-500">
+        <ExternalLink href="https://supabase.com/dashboard" className="text-xs text-[#606070]">
           View in Supabase
         </ExternalLink>
       </div>
@@ -54,14 +54,14 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <p className="text-2xl font-bold text-white">{smartNumber(data.totalUsers)}</p>
+            <p className="text-2xl font-bold text-[#E2E2E8]">{smartNumber(data.totalUsers)}</p>
             {data.recentSignups > 0 && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${signupBadgeColor}`}>
                 +{data.recentSignups} this week
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-500">Total users</p>
+          <p className="text-xs text-[#606070]">Total users</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
 
       {/* Empty state */}
       {!hasUsers && (
-        <p className="text-xs text-gray-500">No users yet — auth is configured and ready</p>
+        <p className="text-xs text-[#606070]">No users yet — auth is configured and ready</p>
       )}
 
       {/* Supporting: Active today | Signups this week (with trend) | DAU % */}
@@ -114,7 +114,7 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
         <div className="pt-1 border-t border-[#1E1E2E]">
           <button
             onClick={() => setShowProviders(!showProviders)}
-            className="flex items-center gap-1.5 text-[10px] text-gray-600 hover:text-gray-400 transition-colors"
+            className="flex items-center gap-1.5 text-[10px] text-[#606070] hover:text-[#9090A0] transition-colors"
           >
             <span className={`transition-transform ${showProviders ? 'rotate-90' : ''}`}>
               &#9658;

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
 import { apiError } from '../lib/api-error.js'
+import { logger } from '../lib/logger.js'
 
 export const INTEGRATION_ID = 'github' as const
 export const INTEGRATION_NAME = 'GitHub'
@@ -230,8 +231,9 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   )
   // Fallback to public endpoint if authenticated endpoint fails (e.g. fine-grained PAT without user scope)
   if (!reposRes.ok) {
-    console.warn(
-      `[github] /user/repos failed (${reposRes.status}), falling back to /users/${config.owner}/repos (public only)`,
+    logger.warn(
+      { status: reposRes.status, owner: config.owner },
+      '/user/repos failed, falling back to public repos',
     )
     reposRes = await ghFetch(
       `${base}/users/${config.owner}/repos?sort=updated&direction=desc&per_page=20&type=owner`,

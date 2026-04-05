@@ -57,7 +57,7 @@ export function PostHogPanel({ data }: { data: PostHogPanelData }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <ExternalLink href="https://app.posthog.com" className="text-xs text-gray-500">
+        <ExternalLink href="https://app.posthog.com" className="text-xs text-[#606070]">
           View in PostHog
         </ExternalLink>
       </div>
@@ -78,7 +78,7 @@ export function PostHogPanel({ data }: { data: PostHogPanelData }) {
         <Metric label="WAU" value={smartNumber(data.wau)} />
         <Metric label="Events Today" value={smartNumber(data.eventsToday)} />
         <div>
-          <p className="text-xs text-gray-500 mb-1">Events (14d)</p>
+          <p className="text-xs text-[#606070] mb-1">Events (14d)</p>
           <Sparkline data={data.eventsTrend} color="#10B981" />
         </div>
       </div>
@@ -86,12 +86,12 @@ export function PostHogPanel({ data }: { data: PostHogPanelData }) {
       {/* Top events */}
       {data.topEvents.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">Top Events Today</span>
+          <span className="text-xs text-[#606070] font-medium">Top Events Today</span>
           <div className="mt-1.5 space-y-1">
             {data.topEvents.map((evt) => (
               <div key={evt.event} className="flex items-center justify-between text-xs">
-                <span className="text-gray-300 truncate">{evt.event}</span>
-                <span className="text-gray-500 shrink-0 ml-2">{smartNumber(evt.count)}</span>
+                <span className="text-[#E2E2E8] truncate">{evt.event}</span>
+                <span className="text-[#606070] shrink-0 ml-2">{smartNumber(evt.count)}</span>
               </div>
             ))}
           </div>

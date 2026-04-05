@@ -95,7 +95,7 @@ pnpm test           # all tests passing
 
 ## Pull Request Process
 
-1. Branch from `feature/phase-*` or `main` depending on scope
+1. Fork the repo and branch from `master`
 2. Follow commit format: `type(scope): description`
    - `feat(stripe)`, `fix(cache)`, `test(github)`, `docs(setup)`
 3. Fill out the PR template (`.github/PULL_REQUEST_TEMPLATE.md`)

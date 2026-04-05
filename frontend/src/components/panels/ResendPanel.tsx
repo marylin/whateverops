@@ -77,12 +77,12 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
       {/* Hero: delivery rate badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <p className="text-2xl font-bold text-white">{Math.round(data.deliveryRate)}%</p>
+          <p className="text-2xl font-bold text-[#E2E2E8]">{Math.round(data.deliveryRate)}%</p>
           <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${deliveryColor}`}>
             {data.deliveryRate >= 95 ? 'Healthy' : data.deliveryRate >= 90 ? 'Warning' : 'Critical'}
           </span>
         </div>
-        <p className="text-xs text-gray-500">Delivery rate</p>
+        <p className="text-xs text-[#606070]">Delivery rate</p>
       </div>
 
       {data.totalSent > 0 && (
@@ -128,7 +128,7 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
         />
         {primaryDomain && (
           <div>
-            <p className="text-xs text-gray-500 mb-1">Domain</p>
+            <p className="text-xs text-[#606070] mb-1">Domain</p>
             <StatusBadge status={primaryDomain.status} />
           </div>
         )}
@@ -139,7 +139,7 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
         <div className="pt-1 border-t border-[#1E1E2E]">
           <button
             onClick={() => setShowDomains(!showDomains)}
-            className="flex items-center gap-1.5 text-[10px] text-gray-600 hover:text-gray-400 transition-colors"
+            className="flex items-center gap-1.5 text-[10px] text-[#606070] hover:text-[#9090A0] transition-colors"
           >
             <span className={`transition-transform ${showDomains ? 'rotate-90' : ''}`}>
               &#9658;
@@ -152,7 +152,7 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
                 <div key={domain.name} className="flex items-center justify-between text-xs">
                   <ExternalLink
                     href={`https://resend.com/domains/${domain.name}`}
-                    className="text-gray-400"
+                    className="text-[#9090A0]"
                   >
                     {domain.name}
                   </ExternalLink>
@@ -169,7 +169,7 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
         <div>
           <button
             onClick={() => setShowRecentEmails(!showRecentEmails)}
-            className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+            className="text-[10px] text-[#606070] hover:text-[#9090A0] flex items-center gap-1"
           >
             <span>{showRecentEmails ? '▼' : '►'}</span>
             {showRecentEmails ? 'Show less' : `Recent (${Math.min(data.recentEmails.length, 3)})`}
@@ -178,12 +178,12 @@ export function ResendPanel({ data }: { data: ResendPanelData }) {
             <div className="mt-1 space-y-1">
               {data.recentEmails.slice(0, 3).map((email, i) => (
                 <div key={i} className="flex items-center justify-between text-[10px]">
-                  <span className="text-gray-500 truncate max-w-[60%]">
+                  <span className="text-[#606070] truncate max-w-[60%]">
                     {truncate(email.subject || '(no subject)', 30)}
                   </span>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <StatusBadge status={email.status} />
-                    <span className="text-gray-600">{timeAgo(email.sent)}</span>
+                    <span className="text-[#606070]">{timeAgo(email.sent)}</span>
                   </div>
                 </div>
               ))}

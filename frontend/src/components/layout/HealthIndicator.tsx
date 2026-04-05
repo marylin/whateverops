@@ -78,22 +78,24 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
     <div ref={containerRef}>
       <button
         onClick={() => setShowModal(!showModal)}
+        aria-label="Toggle integration status panel"
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[#1E1E2E] transition-colors"
       >
         <StatusDot status={globalHealth} pulse={globalHealth !== 'ok'} />
-        <span className="text-xs text-gray-400">{healthLabels[globalHealth]}</span>
-        <span className="text-[10px] text-gray-600">
+        <span className="text-xs text-[#9090A0]">{healthLabels[globalHealth]}</span>
+        <span className="text-[10px] text-[#606070]">
           {configured}/{total}
         </span>
       </button>
 
       {showModal && (
-        <div className="absolute right-0 top-full mt-2 z-50 bg-[#111118] border border-[#252535] rounded-xl p-4 w-80 max-h-[70vh] flex flex-col shadow-2xl shadow-black/50">
+        <div className="absolute right-0 top-full mt-2 z-50 bg-[#0C0C14] border border-[#252535] rounded-xl p-4 w-80 max-h-[70vh] flex flex-col shadow-2xl shadow-black/50">
           <div className="flex items-center justify-between mb-3 shrink-0">
-            <h2 className="text-sm font-semibold text-white">Integration Status</h2>
+            <h2 className="text-sm font-semibold text-[#E2E2E8]">Integration Status</h2>
             <button
               onClick={() => setShowModal(false)}
-              className="text-gray-500 hover:text-white text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-[#1E1E2E]"
+              aria-label="Close status panel"
+              className="text-[#606070] hover:text-[#E2E2E8] text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-[#1E1E2E]"
             >
               &times;
             </button>
@@ -107,7 +109,7 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
               >
                 <div className="flex items-center gap-2">
                   <StatusDot status={panel.status} size="sm" />
-                  <span className="text-xs text-white">{panel.name}</span>
+                  <span className="text-xs text-[#E2E2E8]">{panel.name}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   {panel.status === 'ok' && (
@@ -132,7 +134,7 @@ export function HealthIndicator({ globalHealth, panels, configured, total }: Hea
               </button>
             ))}
             {panels.length === 0 && (
-              <p className="text-xs text-gray-500 text-center py-4">No integrations configured</p>
+              <p className="text-xs text-[#606070] text-center py-4">No integrations configured</p>
             )}
           </div>
         </div>

@@ -45,7 +45,7 @@ const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
 }
 
 function renderPanelContent(panel: IntegrationResult) {
-  if (!panel.data) return <p className="text-sm text-gray-500">No data</p>
+  if (!panel.data) return <p className="text-sm text-[#606070]">No data</p>
 
   const baseId = panel.id.replace(/-\d+$/, '')
   const PanelComponent = PANEL_MAP[baseId]
@@ -188,7 +188,7 @@ function GroupedPanels({
             >
               <div className="flex items-center gap-3">
                 <svg
-                  className={`w-4 h-4 text-gray-600 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+                  className={`w-4 h-4 text-[#606070] transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -200,10 +200,10 @@ function GroupedPanels({
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
-                <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                <h2 className="text-sm font-semibold text-[#E2E2E8] uppercase tracking-wider">
                   {group.label}
                 </h2>
-                <span className="text-xs text-gray-600 font-normal normal-case">
+                <span className="text-xs text-[#606070] font-normal normal-case">
                   {group.question}
                 </span>
               </div>
@@ -223,7 +223,7 @@ function GroupedPanels({
                     all ok
                   </span>
                 )}
-                <span className="text-[10px] text-gray-700">
+                <span className="text-[10px] text-[#606070]">
                   {groupPanels.length} card{groupPanels.length !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -265,7 +265,7 @@ function GroupedPanels({
         if (ungrouped.length === 0) return null
         return (
           <section>
-            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-semibold text-[#E2E2E8] uppercase tracking-wider mb-3">
               Other
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -309,7 +309,7 @@ export function Dashboard() {
         {error && !data && (
           <div className="text-center py-20">
             <p className="text-[#EF4444] mb-2">Failed to load dashboard</p>
-            <p className="text-sm text-gray-500 mb-4">{error}</p>
+            <p className="text-sm text-[#606070] mb-4">{error}</p>
             <button
               onClick={refresh}
               className="text-sm px-4 py-2 bg-[#0EA5E9] hover:bg-[#0284C7] text-white rounded-lg transition-colors"
@@ -321,8 +321,10 @@ export function Dashboard() {
 
         {data && data.panels.length === 0 && (
           <div className="text-center py-20">
-            <h2 className="text-xl font-semibold text-white mb-2">No integrations configured</h2>
-            <p className="text-sm text-gray-400">
+            <h2 className="text-xl font-semibold text-[#E2E2E8] mb-2">
+              No integrations configured
+            </h2>
+            <p className="text-sm text-[#9090A0]">
               Add API keys to your .env file to see your integrations here.
             </p>
           </div>
@@ -340,7 +342,7 @@ export function Dashboard() {
 
         {data && (
           <div className="mt-6 text-center">
-            <p className="text-[10px] text-gray-400">
+            <p className="text-[10px] text-[#9090A0]">
               {data.configured} of {data.total} integrations configured
               {data.lastRefresh &&
                 ` · Last refresh: ${new Date(data.lastRefresh).toLocaleTimeString()}`}

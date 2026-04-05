@@ -14,6 +14,7 @@ interface WindowEntry {
 // One store per rate-limit rule (keyed by route prefix).
 // Outer key: IP address. Inner value: sliding-window timestamps.
 const stores = new Map<string, Map<string, WindowEntry>>()
+const storeWindows = new Map<string, number>()
 
 function getStore(id: string): Map<string, WindowEntry> {
   let store = stores.get(id)
@@ -39,6 +40,7 @@ function getClientIp(c: Context): string {
 export function rateLimit(storeId: string, options: RateLimitOptions): MiddlewareHandler {
   const { limit, windowMs } = options
   const store = getStore(storeId)
+  storeWindows.set(storeId, windowMs)
 
   return async (c: Context, next: Next) => {
     const ip = getClientIp(c)
@@ -88,3 +90,16 @@ export function rateLimit(storeId: string, options: RateLimitOptions): Middlewar
     await next()
   }
 }
+
+const CLEANUP_INTERVAL_MS = 60_000
+
+setInterval(() => {
+  const now = Date.now()
+  for (const [storeId, store] of stores) {
+    const windowMs = storeWindows.get(storeId) ?? CLEANUP_INTERVAL_MS
+    for (const [ip, entry] of store) {
+      entry.timestamps = entry.timestamps.filter((t) => t > now - windowMs)
+      if (entry.timestamps.length === 0) store.delete(ip)
+    }
+  }
+}, CLEANUP_INTERVAL_MS).unref()
