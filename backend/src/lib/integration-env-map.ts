@@ -43,13 +43,13 @@ export const INTEGRATION_ENV_MAP: Record<string, Record<string, string>> = {
     accountId: 'CLOUDFLARE_ACCOUNT_ID',
   },
   'supabase-management': {
-    apiKey: 'SUPABASE_MANAGEMENT_KEY',
-    projectRef: 'SUPABASE_PROJECT_REF',
+    managementKey: 'SUPABASE_ACCESS_TOKEN',
   },
   'supabase-auth': {
-    apiKey: 'SUPABASE_SERVICE_KEY',
-    supabaseUrl: 'SUPABASE_URL',
-    projectRef: 'SUPABASE_PROJECT_REF',
+    managementKey: 'SUPABASE_ACCESS_TOKEN',
+  },
+  'supabase-storage': {
+    managementKey: 'SUPABASE_ACCESS_TOKEN',
   },
   neon: {
     apiKey: 'NEON_API_KEY',
@@ -81,6 +81,7 @@ export const INTEGRATION_NAMES: Record<string, string> = {
   cloudflare: 'Cloudflare',
   'supabase-management': 'Supabase',
   'supabase-auth': 'Supabase Auth',
+  'supabase-storage': 'Supabase Storage',
   neon: 'Neon',
   sentry: 'Sentry',
   stripe: 'Stripe',

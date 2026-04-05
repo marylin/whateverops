@@ -17,7 +17,9 @@ function buildIntegrationSummary() {
     // An integration is "configured" when its primary apiKey env var is set.
     // Self-monitoring is always considered configured (it uses its own health URL).
     const configured =
-      id === 'self-monitoring' ? true : Boolean(process.env[fieldMap['apiKey'] ?? ''])
+      id === 'self-monitoring'
+        ? true
+        : Boolean(process.env[fieldMap['apiKey'] ?? fieldMap['managementKey'] ?? ''])
 
     return {
       id,

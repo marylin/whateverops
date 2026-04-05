@@ -3,41 +3,42 @@
     "projects": [
       {
         "project": {
-          "id": "proj1",
+          "ref": "proj1",
           "name": "my-project",
           "status": "ACTIVE_HEALTHY",
           "region": "us-east-1",
-          "database": { "host": "db.example.supabase.co", "version": "15.1" }
+          "dbVersion": "15.1",
+          "serviceKey": null
         },
         "health": [
-          { "name": "database", "status": "HEALTHY", "error": "" },
-          { "name": "realtime", "status": "HEALTHY", "error": "" }
+          { "name": "database", "status": "HEALTHY" },
+          { "name": "realtime", "status": "HEALTHY" }
         ],
         "readOnly": false,
-        "advisors": []
+        "advisors": { "performance": [], "security": [] },
+        "edgeFunctions": []
       }
-    ],
-    "apiRequestCount": null
+    ]
   },
   "error": {
-    "projects": [],
-    "apiRequestCount": null
+    "projects": []
   },
   "empty": {
     "projects": [
       {
         "project": {
-          "id": "proj1",
+          "ref": "proj1",
           "name": "empty-project",
           "status": "INACTIVE",
           "region": "us-east-1",
-          "database": { "host": "", "version": "" }
+          "dbVersion": "unknown",
+          "serviceKey": null
         },
         "health": [],
         "readOnly": false,
-        "advisors": []
+        "advisors": { "performance": [], "security": [] },
+        "edgeFunctions": []
       }
-    ],
-    "apiRequestCount": null
+    ]
   }
 }

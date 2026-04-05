@@ -11,6 +11,7 @@ import * as openai from '../integrations/openai.js'
 import * as cloudflare from '../integrations/cloudflare.js'
 import * as supabaseManagement from '../integrations/supabase-management.js'
 import * as supabaseAuth from '../integrations/supabase-auth.js'
+import * as supabaseStorage from '../integrations/supabase-storage.js'
 import * as neon from '../integrations/neon.js'
 import * as sentry from '../integrations/sentry.js'
 import * as stripe from '../integrations/stripe.js'
@@ -221,52 +222,14 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
     }
   }
 
-  // Supabase Management — supports SUPABASE_MANAGEMENT_KEY or SUPABASE_ACCESS_TOKEN (fallback)
-  // projectRef is optional: if omitted (or empty), all projects under the account are fetched.
-  // Set SUPABASE_PROJECT_REF to restrict to a single project.
-  const supabaseManagementKey =
-    envOrSkip('SUPABASE_MANAGEMENT_KEY') ?? envOrSkip('SUPABASE_ACCESS_TOKEN')
-  if (supabaseManagementKey) {
+  // Supabase — single access token powers management, auth, and storage
+  const supabaseToken = envOrSkip('SUPABASE_ACCESS_TOKEN')
+  if (supabaseToken) {
     integrations.push(
-      runIntegration(supabaseManagement, {
-        apiKey: supabaseManagementKey,
-        ...(process.env.SUPABASE_PROJECT_REF
-          ? { projectRef: process.env.SUPABASE_PROJECT_REF }
-          : {}),
-      }),
+      runIntegration(supabaseManagement, { managementKey: supabaseToken }),
+      runIntegration(supabaseAuth, { managementKey: supabaseToken }),
+      runIntegration(supabaseStorage, { managementKey: supabaseToken }),
     )
-    for (const n of getExtraInstances('SUPABASE_MANAGEMENT_KEY')) {
-      const refN = process.env[`SUPABASE_PROJECT_REF_${n}`]
-      integrations.push(
-        runIntegration(withInstance(supabaseManagement, n), {
-          apiKey: process.env[`SUPABASE_MANAGEMENT_KEY_${n}`]!,
-          ...(refN ? { projectRef: refN } : {}),
-        }),
-      )
-    }
-  }
-
-  // Supabase Auth — supports SUPABASE_SERVICE_KEY, SUPABASE_SERVICE_KEY_2 … _5
-  const supabaseUrl = envOrSkip('SUPABASE_URL')
-  const supabaseServiceKey = envOrSkip('SUPABASE_SERVICE_KEY')
-  if (supabaseUrl && supabaseServiceKey) {
-    integrations.push(
-      runIntegration(supabaseAuth, {
-        apiKey: supabaseServiceKey,
-        supabaseUrl,
-        projectRef: process.env.SUPABASE_PROJECT_REF ?? '',
-      }),
-    )
-    for (const n of getExtraInstances('SUPABASE_SERVICE_KEY')) {
-      const extraUrl = process.env[`SUPABASE_URL_${n}`] ?? supabaseUrl
-      integrations.push(
-        runIntegration(withInstance(supabaseAuth, n), {
-          apiKey: process.env[`SUPABASE_SERVICE_KEY_${n}`]!,
-          supabaseUrl: extraUrl,
-          projectRef: process.env[`SUPABASE_PROJECT_REF_${n}`] ?? '',
-        }),
-      )
-    }
   }
 
   // Neon — supports NEON_API_KEY, NEON_API_KEY_2 … NEON_API_KEY_5
