@@ -24,7 +24,7 @@ const STATUS_CONFIG = {
 
 const RESPONSE_TIME_CONFIG = {
   fast: { label: 'Fast', color: 'text-[#10B981]' },
-  normal: { label: 'Normal', color: 'text-gray-400' },
+  normal: { label: 'Normal', color: 'text-[#9090A0]' },
   slow: { label: 'Slow', color: 'text-[#F59E0B]' },
 }
 
@@ -38,7 +38,7 @@ export function SelfMonitoringPanel({ data }: { data: SelfMonitoringPanelData })
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={`w-3 h-3 rounded-full ${statusCfg.color}`} />
-          <span className="text-sm font-semibold text-white">{statusCfg.label}</span>
+          <span className="text-sm font-semibold text-[#E2E2E8]">{statusCfg.label}</span>
           <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${statusCfg.badgeColor}`}>
             {data.status.toUpperCase()}
           </span>
@@ -83,7 +83,7 @@ export function SelfMonitoringPanel({ data }: { data: SelfMonitoringPanelData })
       </div>
 
       {/* Last checked */}
-      <div className="text-[10px] text-gray-600 pt-1 border-t border-[#252535]">
+      <div className="text-[10px] text-[#606070] pt-1 border-t border-[#252535]">
         Last checked: {formatTimestamp(data.lastChecked)}
       </div>
     </div>

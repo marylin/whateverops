@@ -10,7 +10,7 @@
 
 **Do not open a public issue for security vulnerabilities.**
 
-Email: security@whateverops.dev (or marylin-alarcon@live.com)
+Email: security@whateverops.dev
 
 ### What to expect
 

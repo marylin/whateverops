@@ -63,7 +63,7 @@ function deployStatusBadgeClass(status: string): string {
   if (s === 'READY') return 'bg-[#10B98120] text-[#10B981]'
   if (s === 'ERROR') return 'bg-[#EF444420] text-[#EF4444]'
   if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#F59E0B20] text-[#F59E0B]'
-  return 'bg-[#1E1E2E] text-gray-400'
+  return 'bg-[#1E1E2E] text-[#9090A0]'
 }
 
 function statusDot(status: string): string {
@@ -71,7 +71,7 @@ function statusDot(status: string): string {
   if (s === 'READY') return 'bg-[#10B981]'
   if (s === 'ERROR') return 'bg-[#EF4444]'
   if (s === 'BUILDING' || s === 'INITIALIZING') return 'bg-[#F59E0B]'
-  return 'bg-gray-600'
+  return 'bg-[#606070]'
 }
 
 export function VercelPanel({ data }: { data: VercelPanelData }) {
@@ -96,7 +96,7 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
               >
                 {prodDeploy.status}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[#606070] mt-1">
                 Production &middot; {timeAgo(prodDeploy.created)}
               </p>
             </>
@@ -107,17 +107,17 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
               >
                 {data.recentDeploys[0]!.status}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[#606070] mt-1">
                 Latest deploy &middot; {timeAgo(data.recentDeploys[0]!.created)}
               </p>
             </>
           ) : (
-            <p className="text-sm text-gray-500">No deploys</p>
+            <p className="text-sm text-[#606070]">No deploys</p>
           )}
         </div>
         <div className="text-right">
           {data.timeSinceLastDeploy && (
-            <p className="text-xs text-gray-500">{data.timeSinceLastDeploy}</p>
+            <p className="text-xs text-[#606070]">{data.timeSinceLastDeploy}</p>
           )}
         </div>
       </div>
@@ -152,12 +152,12 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
       {/* Supporting: commit message, build time, project name for hero deploy */}
       {prodDeploy && (
         <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-400 truncate max-w-[60%]">
+          <span className="text-[#9090A0] truncate max-w-[60%]">
             {prodDeploy.commitMessage
               ? prodDeploy.commitMessage.split('\n')[0]?.slice(0, 50)
               : prodDeploy.project}
           </span>
-          <div className="flex items-center gap-3 shrink-0 text-gray-600">
+          <div className="flex items-center gap-3 shrink-0 text-[#606070]">
             {prodDeploy.buildDurationSec !== null && (
               <span>{formatDuration(prodDeploy.buildDurationSec)}</span>
             )}
@@ -169,7 +169,7 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
       {/* Project list: each project with latest deploy status */}
       {data.projects && data.projects.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 font-medium">Projects</span>
+          <span className="text-xs text-[#606070] font-medium">Projects</span>
           <div className="mt-1.5 space-y-1.5">
             {data.projects.map((project) => (
               <div key={project.id} className="flex items-center justify-between text-xs">
@@ -179,11 +179,11 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
                       className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDot(project.latestDeploy.status)}`}
                     />
                   ) : (
-                    <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-gray-700" />
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-[#252535]" />
                   )}
-                  <span className="text-gray-300 truncate">
+                  <span className="text-[#E2E2E8] truncate">
                     {project.url ? (
-                      <ExternalLink href={project.url} className="text-gray-300">
+                      <ExternalLink href={project.url} className="text-[#E2E2E8]">
                         {project.name}
                       </ExternalLink>
                     ) : (
@@ -191,7 +191,7 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
                     )}
                   </span>
                   {project.framework && (
-                    <span className="text-gray-600 shrink-0">{project.framework}</span>
+                    <span className="text-[#606070] shrink-0">{project.framework}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
@@ -202,10 +202,12 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
                       >
                         {project.latestDeploy.status}
                       </span>
-                      <span className="text-gray-600">{timeAgo(project.latestDeploy.created)}</span>
+                      <span className="text-[#606070]">
+                        {timeAgo(project.latestDeploy.created)}
+                      </span>
                     </>
                   ) : (
-                    <span className="text-gray-700">no deploys</span>
+                    <span className="text-[#606070]">no deploys</span>
                   )}
                 </div>
               </div>
@@ -219,7 +221,7 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
         <div>
           <button
             onClick={() => setActivityExpanded(!activityExpanded)}
-            className="text-[10px] text-gray-600 hover:text-gray-400 flex items-center gap-1"
+            className="text-[10px] text-[#606070] hover:text-[#9090A0] flex items-center gap-1"
           >
             <span>{activityExpanded ? '▼' : '►'}</span>
             {activityExpanded ? 'Show less' : `Recent Activity (${data.recentDeploys.length})`}
@@ -230,16 +232,16 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
                 <div key={deploy.id} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 min-w-0">
                     <StatusBadge status={deploy.status} />
-                    <span className="text-gray-400 truncate">
+                    <span className="text-[#9090A0] truncate">
                       {deploy.url ? (
-                        <ExternalLink href={deploy.url} className="text-gray-400">
+                        <ExternalLink href={deploy.url} className="text-[#9090A0]">
                           {deploy.project}
                         </ExternalLink>
                       ) : (
                         deploy.project
                       )}
                       {deploy.commitMessage && (
-                        <span className="text-gray-600">
+                        <span className="text-[#606070]">
                           {' '}
                           &mdash; {deploy.commitMessage.split('\n')[0]?.slice(0, 30)}
                         </span>
@@ -248,14 +250,14 @@ export function VercelPanel({ data }: { data: VercelPanelData }) {
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     {deploy.target && (
-                      <span className="text-[10px] text-gray-600">{deploy.target}</span>
+                      <span className="text-[10px] text-[#606070]">{deploy.target}</span>
                     )}
                     {deploy.buildDurationSec !== null && (
-                      <span className="text-gray-600">
+                      <span className="text-[#606070]">
                         {formatDuration(deploy.buildDurationSec)}
                       </span>
                     )}
-                    <span className="text-gray-600">{timeAgo(deploy.created)}</span>
+                    <span className="text-[#606070]">{timeAgo(deploy.created)}</span>
                   </div>
                 </div>
               ))}

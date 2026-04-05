@@ -60,10 +60,10 @@ export function GenericPanel({ data }: GenericPanelProps) {
       )}
       {arrays.map(([key, value]) => (
         <div key={key}>
-          <p className="text-xs text-gray-500 mb-1">{formatLabel(key)}</p>
+          <p className="text-xs text-[#606070] mb-1">{formatLabel(key)}</p>
           <div className="space-y-1">
             {(value as Array<Record<string, unknown>>).slice(0, 3).map((item, i) => (
-              <div key={i} className="text-xs text-gray-400 truncate">
+              <div key={i} className="text-xs text-[#9090A0] truncate">
                 {Object.values(item)
                   .filter((v) => typeof v === 'string' || typeof v === 'number')
                   .slice(0, 3)
@@ -74,7 +74,7 @@ export function GenericPanel({ data }: GenericPanelProps) {
         </div>
       ))}
       {metrics.length === 0 && arrays.length === 0 && (
-        <p className="text-sm text-gray-500">No data available</p>
+        <p className="text-sm text-[#606070]">No data available</p>
       )}
     </div>
   )

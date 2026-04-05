@@ -26,13 +26,14 @@ export function Header({ dashboard, onRefresh }: HeaderProps) {
           )}
           <Link
             to="/status"
-            className="text-sm px-3 py-1.5 min-h-[44px] flex items-center text-gray-400 hover:text-white transition-colors"
+            className="text-sm px-3 py-1.5 min-h-[44px] flex items-center text-[#9090A0] hover:text-[#E2E2E8] transition-colors"
           >
             Status
           </Link>
           <button
             onClick={onRefresh}
-            className="text-sm px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-gray-300 rounded-md transition-colors"
+            aria-label="Refresh dashboard"
+            className="text-sm px-3 py-1.5 min-h-[44px] bg-[#1E1E2E] hover:bg-[#2A2A3E] text-[#E2E2E8] rounded-lg transition-colors"
           >
             Refresh
           </button>

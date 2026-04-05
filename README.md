@@ -6,12 +6,12 @@
 
 <p align="center">
   <strong>Unified ops dashboard for solo developer-founders.</strong><br/>
-  15 integrations. One real-time view. Self-host in 5 minutes.
+  14 integrations. One real-time view. Self-host in 5 minutes.
 </p>
 
 <p align="center">
-  <a href="https://github.com/whateverops-dev/whateverops/actions"><img src="https://img.shields.io/github/actions/workflow/status/whateverops-dev/whateverops/ci.yml?branch=main&label=CI&style=flat-square" alt="CI" /></a>
-  <a href="https://github.com/whateverops-dev/whateverops/blob/main/LICENSE"><img src="https://img.shields.io/github/license/whateverops-dev/whateverops?style=flat-square" alt="License" /></a>
+  <a href="https://github.com/whateverops-dev/whateverops/actions"><img src="https://img.shields.io/github/actions/workflow/status/whateverops-dev/whateverops/ci.yml?branch=master&label=CI&style=flat-square" alt="CI" /></a>
+  <a href="https://github.com/whateverops-dev/whateverops/blob/master/LICENSE"><img src="https://img.shields.io/github/license/whateverops-dev/whateverops?style=flat-square" alt="License" /></a>
   <a href="https://github.com/whateverops-dev/whateverops/stargazers"><img src="https://img.shields.io/github/stars/whateverops-dev/whateverops?style=flat-square" alt="Stars" /></a>
   <a href="https://github.com/whateverops-dev/whateverops/issues"><img src="https://img.shields.io/github/issues/whateverops-dev/whateverops?style=flat-square" alt="Issues" /></a>
 </p>
@@ -24,8 +24,6 @@
 </p>
 
 ---
-
-<!-- TODO: Replace with actual demo GIF once recorded -->
 
 ## Why WhateverOPS?
 
@@ -61,13 +59,12 @@ That's it. Add more API keys to `.env` to light up more panels. Each integration
 | **Anthropic**  | API key status, available models                    | ![Anthropic](https://img.shields.io/badge/Anthropic-191919?style=flat-square&logoColor=white)                   |
 | **OpenAI**     | API key status, available models                    | ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)             |
 | **Cloudflare** | Requests, bandwidth, cache hit ratio                | ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white) |
-| **Replit**     | Repls, languages                                    | ![Replit](https://img.shields.io/badge/Replit-F26207?style=flat-square&logo=replit&logoColor=white)             |
 | **Supabase**   | Project health, database, auth users                | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)       |
 | **Neon**       | Projects, regions, PG versions                      | ![Neon](https://img.shields.io/badge/Neon-00E5A0?style=flat-square&logoColor=black)                             |
 | **Sentry**     | Unresolved issues, events, error levels             | ![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat-square&logo=sentry&logoColor=white)             |
 | **Stripe**     | MRR, active subs, failed payments                   | ![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=flat-square&logo=stripe&logoColor=white)             |
 
-All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
+All 14 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
 
 ## Architecture
 
@@ -80,7 +77,7 @@ All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall
                    │ REST
 ┌──────────────────▼──────────────────────────┐
 │  Hono.js on Bun (Railway)                   │
-│  15 integrations via Promise.all()          │
+│  14 integrations via Promise.all()          │
 │  Error retry (2x backoff, 10s timeout)      │
 │  Cache: in-memory or Upstash Redis          │
 └──────────────────┬──────────────────────────┘
@@ -120,9 +117,23 @@ Target: first panel showing real data in under 15 minutes.
 
 ### Troubleshooting
 
-- **No panels?** Check at least one API key is set and backend is reachable
-- **CORS errors?** Ensure `FRONTEND_URL` matches your frontend origin exactly
-- **Cache not persisting?** Set `CACHE_BACKEND=redis` with Upstash credentials
+| Problem              | Cause                              | Fix                                          |
+| -------------------- | ---------------------------------- | -------------------------------------------- |
+| No panels showing    | No API keys configured             | Add at least one key to `.env`               |
+| CORS errors          | `FRONTEND_URL` mismatch            | Set to exact frontend origin (with port)     |
+| Railway deploy fails | Missing required env vars          | Check `railway variables` includes PORT      |
+| Health check timeout | Backend not listening on PORT      | Verify PORT matches Railway config           |
+| Docker won't start   | Port 3000 already in use           | Change PORT in `.env` or docker-compose      |
+| Panels show "error"  | Invalid API key or rate limited    | Check key validity in provider dashboard     |
+| Cache not persisting | Using in-memory (default)          | Set `CACHE_BACKEND=redis` with Upstash creds |
+| Stale data (red dot) | Integration fetch failing silently | Check backend logs for errors                |
+
+### Production Hardening
+
+For production use, we recommend:
+
+- **HTTPS**: Use a reverse proxy like [Caddy](https://caddyserver.com) (automatic TLS) or nginx with Let's Encrypt
+- **Process manager**: Run via Docker with `restart: unless-stopped` or use Railway/Fly.io managed hosting
 
 ## Building in Public
 

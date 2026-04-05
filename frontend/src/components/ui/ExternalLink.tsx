@@ -12,7 +12,7 @@ export function ExternalLink({ href, children, className = '' }: ExternalLinkPro
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-1 hover:text-white transition-colors ${className}`}
+      className={`inline-flex items-center gap-1 hover:text-[#E2E2E8] transition-colors ${className}`}
     >
       {children}
       <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="shrink-0 opacity-40">

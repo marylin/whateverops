@@ -1,9 +1,10 @@
 import { config } from 'dotenv'
 config({ path: '../.env' })
+import { env } from './lib/env.js'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
+import { logger, requestLogger } from './lib/logger.js'
 import { secureHeaders } from 'hono/secure-headers'
 import { errorHandler } from './middleware/error.js'
 import { rateLimit } from './middleware/rate-limit.js'
@@ -20,13 +21,13 @@ app.use(
     origin: (origin) => {
       // Allow any localhost origin in development
       if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin)) return origin
-      return process.env.FRONTEND_URL ?? 'http://localhost:5173'
+      return env.FRONTEND_URL ?? 'http://localhost:5173'
     },
   }),
 )
 // Security headers — applied after CORS so CORS headers are not overwritten
 app.use('*', secureHeaders())
-app.use('*', logger())
+app.use('*', requestLogger())
 
 // Route-level rate limits (sliding window, in-memory)
 app.use('/api/dashboard/*', rateLimit('dashboard', { limit: 60, windowMs: 60_000 }))
@@ -45,8 +46,8 @@ app.route('/api/dashboard', dashboard)
 app.route('/api/webhooks', webhooks)
 app.route('/api/status', status)
 
-const port = Number(process.env.PORT ?? 3000)
+const port = env.PORT
 
 serve({ fetch: app.fetch, port }, () => {
-  console.log(`Backend running on http://localhost:${port}`)
+  logger.info({ port }, 'Backend running')
 })

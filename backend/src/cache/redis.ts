@@ -1,6 +1,7 @@
 import { Redis } from '@upstash/redis'
 import type { CacheBackend } from './index.js'
 import { MemoryCache } from './memory.js'
+import { logger } from '../lib/logger.js'
 
 const KEY_PREFIX = 'wops:'
 
@@ -17,7 +18,7 @@ export class RedisCache implements CacheBackend {
       const value = await this.redis.get<T>(KEY_PREFIX + key)
       return value ?? null
     } catch (err) {
-      console.error('[cache:redis] GET failed, falling back to memory:', (err as Error).message)
+      logger.error({ err, op: 'GET' }, 'Redis cache operation failed, falling back to memory')
       return this.fallback.get<T>(key)
     }
   }
@@ -26,7 +27,7 @@ export class RedisCache implements CacheBackend {
     try {
       await this.redis.set(KEY_PREFIX + key, JSON.stringify(data), { ex: ttlSeconds })
     } catch (err) {
-      console.error('[cache:redis] SET failed, falling back to memory:', (err as Error).message)
+      logger.error({ err, op: 'SET' }, 'Redis cache operation failed, falling back to memory')
       await this.fallback.set(key, data, ttlSeconds)
     }
   }
@@ -54,7 +55,7 @@ export class RedisCache implements CacheBackend {
         await this.redis.del(...keys)
       }
     } catch (err) {
-      console.error('[cache:redis] CLEAR failed:', (err as Error).message)
+      logger.error({ err, op: 'CLEAR' }, 'Redis cache operation failed')
     }
   }
 
@@ -63,7 +64,7 @@ export class RedisCache implements CacheBackend {
       const keys = await this.scanAll()
       return keys.length
     } catch (err) {
-      console.error('[cache:redis] SIZE failed:', (err as Error).message)
+      logger.error({ err, op: 'SIZE' }, 'Redis cache operation failed')
       return 0
     }
   }

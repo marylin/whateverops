@@ -1,5 +1,6 @@
 import { MemoryCache } from './memory.js'
 import { RedisCache } from './redis.js'
+import { logger } from '../lib/logger.js'
 
 export interface CacheBackend {
   get<T>(key: string): Promise<T | null>
@@ -18,8 +19,8 @@ function getBackend(): CacheBackend {
     const url = process.env.UPSTASH_REDIS_REST_URL
     const token = process.env.UPSTASH_REDIS_REST_TOKEN
     if (!url || !token) {
-      console.warn(
-        '[cache] CACHE_BACKEND=redis but missing UPSTASH_REDIS_REST_URL/TOKEN — falling back to memory',
+      logger.warn(
+        'CACHE_BACKEND=redis but missing UPSTASH_REDIS_REST_URL/TOKEN — falling back to memory',
       )
       backend = new MemoryCache()
     } else {
