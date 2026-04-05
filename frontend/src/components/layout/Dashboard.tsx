@@ -18,12 +18,19 @@ import { ResendPanel } from '../panels/ResendPanel'
 import { PostHogPanel } from '../panels/PostHogPanel'
 import { SupabaseMgmtPanel } from '../panels/SupabaseMgmtPanel'
 import { SupabaseAuthPanel } from '../panels/SupabaseAuthPanel'
+import { SupabaseStoragePanel } from '../panels/SupabaseStoragePanel'
 import { SelfMonitoringPanel } from '../panels/SelfMonitoringPanel'
 import { DailyDigest, DailyDigestSkeleton } from './DailyDigest'
 import type { IntegrationResult } from '../../lib/api'
 
 /** Wide panels that span 2 columns on xl (3-col) desktop layout */
-const WIDE_PANELS = new Set(['stripe', 'github', 'sentry', 'supabase-management'])
+const WIDE_PANELS = new Set([
+  'stripe',
+  'github',
+  'sentry',
+  'supabase-management',
+  'supabase-storage',
+])
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
@@ -41,6 +48,7 @@ const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
   posthog: PostHogPanel,
   'supabase-management': SupabaseMgmtPanel,
   'supabase-auth': SupabaseAuthPanel,
+  'supabase-storage': SupabaseStoragePanel,
   'self-monitoring': SelfMonitoringPanel,
 }
 
@@ -99,6 +107,7 @@ const FOUNDER_GROUPS: Array<{
       'railway',
       'neon',
       'supabase-management',
+      'supabase-storage',
       'cloudflare',
       'self-monitoring',
     ],
