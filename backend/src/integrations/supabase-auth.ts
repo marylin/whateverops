@@ -23,6 +23,7 @@ export interface RawData {
     app_metadata?: { providers?: string[] }
   }>
   totalUsers: number
+  projectStatus?: 'active' | 'inactive'
 }
 
 export interface PanelData {
@@ -33,6 +34,7 @@ export interface PanelData {
   signupsTrend: 'up' | 'down' | 'flat'
   dauPct: number
   daysSinceLastSignup: number | null
+  projectStatus?: 'active' | 'inactive'
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
@@ -41,12 +43,23 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
     apikey: config.apiKey,
   }
 
-  const res = await fetch(`${config.supabaseUrl}/auth/v1/admin/users?per_page=50`, {
-    headers,
-    signal: AbortSignal.timeout(10_000),
-  })
+  let res: Response
+  try {
+    res = await fetch(`${config.supabaseUrl}/auth/v1/admin/users?per_page=50`, {
+      headers,
+      signal: AbortSignal.timeout(10_000),
+    })
+  } catch {
+    // Connection refused / timeout — project is likely paused or unreachable
+    return { users: [], totalUsers: 0, projectStatus: 'inactive' }
+  }
 
   if (!res.ok) {
+    // 521 = Cloudflare "Web Server Is Down" — Supabase returns this for paused projects
+    if (res.status === 521) {
+      return { users: [], totalUsers: 0, projectStatus: 'inactive' }
+    }
+
     // 500 often means auth DB schema issue (common on paused/resumed projects).
     // Try the health endpoint to distinguish "service down" from "DB issue".
     if (res.status === 500) {
@@ -140,6 +153,7 @@ export function parsePanel(raw: RawData): PanelData {
     signupsTrend,
     dauPct,
     daysSinceLastSignup,
+    projectStatus: raw.projectStatus ?? 'active',
   }
 }
 
@@ -151,6 +165,7 @@ export function getCacheKey(config: IntegrationConfig): string {
 }
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
+  if (raw.projectStatus === 'inactive') return 'warn'
   if (raw.totalUsers == null) return 'error'
   // 0 users with empty array = likely auth DB issue (fallback mode) or new project
   if (raw.totalUsers === 0 && raw.users.length === 0) return 'warn'

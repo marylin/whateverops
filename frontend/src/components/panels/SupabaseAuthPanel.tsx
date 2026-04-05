@@ -12,6 +12,7 @@ interface SupabaseAuthPanelData {
   signupsTrend: 'up' | 'down' | 'flat'
   dauPct: number
   daysSinceLastSignup: number | null
+  projectStatus?: 'active' | 'inactive'
 }
 
 const PROVIDER_COLORS: Record<string, string> = {
@@ -26,6 +27,25 @@ const PROVIDER_COLORS: Record<string, string> = {
 
 export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
   if (!data) return null
+
+  if (data.projectStatus === 'inactive') {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <ExternalLink href="https://supabase.com/dashboard" className="text-xs text-[#606070]">
+            View in Supabase
+          </ExternalLink>
+        </div>
+        <div className="flex items-center gap-2 text-xs bg-[#F59E0B10] border border-[#F59E0B15] rounded-lg px-3 py-2">
+          <div className="w-2 h-2 rounded-full bg-[#F59E0B] shrink-0" />
+          <span className="text-[#F59E0B]">
+            Project is paused — resume in Supabase dashboard to see auth data
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   const [showProviders, setShowProviders] = useState(false)
 
   const providers = Object.entries(data.providerBreakdown)
