@@ -128,8 +128,8 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
     }
   }
 
-  // PostHog — supports POSTHOG_PROJECT_API_KEY, POSTHOG_PROJECT_API_KEY_2 … _5
-  const posthogKey = envOrSkip('POSTHOG_PROJECT_API_KEY')
+  // PostHog — supports POSTHOG_PERSONAL_API_KEY, POSTHOG_PERSONAL_API_KEY_2 … _5
+  const posthogKey = envOrSkip('POSTHOG_PERSONAL_API_KEY')
   if (posthogKey) {
     integrations.push(
       runIntegration(posthog, {
@@ -138,10 +138,10 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
         projectId: process.env.POSTHOG_PROJECT_ID ?? '',
       }),
     )
-    for (const n of getExtraInstances('POSTHOG_PROJECT_API_KEY')) {
+    for (const n of getExtraInstances('POSTHOG_PERSONAL_API_KEY')) {
       integrations.push(
         runIntegration(withInstance(posthog, n), {
-          apiKey: process.env[`POSTHOG_PROJECT_API_KEY_${n}`]!,
+          apiKey: process.env[`POSTHOG_PERSONAL_API_KEY_${n}`]!,
           host:
             process.env[`POSTHOG_HOST_${n}`] ??
             process.env.POSTHOG_HOST ??

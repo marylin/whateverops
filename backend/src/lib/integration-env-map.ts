@@ -22,7 +22,7 @@ export const INTEGRATION_ENV_MAP: Record<string, Record<string, string>> = {
     apiKey: 'RAILWAY_TOKEN',
   },
   posthog: {
-    apiKey: 'POSTHOG_PROJECT_API_KEY',
+    apiKey: 'POSTHOG_PERSONAL_API_KEY',
     host: 'POSTHOG_HOST',
     projectId: 'POSTHOG_PROJECT_ID',
   },
@@ -40,7 +40,6 @@ export const INTEGRATION_ENV_MAP: Record<string, Record<string, string>> = {
   cloudflare: {
     apiKey: 'CLOUDFLARE_API_TOKEN',
     zoneId: 'CLOUDFLARE_ZONE_ID',
-    accountId: 'CLOUDFLARE_ACCOUNT_ID',
   },
   'supabase-management': {
     managementKey: 'SUPABASE_ACCESS_TOKEN',
