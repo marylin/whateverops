@@ -21,7 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref }}
+          # For dependabot: checkout PR head so we can push lockfile updates
+          ref: ${{ github.actor == 'dependabot[bot]' && github.head_ref || '' }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v4
