@@ -10,6 +10,8 @@ import dashboard from './routes/dashboard.js'
 import settings from './routes/settings.js'
 import webhooks from './routes/webhooks.js'
 import status from './routes/status.js'
+import { startTelemetry } from './lib/telemetry.js'
+import { INTEGRATION_ENV_MAP } from './lib/integration-env-map.js'
 
 type AppEnv = { Variables: { requestId: string } }
 
@@ -68,4 +70,13 @@ const port = env.PORT
 
 serve({ fetch: app.fetch, port }, () => {
   logger.info({ port }, 'Backend running')
+  startTelemetry(
+    Object.keys(INTEGRATION_ENV_MAP).filter((id) => {
+      const fields = INTEGRATION_ENV_MAP[id]
+      return (
+        id === 'self-monitoring' ||
+        (fields != null && Object.values(fields).some((envVar) => Boolean(process.env[envVar])))
+      )
+    }).length,
+  )
 })
