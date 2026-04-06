@@ -45,6 +45,7 @@ function crashFreeBadgeClass(rate: number | null): string {
 }
 
 export function SentryPanel({ data }: { data: SentryPanelData }) {
+  if (!data) return null
   const trendColor = TREND_COLORS[data.errorTrendDirection] ?? 'neutral'
   const hasAlerts =
     data.newIssues24h > 0 ||

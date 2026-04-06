@@ -56,10 +56,12 @@ export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
 }
 ```
 
-2. Add to `backend/src/routes/dashboard.ts` (follow the existing pattern)
+2. Add to `backend/src/lib/integration-registry.ts` (follow the existing pattern)
 3. Add env vars to `.env.example`
 4. Create test: `tests/unit/backend/integrations/your-service.test.ts`
 5. Create fixture: `tests/fixtures/mock-responses/your-service.json`
+6. Add panel component to `frontend/src/components/panels/YourServicePanel.tsx`
+7. Register in `frontend/src/components/layout/Dashboard.tsx` PANEL_MAP and FOUNDER_GROUPS
 
 ### Required Files Checklist
 
@@ -67,7 +69,10 @@ export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
 - [ ] `tests/unit/backend/integrations/your-service.test.ts` — 6+ tests
 - [ ] `tests/fixtures/mock-responses/your-service.json` — ok, error, empty fixtures
 - [ ] `.env.example` updated with new env vars
-- [ ] `backend/src/routes/dashboard.ts` updated to include integration
+- [ ] `backend/src/lib/integration-registry.ts` updated to include integration
+- [ ] `backend/src/lib/integration-env-map.ts` updated with env var mapping
+- [ ] `frontend/src/components/panels/YourServicePanel.tsx` — panel component
+- [ ] `frontend/src/components/layout/Dashboard.tsx` PANEL_MAP and FOUNDER_GROUPS updated
 
 ### Integration Contract Rules
 

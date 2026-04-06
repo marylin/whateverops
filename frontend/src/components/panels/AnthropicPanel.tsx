@@ -32,6 +32,7 @@ interface AnthropicPanelData {
 }
 
 export function AnthropicPanel({ data }: { data: AnthropicPanelData }) {
+  if (!data) return null
   const rl = data.rateLimits
   const usage = data.usage
   const hasUsage = usage?.hasAdminKey && (usage.totalCost30d > 0 || usage.modelUsage.length > 0)

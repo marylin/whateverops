@@ -30,6 +30,7 @@ interface OpenAIPanelData {
 }
 
 export function OpenAIPanel({ data }: { data: OpenAIPanelData }) {
+  if (!data) return null
   const rl = data.rateLimits
   const usage = data.usage
   const hasUsage = usage?.hasData && (usage.totalCost30d > 0 || usage.modelUsage.length > 0)

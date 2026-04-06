@@ -25,7 +25,8 @@ export function MiniBar({ segments, height = 6 }: MiniBarProps) {
               key={i}
               className="transition-all duration-500"
               style={{ width: `${pct}%`, backgroundColor: seg.color }}
-              title={seg.label ? `${seg.label}: ${seg.value}` : `${seg.value}`}
+              role="img"
+              aria-label={seg.label ? `${seg.label}: ${seg.value}` : `${seg.value}`}
             />
           )
         })}

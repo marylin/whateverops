@@ -2,6 +2,16 @@ import { useState } from 'react'
 import { StatusBadge } from '../ui/StatusBadge'
 import { ExternalLink } from '../ui/ExternalLink'
 
+interface AdvisorItem {
+  name: string
+  description: string
+}
+
+interface EdgeFunctionItem {
+  name: string
+  status: string
+}
+
 interface SupabaseProjectPanelData {
   id: string
   projectName: string
@@ -12,24 +22,48 @@ interface SupabaseProjectPanelData {
   healthyCount: number
   totalChecks: number
   readOnly: boolean
-  advisorCount: number
-  advisors: Array<{ reason: string; type: string }>
+  advisors: {
+    performance: AdvisorItem[]
+    security: AdvisorItem[]
+    totalCount: number
+  }
+  edgeFunctions: {
+    total: number
+    active: number
+    items: EdgeFunctionItem[]
+  }
 }
 
 interface SupabaseMgmtPanelData {
   projectCount: number
   projects: SupabaseProjectPanelData[]
-  projectName: string
-  projectStatus: string
-  region: string
-  dbVersion: string
-  healthChecks: Array<{ name: string; status: string }>
-  healthyCount: number
-  totalChecks: number
-  readOnly: boolean
-  advisorCount: number
-  advisors: Array<{ reason: string; type: string }>
-  apiRequestCount: number | null
+}
+
+function AdvisorSection({ title, items }: { title: string; items: AdvisorItem[] }) {
+  const [expanded, setExpanded] = useState(false)
+  if (items.length === 0) return null
+
+  return (
+    <div>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-1.5 text-[10px] text-[#F59E0B] hover:text-[#FBBF24] transition-colors"
+      >
+        <span className={`transition-transform ${expanded ? 'rotate-90' : ''}`}>&#9658;</span>
+        {title} ({items.length})
+      </button>
+      {expanded && (
+        <ul className="mt-1 space-y-1 ml-3">
+          {items.map((a, i) => (
+            <li key={i} className="text-[10px] text-[#9090A0]">
+              <span className="text-[#E2E2E8]">{a.name}</span>
+              {a.description && <span> — {a.description}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
 }
 
 function ProjectRow({
@@ -46,7 +80,6 @@ function ProjectRow({
 
   return (
     <div className="border border-[#252535] rounded-lg overflow-hidden">
-      {/* Clickable row header */}
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-[#2A2A3E30] transition-colors text-left"
@@ -61,6 +94,11 @@ function ProjectRow({
           {isInactive && (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1E1E2E] text-[#606070]">
               paused
+            </span>
+          )}
+          {project.advisors.totalCount > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F59E0B15] text-[#F59E0B]">
+              {project.advisors.totalCount} advisor{project.advisors.totalCount !== 1 ? 's' : ''}
             </span>
           )}
         </div>
@@ -81,24 +119,13 @@ function ProjectRow({
         </div>
       </button>
 
-      {/* Expanded details */}
       {isExpanded && !isInactive && (
         <div className="px-3 pb-3 space-y-3 border-t border-[#252535]">
-          {/* Alert row */}
           {project.readOnly && (
             <div className="flex items-center gap-2 text-xs bg-[#EF444410] border border-[#EF444415] rounded px-2.5 py-2 mt-2">
               <div className="w-2 h-2 rounded-full bg-[#EF4444] shrink-0 animate-pulse" />
               <span className="text-[#F87171] font-medium">
                 READ-ONLY MODE — immediate action needed
-              </span>
-            </div>
-          )}
-          {project.advisorCount > 0 && (
-            <div className="flex items-center gap-2 text-xs bg-[#F59E0B10] border border-[#F59E0B15] rounded px-2.5 py-2 mt-2">
-              <div className="w-2 h-2 rounded-full bg-[#F59E0B] shrink-0" />
-              <span className="text-[#F59E0B]">
-                {project.advisorCount} performance recommendation
-                {project.advisorCount !== 1 ? 's' : ''}
               </span>
             </div>
           )}
@@ -121,7 +148,34 @@ function ProjectRow({
             </div>
           )}
 
-          {/* Footer: region, version, link */}
+          {/* Edge Functions */}
+          {project.edgeFunctions.total > 0 && (
+            <div className="flex items-center gap-2 text-xs mt-1">
+              <div
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                  project.edgeFunctions.active === project.edgeFunctions.total
+                    ? 'bg-[#10B981]'
+                    : 'bg-[#EF4444]'
+                }`}
+              />
+              <span className="text-[#9090A0]">
+                {project.edgeFunctions.total} edge function
+                {project.edgeFunctions.total !== 1 ? 's' : ''}
+                {project.edgeFunctions.active < project.edgeFunctions.total &&
+                  ` (${project.edgeFunctions.active} active)`}
+              </span>
+            </div>
+          )}
+
+          {/* Advisors */}
+          {project.advisors.totalCount > 0 && (
+            <div className="space-y-1 mt-1">
+              <AdvisorSection title="Performance" items={project.advisors.performance} />
+              <AdvisorSection title="Security" items={project.advisors.security} />
+            </div>
+          )}
+
+          {/* Footer */}
           <div className="flex items-center justify-between text-[10px] text-[#606070] pt-1">
             <div className="flex items-center gap-2">
               <StatusBadge status={project.projectStatus} />
@@ -142,6 +196,7 @@ function ProjectRow({
 }
 
 export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
+  if (!data) return null
   const projects = data.projects ?? []
   const activeProjects = projects.filter((p) => p.projectStatus !== 'INACTIVE')
   const allHealthy = activeProjects.every(
@@ -151,16 +206,16 @@ export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
   const totalChecks = activeProjects.reduce((s, p) => s + p.totalChecks, 0)
   const hasReadOnly = projects.some((p) => p.readOnly)
 
-  // Expand first project by default, or any unhealthy one
   const defaultExpanded = projects.findIndex(
     (p) =>
-      p.readOnly || p.advisorCount > 0 || (p.healthyCount < p.totalChecks && p.totalChecks > 0),
+      p.readOnly ||
+      p.advisors.totalCount > 0 ||
+      (p.healthyCount < p.totalChecks && p.totalChecks > 0),
   )
   const [expandedIndex, setExpandedIndex] = useState(defaultExpanded >= 0 ? defaultExpanded : 0)
 
   return (
     <div className="space-y-3">
-      {/* Hero: aggregate health */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div
@@ -175,7 +230,6 @@ export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
         </span>
       </div>
 
-      {/* Project accordion list */}
       <div className="space-y-1.5">
         {projects.map((project, i) => (
           <ProjectRow
@@ -187,7 +241,6 @@ export function SupabaseMgmtPanel({ data }: { data: SupabaseMgmtPanelData }) {
         ))}
       </div>
 
-      {/* Footer */}
       <div className="text-[10px] text-[#606070]">
         {projects.length} project{projects.length !== 1 ? 's' : ''} · {activeProjects.length} active
       </div>

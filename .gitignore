@@ -4,6 +4,7 @@
 !.env.example
 *.pem
 *.key
+.whateverops-instance-id
 
 # AI agent instructions (local only)
 CLAUDE.md
@@ -102,3 +103,4 @@ pnpm-debug.log*
 .turbo/
 .swc/
 .next/
+.env*

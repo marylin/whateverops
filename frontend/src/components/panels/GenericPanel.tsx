@@ -42,6 +42,7 @@ function formatLabel(key: string): string {
 }
 
 export function GenericPanel({ data }: GenericPanelProps) {
+  if (!data) return null
   const entries = Object.entries(data).filter(([_, v]) => !Array.isArray(v) || v.length <= 5)
 
   const metrics = entries.filter(

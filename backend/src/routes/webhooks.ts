@@ -12,7 +12,7 @@ webhooks.post('/n8n/:event', async (c) => {
   const expected = process.env.N8N_WEBHOOK_SECRET
 
   if (!expected || secret !== expected) {
-    return c.json({ error: 'Unauthorized' }, 401)
+    return c.json({ error: 'Unauthorized', status: 401, timestamp: new Date().toISOString() }, 401)
   }
 
   const event = c.req.param('event')

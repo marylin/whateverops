@@ -482,11 +482,17 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 }
 
 export function parsePanel(raw: RawData): PanelData {
-  const runs = raw.workflowRuns ?? []
-  const completedRuns = runs.filter((r) => r.status === 'completed')
-  const successRuns = completedRuns.filter((r) => r.conclusion === 'success')
+  // Aggregate CI runs across ALL repos (fall back to primary if no activities)
+  const allRuns =
+    (raw.repoActivities ?? []).length > 0
+      ? (raw.repoActivities ?? []).flatMap((ra) => ra.recentRuns)
+      : (raw.workflowRuns ?? [])
+  const allCompletedRuns = allRuns.filter((r) => r.status === 'completed')
+  const allSuccessRuns = allCompletedRuns.filter((r) => r.conclusion === 'success')
   const ciSuccessRate =
-    completedRuns.length > 0 ? Math.round((successRuns.length / completedRuns.length) * 100) : 100
+    allCompletedRuns.length > 0
+      ? Math.round((allSuccessRuns.length / allCompletedRuns.length) * 100)
+      : 100
 
   const alerts = raw.dependabotAlerts ?? []
   const criticalCount = alerts.filter((a) => a.severity === 'critical').length
@@ -572,11 +578,25 @@ export function parsePanel(raw: RawData): PanelData {
     updated: i.updated_at,
   }))
 
+  // Aggregate stats across all repos (fall back to primary if repos list is empty)
+  const totalStars =
+    repoSummaries.length > 0
+      ? repoSummaries.reduce((s, r) => s + r.stars, 0)
+      : (raw.repo?.stargazers_count ?? 0)
+  const totalOpenIssues =
+    repoSummaries.length > 0
+      ? repoSummaries.reduce((s, r) => s + r.openIssues, 0)
+      : (raw.repo?.open_issues_count ?? 0)
+  const totalOpenPRs =
+    (raw.repoActivities ?? []).length > 0
+      ? (raw.repoActivities ?? []).reduce((s, ra) => s + ra.openPRs.length, 0)
+      : (raw.pullRequests?.total_count ?? 0)
+
   return {
     repos: repoSummaries,
-    stars: raw.repo?.stargazers_count ?? 0,
-    openIssues: raw.repo?.open_issues_count ?? 0,
-    openPRs: raw.pullRequests?.total_count ?? 0,
+    stars: totalStars,
+    openIssues: totalOpenIssues,
+    openPRs: totalOpenPRs,
     externalPRs,
     staleIssuesCount,
     starsTrend,
@@ -588,18 +608,24 @@ export function parsePanel(raw: RawData): PanelData {
     repoUrl: raw.repo?.html_url ?? '',
     lastCommit: raw.recentCommit ?? null,
     cicd: {
-      recentRuns: runs.slice(0, 5).map((r) => ({
-        id: r.id,
-        name: r.name,
-        status: r.status,
-        conclusion: r.conclusion,
-        branch: r.head_branch,
-        created: r.created_at,
-        url: r.html_url,
-        event: r.event,
-      })),
+      recentRuns: allRuns
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 10)
+        .map((r) => ({
+          id: r.id,
+          name: r.name,
+          status: r.status,
+          conclusion: r.conclusion,
+          branch: r.head_branch,
+          created: r.created_at,
+          url: r.html_url,
+          event: r.event,
+        })),
       successRate: ciSuccessRate,
-      lastRunConclusion: runs[0]?.conclusion ?? null,
+      lastRunConclusion:
+        allRuns.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )[0]?.conclusion ?? null,
     },
     dependabot: {
       openAlerts: alerts.length,
@@ -637,12 +663,23 @@ export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
   const criticals = (raw.dependabotAlerts ?? []).filter((a) => a.severity === 'critical')
   if (criticals.length > 0) return 'error'
 
-  const latestRun = (raw.workflowRuns ?? [])[0]
-  if (latestRun?.status === 'completed' && latestRun.conclusion === 'failure') return 'error'
+  // Check CI across ALL repos, not just primary
+  const allRuns = (raw.repoActivities ?? []).flatMap((ra) => ra.recentRuns)
+  const latestRuns = allRuns.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  )
+  const anyRepoFailing = (raw.repoActivities ?? []).some((ra) => {
+    const latest = ra.recentRuns.sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )[0]
+    return latest?.status === 'completed' && latest.conclusion === 'failure'
+  })
+  if (anyRepoFailing) return 'error'
 
   const highs = (raw.dependabotAlerts ?? []).filter((a) => a.severity === 'high')
   if (highs.length > 0) return 'warn'
-  if (latestRun?.status === 'completed' && latestRun.conclusion === 'cancelled') return 'warn'
+  if (latestRuns[0]?.status === 'completed' && latestRuns[0].conclusion === 'cancelled')
+    return 'warn'
 
   const lastPush = new Date(raw.repo.pushed_at).getTime()
   const daysSinceLastPush = (Date.now() - lastPush) / (1000 * 60 * 60 * 24)

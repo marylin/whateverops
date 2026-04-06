@@ -4,7 +4,7 @@ import { apiError } from '../lib/api-error.js'
 
 export const INTEGRATION_ID = 'posthog' as const
 export const INTEGRATION_NAME = 'PostHog'
-export const DEFAULT_TTL = 120
+export const DEFAULT_TTL = 300
 
 export const CONFIG_SCHEMA = z.object({
   apiKey: z.string().min(1, 'PostHog API key required'),
@@ -69,7 +69,7 @@ async function hogqlQuery(
   if (!res.ok) {
     throw new Error(
       apiError(res.status, {
-        401: 'Authentication failed — check your POSTHOG_API_KEY',
+        401: 'Authentication failed — check POSTHOG_PERSONAL_API_KEY in .env (must be a personal API key from User Settings, not a project API key)',
         404: 'Project not found — verify POSTHOG_PROJECT_ID in .env',
       }),
     )
@@ -82,7 +82,7 @@ async function hogqlQuery(
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
   const headers = { Authorization: `Bearer ${config.apiKey}` }
-  const base = `${config.host}/api/projects/${config.projectId}`
+  const base = `${config.host}/api/environments/${config.projectId}`
 
   const [
     dauResult,

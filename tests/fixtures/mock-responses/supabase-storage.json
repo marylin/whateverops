@@ -1,0 +1,54 @@
+{
+  "ok": {
+    "projects": [
+      {
+        "project": {
+          "ref": "abc123",
+          "name": "TestProject",
+          "status": "ACTIVE_HEALTHY",
+          "region": "us-east-1",
+          "dbVersion": "17.6.1",
+          "serviceKey": "test-key"
+        },
+        "buckets": [
+          {
+            "id": "avatars",
+            "name": "avatars",
+            "public": true,
+            "file_size_limit": 5242880,
+            "allowed_mime_types": ["image/png", "image/jpeg"],
+            "created_at": "2026-01-01T00:00:00Z"
+          },
+          {
+            "id": "documents",
+            "name": "documents",
+            "public": false,
+            "file_size_limit": null,
+            "allowed_mime_types": null,
+            "created_at": "2026-01-01T00:00:00Z"
+          }
+        ],
+        "projectStatus": "active"
+      }
+    ]
+  },
+  "error": {
+    "projects": []
+  },
+  "empty": {
+    "projects": [
+      {
+        "project": {
+          "ref": "abc123",
+          "name": "TestProject",
+          "status": "ACTIVE_HEALTHY",
+          "region": "us-east-1",
+          "dbVersion": "17.6.1",
+          "serviceKey": "test-key"
+        },
+        "buckets": [],
+        "projectStatus": "active"
+      }
+    ]
+  }
+}
