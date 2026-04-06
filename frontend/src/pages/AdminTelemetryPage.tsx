@@ -32,6 +32,13 @@ export function AdminTelemetryPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    document.title = 'Telemetry | WhateverOPS'
+    return () => {
+      document.title = 'WhateverOPS'
+    }
+  }, [])
+
+  useEffect(() => {
     fetch(`${API_URL}/api/admin/telemetry`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -42,39 +49,58 @@ export function AdminTelemetryPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) {
-    return (
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        <p className="text-[#9090A0]">Loading telemetry...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        <h1 className="text-2xl font-bold text-[#E2E2E8] mb-4">Telemetry Admin</h1>
-        <div className="bg-[#EF444410] border border-[#EF444415] rounded-lg px-4 py-3">
-          <p className="text-[#EF4444]">Failed to load: {error}</p>
-          <p className="text-xs text-[#606070] mt-1">
-            Make sure SUPABASE_ADMIN_SERVICE_KEY is set in .env
-          </p>
+  return (
+    <div className="min-h-screen bg-[#0C0C14]">
+      <header className="border-b border-[#252535] bg-[#0C0C14]/80 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              className="text-2xl font-semibold tracking-[-0.5px] text-[#0EA5E9] hover:text-[#38BDF8]"
+            >
+              WhateverOPS
+            </a>
+            <span className="text-sm text-[#606070]">Telemetry</span>
+          </div>
+          <span className="text-xs text-[#606070]">Admin only</span>
         </div>
-      </div>
-    )
-  }
+      </header>
 
-  if (!data) return null
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {loading && !data && (
+          <div className="animate-pulse space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="border border-[#252535] rounded-lg p-4 bg-[#161622]">
+                  <div className="h-8 w-16 bg-[#252535] rounded mb-2" />
+                  <div className="h-3 w-24 bg-[#1E1E2E] rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
+        {error && !data && (
+          <div className="text-center py-20">
+            <p className="text-[#EF4444] mb-2">Failed to load telemetry</p>
+            <p className="text-sm text-[#606070] mb-4">{error}</p>
+            <p className="text-xs text-[#606070]">
+              Make sure SUPABASE_ADMIN_SERVICE_KEY is set in .env
+            </p>
+          </div>
+        )}
+
+        {data && <TelemetryContent data={data} />}
+      </main>
+    </div>
+  )
+}
+
+function TelemetryContent({ data }: { data: TelemetryData }) {
   const { summary, versionDistribution, platformDistribution, dailyTrend, instances } = data
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#E2E2E8]">Telemetry Admin</h1>
-        <span className="text-xs text-[#606070]">Private — not part of the product</span>
-      </div>
-
+    <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <SummaryCard label="Total Instances" value={summary.totalInstances} />
@@ -89,14 +115,14 @@ export function AdminTelemetryPage() {
       </div>
 
       {/* Distributions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <DistributionCard title="Version Distribution" data={versionDistribution} />
         <DistributionCard title="Platform Distribution" data={platformDistribution} />
       </div>
 
       {/* Daily trend */}
       {dailyTrend.length > 0 && (
-        <div className="border border-[#252535] rounded-lg p-4">
+        <div className="bg-[#161622] border border-[#252535] rounded-lg p-4">
           <h2 className="text-sm font-medium text-[#E2E2E8] mb-3">Daily Active Instances</h2>
           <div className="flex items-end gap-1 h-24">
             {dailyTrend.map((day) => {
@@ -120,7 +146,7 @@ export function AdminTelemetryPage() {
       )}
 
       {/* Instances table */}
-      <div className="border border-[#252535] rounded-lg overflow-hidden">
+      <div className="bg-[#161622] border border-[#252535] rounded-lg overflow-hidden">
         <h2 className="text-sm font-medium text-[#E2E2E8] px-4 py-3 border-b border-[#252535]">
           Instances ({instances.length})
         </h2>
@@ -141,25 +167,24 @@ export function AdminTelemetryPage() {
             </thead>
             <tbody>
               {instances.map((inst) => (
-                <tr
-                  key={inst.instanceId}
-                  className="border-b border-[#1E1E2E] hover:bg-[#1E1E2E30]"
-                >
-                  <td className="px-4 py-2">
-                    <div
-                      className={`w-2 h-2 rounded-full ${inst.isActive ? 'bg-[#10B981]' : 'bg-[#606070]'}`}
+                <tr key={inst.instanceId} className="border-b border-[#252535] hover:bg-[#1E1E2E]">
+                  <td className="px-4 py-2.5">
+                    <span
+                      className={`inline-block w-2.5 h-2.5 rounded-full ${
+                        inst.isActive ? 'bg-emerald-500' : 'bg-[#606070]'
+                      }`}
                     />
                   </td>
-                  <td className="px-4 py-2 text-[#E2E2E8] font-mono">{inst.instanceId}</td>
-                  <td className="px-4 py-2 text-[#9090A0]">{inst.version}</td>
-                  <td className="px-4 py-2 text-[#9090A0]">{inst.platform}</td>
-                  <td className="px-4 py-2 text-right text-[#9090A0]">{inst.configuredCount}</td>
-                  <td className="px-4 py-2 text-right text-[#9090A0]">
+                  <td className="px-4 py-2.5 text-[#E2E2E8] font-mono">{inst.instanceId}</td>
+                  <td className="px-4 py-2.5 text-[#9090A0]">{inst.version}</td>
+                  <td className="px-4 py-2.5 text-[#9090A0]">{inst.platform}</td>
+                  <td className="px-4 py-2.5 text-right text-[#9090A0]">{inst.configuredCount}</td>
+                  <td className="px-4 py-2.5 text-right text-[#9090A0]">
                     {inst.lastUptimeFormatted}
                   </td>
-                  <td className="px-4 py-2 text-right text-[#9090A0]">{inst.heartbeats}</td>
-                  <td className="px-4 py-2 text-[#606070]">{formatDate(inst.firstSeen)}</td>
-                  <td className="px-4 py-2 text-[#606070]">{formatDate(inst.lastSeen)}</td>
+                  <td className="px-4 py-2.5 text-right text-[#9090A0]">{inst.heartbeats}</td>
+                  <td className="px-4 py-2.5 text-[#606070]">{formatDate(inst.firstSeen)}</td>
+                  <td className="px-4 py-2.5 text-[#606070]">{formatDate(inst.lastSeen)}</td>
                 </tr>
               ))}
               {instances.length === 0 && (
@@ -187,8 +212,8 @@ function SummaryCard({
   accent?: boolean
 }) {
   return (
-    <div className="border border-[#252535] rounded-lg p-4">
-      <p className={`text-2xl font-bold ${accent ? 'text-[#10B981]' : 'text-[#E2E2E8]'}`}>
+    <div className="bg-[#161622] border border-[#252535] rounded-lg p-4">
+      <p className={`text-2xl font-bold ${accent ? 'text-emerald-400' : 'text-[#E2E2E8]'}`}>
         {value}
       </p>
       <p className="text-xs text-[#606070] mt-1">{label}</p>
@@ -201,7 +226,7 @@ function DistributionCard({ title, data }: { title: string; data: Record<string,
   const total = entries.reduce((s, [, v]) => s + v, 0)
 
   return (
-    <div className="border border-[#252535] rounded-lg p-4">
+    <div className="bg-[#161622] border border-[#252535] rounded-lg p-4">
       <h2 className="text-sm font-medium text-[#E2E2E8] mb-3">{title}</h2>
       {entries.length === 0 ? (
         <p className="text-xs text-[#606070]">No data</p>
