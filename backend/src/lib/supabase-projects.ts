@@ -59,20 +59,29 @@ export async function fetchProjectsWithKeys(managementKey: string): Promise<Supa
 
   const apiProjects = (await res.json()) as ApiProject[]
 
-  const projects: SupabaseProject[] = await Promise.all(
-    apiProjects.map(async (p) => {
-      const isActive = p.status === 'ACTIVE_HEALTHY' || p.status === 'ACTIVE_UNHEALTHY'
-      const serviceKey = isActive ? await fetchServiceKey(p.ref, managementKey) : null
+  const excludeRefs = new Set(
+    (process.env.SUPABASE_EXCLUDE_PROJECTS ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  )
 
-      return {
-        ref: p.ref,
-        name: p.name,
-        status: p.status,
-        region: p.region,
-        dbVersion: p.database?.version ?? 'unknown',
-        serviceKey,
-      }
-    }),
+  const projects: SupabaseProject[] = await Promise.all(
+    apiProjects
+      .filter((p) => !excludeRefs.has(p.ref))
+      .map(async (p) => {
+        const isActive = p.status === 'ACTIVE_HEALTHY' || p.status === 'ACTIVE_UNHEALTHY'
+        const serviceKey = isActive ? await fetchServiceKey(p.ref, managementKey) : null
+
+        return {
+          ref: p.ref,
+          name: p.name,
+          status: p.status,
+          region: p.region,
+          dbVersion: p.database?.version ?? 'unknown',
+          serviceKey,
+        }
+      }),
   )
 
   await cacheSet(CACHE_KEY, projects, CACHE_TTL)
