@@ -221,7 +221,7 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
   }
 
   // Supabase — single access token powers management, auth, and storage
-  const supabaseToken = envOrSkip('SUPABASE_ACCESS_TOKEN')
+  const supabaseToken = envOrSkip('SUPABASE_ACCESS_TOKEN') ?? envOrSkip('SUPABASE_MANAGEMENT_KEY')
   if (supabaseToken) {
     integrations.push(
       runIntegration(supabaseManagement, { managementKey: supabaseToken }),

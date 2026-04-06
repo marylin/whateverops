@@ -81,7 +81,25 @@ async function fetchAuthForProject(project: SupabaseProject): Promise<ProjectAut
     if (countRes.status === 521) {
       return { project, totalUsers: 0, users: [], projectStatus: 'inactive' }
     }
-    // Non-fatal — skip this project
+
+    // 500 often means auth DB schema issue (common after project pause/resume).
+    // Try the health endpoint to distinguish "service down" from "DB issue".
+    if (countRes.status === 500) {
+      const baseUrl = `https://${project.ref}.supabase.co`
+      const healthRes = await fetch(`${baseUrl}/auth/v1/health`, {
+        headers: { apikey: project.serviceKey! },
+        signal: AbortSignal.timeout(5_000),
+      }).catch(() => null)
+
+      if (healthRes?.ok) {
+        // Auth service is running but can't query users — likely DB schema issue.
+        return { project, totalUsers: 0, users: [], projectStatus: 'active' }
+      }
+      // Service is actually down
+      return { project, totalUsers: 0, users: [], projectStatus: 'inactive' }
+    }
+
+    // Other non-fatal errors — skip this project
     return { project, totalUsers: 0, users: [], projectStatus: 'active' }
   }
 
