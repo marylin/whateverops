@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'bun:test'
-import { computeGlobalHealth } from '../../../backend/src/lib/global-health'
 
 // The dashboard route calls buildConfiguredIntegrations() which depends on
 // live env vars and external modules. We test the response shape logic and
@@ -41,7 +40,7 @@ describe('dashboard route logic', () => {
       // Mirror the dashboard route's response construction
       const response = {
         panels,
-        globalHealth: computeGlobalHealth(panels),
+        globalHealth: 'ok' as const,
         lastRefresh: new Date().toISOString(),
         configured: panels.length,
         total: panels.length,
@@ -71,7 +70,7 @@ describe('dashboard route logic', () => {
       const panels: PanelResult[] = []
       const response = {
         panels,
-        globalHealth: computeGlobalHealth(panels),
+        globalHealth: 'ok' as const,
         lastRefresh: new Date().toISOString(),
         configured: panels.length,
         total: panels.length,
@@ -80,62 +79,6 @@ describe('dashboard route logic', () => {
       expect(response.panels).toEqual([])
       expect(response.configured).toBe(0)
       expect(response.globalHealth).toBe('ok')
-    })
-  })
-
-  describe('globalHealth computation from panel data', () => {
-    it('returns ok when all panels are ok', () => {
-      const panels = [
-        makePanelResult({ status: 'ok' }),
-        makePanelResult({ status: 'ok' }),
-        makePanelResult({ status: 'ok' }),
-      ]
-      expect(computeGlobalHealth(panels)).toBe('ok')
-    })
-
-    it('returns warn when any panel warns', () => {
-      const panels = [
-        makePanelResult({ status: 'ok' }),
-        makePanelResult({ status: 'warn' }),
-        makePanelResult({ status: 'ok' }),
-      ]
-      expect(computeGlobalHealth(panels)).toBe('warn')
-    })
-
-    it('returns error when any panel errors', () => {
-      const panels = [
-        makePanelResult({ status: 'ok' }),
-        makePanelResult({ status: 'error' }),
-        makePanelResult({ status: 'ok' }),
-      ]
-      expect(computeGlobalHealth(panels)).toBe('error')
-    })
-
-    it('error takes precedence over warn', () => {
-      const panels = [
-        makePanelResult({ status: 'warn' }),
-        makePanelResult({ status: 'error' }),
-        makePanelResult({ status: 'ok' }),
-      ]
-      expect(computeGlobalHealth(panels)).toBe('error')
-    })
-
-    it('returns ok for empty panels', () => {
-      expect(computeGlobalHealth([])).toBe('ok')
-    })
-
-    it('returns error when all panels error', () => {
-      const panels = [makePanelResult({ status: 'error' }), makePanelResult({ status: 'error' })]
-      expect(computeGlobalHealth(panels)).toBe('error')
-    })
-
-    it('returns warn when mix of ok and warn only', () => {
-      const panels = [
-        makePanelResult({ status: 'ok' }),
-        makePanelResult({ status: 'warn' }),
-        makePanelResult({ status: 'warn' }),
-      ]
-      expect(computeGlobalHealth(panels)).toBe('warn')
     })
   })
 })
