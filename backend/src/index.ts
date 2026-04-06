@@ -10,6 +10,7 @@ import dashboard from './routes/dashboard.js'
 import settings from './routes/settings.js'
 import webhooks from './routes/webhooks.js'
 import status from './routes/status.js'
+import adminTelemetry from './routes/admin-telemetry.js'
 import { startTelemetry } from './lib/telemetry.js'
 import { INTEGRATION_ENV_MAP } from './lib/integration-env-map.js'
 
@@ -48,6 +49,7 @@ app.route('/api/dashboard', dashboard)
 app.route('/api/settings', settings)
 app.route('/api/webhooks', webhooks)
 app.route('/api/status', status)
+app.route('/api/admin/telemetry', adminTelemetry)
 
 app.notFound((c) =>
   c.json({ error: 'Not found', status: 404, timestamp: new Date().toISOString() }, 404),
