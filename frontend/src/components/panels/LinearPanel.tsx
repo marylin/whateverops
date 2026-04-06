@@ -53,6 +53,7 @@ const PRIORITY_TEXT: Record<number, string> = {
 }
 
 export function LinearPanel({ data }: { data: LinearPanelData }) {
+  if (!data) return null
   const [issuesExpanded, setIssuesExpanded] = useState(false)
   const [projectsExpanded, setProjectsExpanded] = useState(false)
 

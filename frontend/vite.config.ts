@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 export default defineConfig({
+  envDir: '..',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -14,7 +15,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: `http://localhost:${process.env.PORT ?? 4890}`,
         changeOrigin: true,
       },
     },

@@ -6,12 +6,12 @@
 
 <p align="center">
   <strong>Unified ops dashboard for solo developer-founders.</strong><br/>
-  14 integrations. One real-time view. Self-host in 5 minutes.
+  15 integrations. One real-time view. Self-host in 5 minutes.
 </p>
 
 <p align="center">
   <a href="https://github.com/whateverops-dev/whateverops/actions"><img src="https://img.shields.io/github/actions/workflow/status/whateverops-dev/whateverops/ci.yml?branch=master&label=CI&style=flat-square" alt="CI" /></a>
-  <a href="https://github.com/whateverops-dev/whateverops/blob/master/LICENSE"><img src="https://img.shields.io/github/license/whateverops-dev/whateverops?style=flat-square" alt="License" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT" /></a>
   <a href="https://github.com/whateverops-dev/whateverops/stargazers"><img src="https://img.shields.io/github/stars/whateverops-dev/whateverops?style=flat-square" alt="Stars" /></a>
   <a href="https://github.com/whateverops-dev/whateverops/issues"><img src="https://img.shields.io/github/issues/whateverops-dev/whateverops?style=flat-square" alt="Issues" /></a>
 </p>
@@ -42,29 +42,31 @@ cp .env.example .env
 pnpm dev
 ```
 
-**Frontend:** http://localhost:5173 — **Backend:** http://localhost:3000/health
+**Frontend:** http://localhost:5173 (Vite picks next available if busy) — **Backend:** see `.env` for `PORT` configuration (default 3000)
 
 That's it. Add more API keys to `.env` to light up more panels. Each integration is opt-in — only configured services appear on the dashboard.
 
 ## Integrations
 
-| Service        | What You See                                        | Badge                                                                                                           |
-| -------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **GitHub**     | Stars, open issues, PRs, recent commits             | ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)             |
-| **Linear**     | Open / in-progress / completed issues, active cycle | ![Linear](https://img.shields.io/badge/Linear-5E6AD2?style=flat-square&logo=linear&logoColor=white)             |
-| **Vercel**     | Deployments, projects, success rate                 | ![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)             |
-| **Railway**    | Projects, services, deploy status                   | ![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)          |
-| **PostHog**    | Active users, events, feature flags                 | ![PostHog](https://img.shields.io/badge/PostHog-F9BD2B?style=flat-square&logo=posthog&logoColor=black)          |
-| **Resend**     | Domains, API keys, email stats                      | ![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square&logoColor=white)                         |
-| **Anthropic**  | API key status, available models                    | ![Anthropic](https://img.shields.io/badge/Anthropic-191919?style=flat-square&logoColor=white)                   |
-| **OpenAI**     | API key status, available models                    | ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)             |
-| **Cloudflare** | Requests, bandwidth, cache hit ratio                | ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white) |
-| **Supabase**   | Project health, database, auth users                | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)       |
-| **Neon**       | Projects, regions, PG versions                      | ![Neon](https://img.shields.io/badge/Neon-00E5A0?style=flat-square&logoColor=black)                             |
-| **Sentry**     | Unresolved issues, events, error levels             | ![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat-square&logo=sentry&logoColor=white)             |
-| **Stripe**     | MRR, active subs, failed payments                   | ![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=flat-square&logo=stripe&logoColor=white)             |
+| Service              | What You See                                        | Badge                                                                                                           |
+| -------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **GitHub**           | Stars, open issues, PRs, recent commits             | ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)             |
+| **Linear**           | Open / in-progress / completed issues, active cycle | ![Linear](https://img.shields.io/badge/Linear-5E6AD2?style=flat-square&logo=linear&logoColor=white)             |
+| **Vercel**           | Deployments, projects, success rate                 | ![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)             |
+| **Railway**          | Projects, services, deploy status                   | ![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)          |
+| **PostHog**          | DAU/WAU, events, top events, 14-day trends          | ![PostHog](https://img.shields.io/badge/PostHog-F9BD2B?style=flat-square&logo=posthog&logoColor=black)          |
+| **Resend**           | Domains, API keys, email stats                      | ![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square&logoColor=white)                         |
+| **Anthropic**        | API key status, available models                    | ![Anthropic](https://img.shields.io/badge/Anthropic-191919?style=flat-square&logoColor=white)                   |
+| **OpenAI**           | API key status, available models                    | ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)             |
+| **Cloudflare**       | Requests, errors, threats, cache ratio, SSL         | ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white) |
+| **Supabase**         | Project health, advisors, edge functions            | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)       |
+| **Supabase Auth**    | Users per project, signups, DAU                     | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)       |
+| **Supabase Storage** | Buckets, visibility, limits                         | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)       |
+| **Neon**             | Projects, regions, PG versions                      | ![Neon](https://img.shields.io/badge/Neon-00E5A0?style=flat-square&logoColor=black)                             |
+| **Sentry**           | Unresolved issues, events, error levels             | ![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat-square&logo=sentry&logoColor=white)             |
+| **Stripe**           | MRR, active subs, failed payments                   | ![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=flat-square&logo=stripe&logoColor=white)             |
 
-All 14 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
+All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
 
 ## Architecture
 
@@ -77,7 +79,7 @@ All 14 integrations are fetched in parallel via `Promise.all()` — no waterfall
                    │ REST
 ┌──────────────────▼──────────────────────────┐
 │  Hono.js on Bun (Railway)                   │
-│  14 integrations via Promise.all()          │
+│  15 integrations via Promise.all()          │
 │  Error retry (2x backoff, 10s timeout)      │
 │  Cache: in-memory or Upstash Redis          │
 └──────────────────┬──────────────────────────┘

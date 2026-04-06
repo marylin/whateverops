@@ -18,12 +18,19 @@ import { ResendPanel } from '../panels/ResendPanel'
 import { PostHogPanel } from '../panels/PostHogPanel'
 import { SupabaseMgmtPanel } from '../panels/SupabaseMgmtPanel'
 import { SupabaseAuthPanel } from '../panels/SupabaseAuthPanel'
+import { SupabaseStoragePanel } from '../panels/SupabaseStoragePanel'
 import { SelfMonitoringPanel } from '../panels/SelfMonitoringPanel'
-import { DailyDigest } from './DailyDigest'
+import { DailyDigest, DailyDigestSkeleton } from './DailyDigest'
 import type { IntegrationResult } from '../../lib/api'
 
 /** Wide panels that span 2 columns on xl (3-col) desktop layout */
-const WIDE_PANELS = new Set(['stripe', 'github', 'sentry', 'supabase-management'])
+const WIDE_PANELS = new Set([
+  'stripe',
+  'github',
+  'sentry',
+  'supabase-management',
+  'supabase-storage',
+])
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
@@ -41,6 +48,7 @@ const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
   posthog: PostHogPanel,
   'supabase-management': SupabaseMgmtPanel,
   'supabase-auth': SupabaseAuthPanel,
+  'supabase-storage': SupabaseStoragePanel,
   'self-monitoring': SelfMonitoringPanel,
 }
 
@@ -99,6 +107,7 @@ const FOUNDER_GROUPS: Array<{
       'railway',
       'neon',
       'supabase-management',
+      'supabase-storage',
       'cloudflare',
       'self-monitoring',
     ],
@@ -180,10 +189,12 @@ function GroupedPanels({
         const warnCount = groupPanels.filter((p) => p.status === 'warn').length
 
         return (
-          <section key={group.id}>
+          <section key={group.id} role="region" aria-label={`${group.label} group`}>
             {/* Group header */}
             <button
               onClick={() => toggleGroup(group.id)}
+              aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} ${group.label} group`}
+              aria-expanded={!isCollapsed}
               className="w-full flex items-center justify-between mb-3 group"
             >
               <div className="flex items-center gap-3">
@@ -332,6 +343,7 @@ export function Dashboard() {
 
         {data && data.panels.length > 0 && <DailyDigest panels={data.panels} />}
 
+        {loading && !data && <DailyDigestSkeleton />}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {loading && !data && <LoadingSkeleton />}
         </div>

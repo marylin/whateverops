@@ -1,18 +1,22 @@
 import { describe, it, expect } from 'bun:test'
-import { parsePanel, getHealthStatus, getCacheKey } from '../../../../backend/src/integrations/supabase-auth'
+import {
+  parsePanel,
+  getHealthStatus,
+  getCacheKey,
+} from '../../../../backend/src/integrations/supabase-auth'
 import fixture from '../../../fixtures/mock-responses/supabase-auth.json'
 
 describe('supabase-auth integration', () => {
   it('parsePanel() with healthy mock response', () => {
     const panel = parsePanel(fixture.ok as Parameters<typeof parsePanel>[0])
-    expect(panel.totalUsers).toBe(50)
-    expect(panel.recentSignups).toBeGreaterThanOrEqual(0)
+    expect(panel.summary.totalUsersAllProjects).toBe(50)
+    expect(panel.summary.activeProjectCount).toBeGreaterThanOrEqual(0)
   })
 
   it('parsePanel() handles missing optional fields', () => {
     const panel = parsePanel(fixture.empty as Parameters<typeof parsePanel>[0])
-    expect(panel.totalUsers).toBe(0)
-    expect(panel.recentSignups).toBe(0)
+    expect(panel.summary.totalUsersAllProjects).toBe(0)
+    expect(panel.projects[0]?.recentSignups).toBe(0)
   })
 
   it('getHealthStatus() returns ok for healthy response', () => {
@@ -24,13 +28,13 @@ describe('supabase-auth integration', () => {
   })
 
   it('getCacheKey() is stable for same config', () => {
-    const config = { apiKey: 'test-key', supabaseUrl: 'https://x.supabase.co', projectRef: 'p1' }
+    const config = { managementKey: 'test-key' }
     expect(getCacheKey(config)).toBe(getCacheKey(config))
   })
 
   it('getCacheKey() differs for different configs', () => {
-    const a = getCacheKey({ apiKey: 'key-a', supabaseUrl: 'https://x.supabase.co', projectRef: 'p1' })
-    const b = getCacheKey({ apiKey: 'key-b', supabaseUrl: 'https://x.supabase.co', projectRef: 'p1' })
+    const a = getCacheKey({ managementKey: 'key-a' })
+    const b = getCacheKey({ managementKey: 'key-b' })
     expect(a).not.toBe(b)
   })
 })

@@ -103,6 +103,7 @@ interface GitHubPanelData {
 const SELECTED_REPO_KEY = 'github-selected-repo'
 
 export function GitHubPanel({ data }: { data: GitHubPanelData }) {
+  if (!data) return null
   const [showDetails, setShowDetails] = useState(false)
   const [selectedRepo, setSelectedRepo] = useState<string | null>(() => {
     try {

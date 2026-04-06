@@ -1,105 +1,142 @@
+// backend/src/integrations/supabase-auth.ts
 import { z } from 'zod'
 import { quickHash } from '../lib/hash.js'
-import { apiError } from '../lib/api-error.js'
+import { fetchProjectsWithKeys, type SupabaseProject } from '../lib/supabase-projects.js'
 
 export const INTEGRATION_ID = 'supabase-auth' as const
 export const INTEGRATION_NAME = 'Supabase Auth'
 export const DEFAULT_TTL = 120
+export const FETCH_TIMEOUT_MS = 30_000
 
 export const CONFIG_SCHEMA = z.object({
-  apiKey: z.string().min(1, 'Supabase service key required'),
-  supabaseUrl: z.string().url(),
-  projectRef: z.string().min(1),
+  managementKey: z.string().min(1, 'Supabase access token required'),
 })
 
 export type IntegrationConfig = z.infer<typeof CONFIG_SCHEMA>
 
-export interface RawData {
-  users: Array<{
-    id: string
-    created_at: string
-    last_sign_in_at: string | null
-    email: string
-    app_metadata?: { providers?: string[] }
-  }>
-  totalUsers: number
+interface UserRecord {
+  id: string
+  created_at: string
+  last_sign_in_at: string | null
+  email: string
+  app_metadata?: { providers?: string[] }
 }
 
-export interface PanelData {
+interface ProjectAuthRaw {
+  project: SupabaseProject
+  totalUsers: number
+  users: UserRecord[]
+  projectStatus: 'active' | 'inactive'
+}
+
+export interface RawData {
+  projects: ProjectAuthRaw[]
+}
+
+interface ProjectAuthPanel {
+  name: string
+  ref: string
+  projectStatus: 'active' | 'inactive'
   totalUsers: number
   recentSignups: number
   activeRecently: number
-  providerBreakdown: Record<string, number>
   signupsTrend: 'up' | 'down' | 'flat'
   dauPct: number
+  providerBreakdown: Record<string, number>
   daysSinceLastSignup: number | null
 }
 
-export async function fetchData(config: IntegrationConfig): Promise<RawData> {
-  const headers = {
-    Authorization: `Bearer ${config.apiKey}`,
-    apikey: config.apiKey,
-  }
-
-  const res = await fetch(`${config.supabaseUrl}/auth/v1/admin/users?per_page=50`, {
-    headers,
-    signal: AbortSignal.timeout(10_000),
-  })
-
-  if (!res.ok) {
-    // 500 often means auth DB schema issue (common on paused/resumed projects).
-    // Try the health endpoint to distinguish "service down" from "DB issue".
-    if (res.status === 500) {
-      const healthRes = await fetch(`${config.supabaseUrl}/auth/v1/health`, {
-        headers: { apikey: config.apiKey },
-        signal: AbortSignal.timeout(5_000),
-      }).catch(() => null)
-
-      if (healthRes?.ok) {
-        // Auth service is running but can't query users — likely DB schema issue.
-        // Return empty data so the card renders with a warning instead of a hard error.
-        return { users: [], totalUsers: 0 }
-      }
-    }
-
-    throw new Error(
-      apiError(res.status, {
-        401: 'Service key invalid — check SUPABASE_SERVICE_KEY in .env (must be the service_role key)',
-        404: 'Project not found — verify SUPABASE_URL in .env',
-        500: 'Auth DB error — check Supabase dashboard → Authentication. The auth schema may need repair (common after project pause/resume).',
-      }),
-    )
-  }
-
-  const totalFromHeader = parseInt(res.headers.get('x-total-count') ?? '', 10)
-
-  const body = (await res.json()) as {
-    users?: RawData['users']
-  }
-
-  return {
-    users: body.users ?? [],
-    totalUsers: Number.isFinite(totalFromHeader) ? totalFromHeader : (body.users?.length ?? 0),
+export interface PanelData {
+  projects: ProjectAuthPanel[]
+  summary: {
+    totalUsersAllProjects: number
+    totalActiveRecently: number
+    activeProjectCount: number
   }
 }
 
-export function parsePanel(raw: RawData): PanelData {
+async function fetchAuthForProject(project: SupabaseProject): Promise<ProjectAuthRaw> {
+  if (!project.serviceKey) {
+    return { project, totalUsers: 0, users: [], projectStatus: 'inactive' }
+  }
+
+  const baseUrl = `https://${project.ref}.supabase.co`
+  const headers = {
+    Authorization: `Bearer ${project.serviceKey}`,
+    apikey: project.serviceKey,
+  }
+
+  // Efficient total count — fetch 1 user, read x-total-count header
+  let countRes: Response
+  try {
+    countRes = await fetch(`${baseUrl}/auth/v1/admin/users?per_page=1`, {
+      headers,
+      signal: AbortSignal.timeout(10_000),
+    })
+  } catch {
+    return { project, totalUsers: 0, users: [], projectStatus: 'inactive' }
+  }
+
+  if (!countRes.ok) {
+    if (countRes.status === 521) {
+      return { project, totalUsers: 0, users: [], projectStatus: 'inactive' }
+    }
+    // Non-fatal — skip this project
+    return { project, totalUsers: 0, users: [], projectStatus: 'active' }
+  }
+
+  const totalUsers = parseInt(countRes.headers.get('x-total-count') ?? '0', 10)
+
+  // If no users, skip the full fetch
+  if (totalUsers === 0) {
+    return { project, totalUsers: 0, users: [], projectStatus: 'active' }
+  }
+
+  // Fetch first page for trend/provider analysis
+  let users: UserRecord[] = []
+  try {
+    const usersRes = await fetch(`${baseUrl}/auth/v1/admin/users?per_page=50`, {
+      headers,
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (usersRes.ok) {
+      const body = (await usersRes.json()) as { users?: UserRecord[] }
+      users = body.users ?? []
+    }
+  } catch {
+    // Non-fatal — we still have the count
+  }
+
+  return { project, totalUsers, users, projectStatus: 'active' }
+}
+
+function computeProjectStats(raw: ProjectAuthRaw): ProjectAuthPanel {
+  if (raw.projectStatus === 'inactive') {
+    return {
+      name: raw.project.name,
+      ref: raw.project.ref,
+      projectStatus: 'inactive',
+      totalUsers: 0,
+      recentSignups: 0,
+      activeRecently: 0,
+      signupsTrend: 'flat',
+      dauPct: 0,
+      providerBreakdown: {},
+      daysSinceLastSignup: null,
+    }
+  }
+
   const now = Date.now()
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
   const fourteenDaysAgo = now - 14 * 24 * 60 * 60 * 1000
   const oneDayAgo = now - 24 * 60 * 60 * 1000
-
   const users = raw.users ?? []
 
-  // This week's signups (last 7 days)
   const recentSignups = users.filter((u) => new Date(u.created_at).getTime() > sevenDaysAgo).length
-
-  // Last week's signups (7-14 days ago) for trend comparison
   const lastWeekSignups = users.filter((u) => {
     const t = new Date(u.created_at).getTime()
     return t > fourteenDaysAgo && t <= sevenDaysAgo
   }).length
-
   const signupsTrend: 'up' | 'down' | 'flat' =
     recentSignups > lastWeekSignups ? 'up' : recentSignups < lastWeekSignups ? 'down' : 'flat'
 
@@ -107,20 +144,16 @@ export function parsePanel(raw: RawData): PanelData {
     (u) => u.last_sign_in_at && new Date(u.last_sign_in_at).getTime() > oneDayAgo,
   ).length
 
-  // DAU percentage
-  const totalUsers = raw.totalUsers ?? 0
-  const dauPct = totalUsers > 0 ? Math.round((activeRecently / totalUsers) * 1000) / 10 : 0
+  const dauPct = raw.totalUsers > 0 ? Math.round((activeRecently / raw.totalUsers) * 1000) / 10 : 0
 
-  // Days since last signup
   let daysSinceLastSignup: number | null = null
   if (users.length > 0) {
     const sorted = [...users].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
-    const mostRecent = sorted[0]
-    if (mostRecent) {
+    if (sorted[0]) {
       daysSinceLastSignup = Math.floor(
-        (now - new Date(mostRecent.created_at).getTime()) / 86_400_000,
+        (now - new Date(sorted[0].created_at).getTime()) / 86_400_000,
       )
     }
   }
@@ -133,26 +166,47 @@ export function parsePanel(raw: RawData): PanelData {
   }
 
   return {
-    totalUsers,
+    name: raw.project.name,
+    ref: raw.project.ref,
+    projectStatus: 'active',
+    totalUsers: raw.totalUsers,
     recentSignups,
     activeRecently,
-    providerBreakdown,
     signupsTrend,
     dauPct,
+    providerBreakdown,
     daysSinceLastSignup,
   }
 }
 
+export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  const allProjects = await fetchProjectsWithKeys(config.managementKey)
+  const results = await Promise.all(allProjects.map(fetchAuthForProject))
+  return { projects: results }
+}
+
+export function parsePanel(raw: RawData): PanelData {
+  const projects = (raw.projects ?? []).map(computeProjectStats)
+  const active = projects.filter((p) => p.projectStatus === 'active')
+
+  return {
+    projects,
+    summary: {
+      totalUsersAllProjects: active.reduce((s, p) => s + p.totalUsers, 0),
+      totalActiveRecently: active.reduce((s, p) => s + p.activeRecently, 0),
+      activeProjectCount: active.length,
+    },
+  }
+}
+
 export function getCacheKey(config: IntegrationConfig): string {
-  const hash = quickHash(config.apiKey + config.projectRef)
-    .toString(36)
-    .slice(0, 8)
+  const hash = quickHash(config.managementKey).toString(36).slice(0, 8)
   return `integration:${INTEGRATION_ID}:${hash}`
 }
 
 export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
-  if (raw.totalUsers == null) return 'error'
-  // 0 users with empty array = likely auth DB issue (fallback mode) or new project
-  if (raw.totalUsers === 0 && raw.users.length === 0) return 'warn'
+  const projects = raw.projects ?? []
+  if (projects.length === 0) return 'error'
+  if (projects.every((p) => p.projectStatus === 'inactive')) return 'warn'
   return 'ok'
 }

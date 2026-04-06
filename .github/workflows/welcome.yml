@@ -34,7 +34,7 @@ jobs:
               await github.rest.issues.createComment({
                 owner, repo,
                 issue_number: context.issue.number,
-                body: `Thanks for opening your first issue! 🎉\n\nA few helpful links:\n- **Self-hosting guide:** [docs/06-Development/SETUP.md](https://github.com/${owner}/${repo}/blob/main/docs/06-Development/SETUP.md)\n- **Environment variables:** [.env.example](https://github.com/${owner}/${repo}/blob/main/.env.example)\n- **Discussions:** [GitHub Discussions](https://github.com/${owner}/${repo}/discussions)\n\nWe'll take a look as soon as we can.`
+                body: `Thanks for opening your first issue! 🎉\n\nA few helpful links:\n- **Self-hosting guide:** [README.md#self-hosting](https://github.com/${owner}/${repo}/blob/master/README.md#self-hosting)\n- **Environment variables:** [.env.example](https://github.com/${owner}/${repo}/blob/master/.env.example)\n- **Discussions:** [GitHub Discussions](https://github.com/${owner}/${repo}/discussions)\n\nWe'll take a look as soon as we can.`
               });
             }
 

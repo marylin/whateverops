@@ -70,8 +70,27 @@ export function StatusPage() {
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {loading && !data && (
-          <div className="text-center py-20">
-            <p className="text-[#9090A0]">Loading status...</p>
+          <div className="animate-pulse">
+            <div className="mb-8 flex justify-center">
+              <div className="h-10 w-52 bg-[#161622] rounded-full" />
+            </div>
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#161622] border border-[#252535]"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#252535]" />
+                    <div className="h-4 w-28 bg-[#252535] rounded" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-3 w-16 bg-[#1E1E2E] rounded" />
+                    <div className="h-3 w-16 bg-[#1E1E2E] rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

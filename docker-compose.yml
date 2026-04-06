@@ -1,6 +1,6 @@
 # WhateverOPS — Docker Compose for self-hosting
 # Usage: docker compose up -d
-# Docs:  docs/06-Development/SETUP.md
+# Docs:  README.md#self-hosting
 
 services:
   whateverops:

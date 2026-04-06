@@ -29,6 +29,7 @@ const RESPONSE_TIME_CONFIG = {
 }
 
 export function SelfMonitoringPanel({ data }: { data: SelfMonitoringPanelData }) {
+  if (!data) return null
   const statusCfg = STATUS_CONFIG[data.status] ?? STATUS_CONFIG.error
   const rtCfg = RESPONSE_TIME_CONFIG[data.responseTimeStatus] ?? RESPONSE_TIME_CONFIG.normal
 

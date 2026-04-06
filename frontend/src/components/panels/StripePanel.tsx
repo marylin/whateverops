@@ -38,6 +38,7 @@ function formatCurrency(amount: number, currency: string): string {
 }
 
 export function StripePanel({ data }: { data: StripePanelData }) {
+  if (!data) return null
   const mrrTrend = data.mrrDelta30d > 0 ? 'up' : data.mrrDelta30d < 0 ? 'down' : 'neutral'
   const growthArrow = data.mrrGrowthPct > 0 ? '\u2191' : data.mrrGrowthPct < 0 ? '\u2193' : ''
   const growthColor =
