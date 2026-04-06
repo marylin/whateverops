@@ -143,6 +143,10 @@ WhateverOPS is built with automation for building in public — deploy changelog
 
 These automations run on a self-hosted [n8n](https://n8n.io) instance and are not included in the repository. See the [n8n docs](https://docs.n8n.io/hosting/) to set up your own instance.
 
+## Telemetry
+
+WhateverOPS sends an anonymous heartbeat every 24h to help the maintainer understand adoption. No user data is collected. See [TELEMETRY.md](TELEMETRY.md) for details.
+
 ## Development
 
 ```bash
