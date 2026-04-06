@@ -19,7 +19,7 @@ jobs:
       - name: Check PR status
         if: github.event_name == 'pull_request'
         run: |
-          sleep 120
+          sleep 120  # Wait 2 min for CI checks to start
           STATUS=$(gh pr checks ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --json state --jq '.[].state' 2>/dev/null | sort -u)
           if echo "$STATUS" | grep -q "FAILURE"; then
             echo "CI_FAILED=true" >> $GITHUB_ENV
@@ -39,6 +39,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log failure
+      - name: Log workflow failure
+        if: github.event_name == 'workflow_run'
+        run: |
+          echo "CI_FAILED=true" >> $GITHUB_ENV
+          echo "FAILURE_TYPE=workflow_failed" >> $GITHUB_ENV
+          echo "FAILED_WORKFLOW=${{ github.event.workflow_run.name }}" >> $GITHUB_ENV
+
+      - name: Log deployment failure
+        if: github.event_name == 'deployment_status'
+        run: |
+          echo "CI_FAILED=true" >> $GITHUB_ENV
+          echo "FAILURE_TYPE=deploy_failed" >> $GITHUB_ENV
+          echo "DEPLOY_ENV=${{ github.event.deployment_status.environment }}" >> $GITHUB_ENV
+
+      - name: Create failure marker
         if: env.CI_FAILED == 'true'
-        run: echo "FAILURE ${{ env.FAILURE_TYPE }} on ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        run: |
+          echo "FAILURE: ${{ env.FAILURE_TYPE }} on ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "This will be picked up by Paperclip PM/QA agents on next heartbeat."
+          # Future: POST to Paperclip API when authenticated endpoint is available
+          # curl -X POST http://100.65.114.59:3100/api/companies/COMPANY_ID/issues \
+          #   -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
+          #   -d "{\"title\":\"[CI] ${{ env.FAILURE_TYPE }} on PR #${{ github.event.pull_request.number }}\", ...}"
