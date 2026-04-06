@@ -141,9 +141,23 @@ export function SupabaseAuthPanel({ data }: { data: SupabaseAuthPanelData }) {
 
   const summary = data.summary
 
+  const allActive = pausedProjects.length === 0
+  const hasUsers = summary.totalUsersAllProjects > 0
+  const statusLabel = !allActive ? 'Degraded' : hasUsers ? 'Operational' : 'No Users'
+  const statusColor = !allActive ? 'bg-[#F59E0B]' : hasUsers ? 'bg-[#10B981]' : 'bg-[#606070]'
+  const statusTextColor = !allActive
+    ? 'text-[#F59E0B]'
+    : hasUsers
+      ? 'text-[#10B981]'
+      : 'text-[#606070]'
+
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`w-2.5 h-2.5 rounded-full ${statusColor}`} />
+          <span className={`text-sm font-bold ${statusTextColor}`}>{statusLabel}</span>
+        </div>
         <ExternalLink href="https://supabase.com/dashboard" className="text-xs text-[#606070]">
           View in Supabase
         </ExternalLink>

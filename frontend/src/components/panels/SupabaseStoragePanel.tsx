@@ -119,10 +119,23 @@ export function SupabaseStoragePanel({ data }: { data: SupabaseStoragePanelData 
   }
 
   const summary = data.summary
+  const allActive = pausedProjects.length === 0
+  const hasBuckets = summary.totalBuckets > 0
+  const statusLabel = !allActive ? 'Degraded' : hasBuckets ? 'Operational' : 'No Buckets'
+  const statusColor = !allActive ? 'bg-[#F59E0B]' : hasBuckets ? 'bg-[#10B981]' : 'bg-[#606070]'
+  const statusTextColor = !allActive
+    ? 'text-[#F59E0B]'
+    : hasBuckets
+      ? 'text-[#10B981]'
+      : 'text-[#606070]'
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`w-2.5 h-2.5 rounded-full ${statusColor}`} />
+          <span className={`text-sm font-bold ${statusTextColor}`}>{statusLabel}</span>
+        </div>
         <ExternalLink href="https://supabase.com/dashboard" className="text-xs text-[#606070]">
           View in Supabase
         </ExternalLink>
