@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { logger } from './logger.js'
 
-const HEARTBEAT_URL = 'https://dxruinyzdbwgxfucvygx.supabase.co/functions/v1/telemetry-heartbeat'
+const HEARTBEAT_URL = 'https://jgjzbgwmkiqcitszlodf.supabase.co/functions/v1/telemetry-heartbeat'
 const HEARTBEAT_INTERVAL_MS = 24 * 60 * 60 * 1000 // 24 hours
 const STARTUP_DELAY_MS = 60_000 // 60 seconds
 const INSTANCE_ID_FILE = resolve(process.cwd(), '..', '.whateverops-instance-id')
