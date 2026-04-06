@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'bun:test'
-import { computeGlobalHealth, withInstance } from '../../../backend/src/lib/integration-registry'
+import { computeGlobalHealth } from '../../../backend/src/lib/global-health'
+import { withInstance } from '../../../backend/src/lib/integration-registry'
 
 describe('computeGlobalHealth', () => {
   it('returns ok when all integrations are ok', () => {

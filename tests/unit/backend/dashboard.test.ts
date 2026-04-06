@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test'
-import { computeGlobalHealth } from '../../../backend/src/lib/integration-registry.js'
+import { computeGlobalHealth } from '../../../backend/src/lib/global-health'
 
 // The dashboard route calls buildConfiguredIntegrations() which depends on
 // live env vars and external modules. We test the response shape logic and
@@ -125,10 +125,7 @@ describe('dashboard route logic', () => {
     })
 
     it('returns error when all panels error', () => {
-      const panels = [
-        makePanelResult({ status: 'error' }),
-        makePanelResult({ status: 'error' }),
-      ]
+      const panels = [makePanelResult({ status: 'error' }), makePanelResult({ status: 'error' })]
       expect(computeGlobalHealth(panels)).toBe('error')
     })
 
