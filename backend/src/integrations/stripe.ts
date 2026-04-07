@@ -133,6 +133,161 @@ async function stripeGet(
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  // TODO: Remove mock data — temporary for card preview
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const now = Math.floor(Date.now() / 1000)
+    return {
+      subscriptions: [
+        {
+          id: 'sub_1',
+          status: 'active',
+          plan: { amount: 29900, interval: 'month', currency: 'usd' },
+          created: now - 90 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_2',
+          status: 'active',
+          plan: { amount: 29900, interval: 'month', currency: 'usd' },
+          created: now - 60 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_3',
+          status: 'active',
+          plan: { amount: 49900, interval: 'month', currency: 'usd' },
+          created: now - 45 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_4',
+          status: 'active',
+          plan: { amount: 29900, interval: 'month', currency: 'usd' },
+          created: now - 20 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_5',
+          status: 'active',
+          plan: { amount: 49900, interval: 'month', currency: 'usd' },
+          created: now - 5 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_6',
+          status: 'active',
+          plan: { amount: 29900, interval: 'month', currency: 'usd' },
+          created: now - 3 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_7',
+          status: 'active',
+          plan: { amount: 49900, interval: 'month', currency: 'usd' },
+          created: now - 2 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_8',
+          status: 'active',
+          plan: { amount: 29900, interval: 'month', currency: 'usd' },
+          created: now - 1 * 86400,
+          canceled_at: null,
+        },
+        {
+          id: 'sub_9',
+          status: 'active',
+          plan: { amount: 29900, interval: 'month', currency: 'usd' },
+          created: now - 80 * 86400,
+          canceled_at: null,
+        },
+      ],
+      recentCharges: [
+        {
+          id: 'ch_1',
+          amount: 29900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 86400,
+          description: 'Subscription renewal',
+        },
+        {
+          id: 'ch_2',
+          amount: 49900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 86400,
+          description: 'Subscription renewal',
+        },
+        {
+          id: 'ch_3',
+          amount: 29900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 2 * 86400,
+          description: 'Subscription renewal',
+        },
+        {
+          id: 'ch_4',
+          amount: 49900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 3 * 86400,
+          description: 'Subscription renewal',
+        },
+        {
+          id: 'ch_5',
+          amount: 29900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 4 * 86400,
+          description: 'New subscription',
+        },
+        {
+          id: 'ch_6',
+          amount: 29900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 5 * 86400,
+          description: 'Subscription renewal',
+        },
+        {
+          id: 'ch_7',
+          amount: 49900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 7 * 86400,
+          description: 'Subscription renewal',
+        },
+        {
+          id: 'ch_8',
+          amount: 29900,
+          currency: 'usd',
+          status: 'succeeded',
+          created: now - 10 * 86400,
+          description: 'New subscription',
+        },
+      ],
+      balance: 299200,
+      currency: 'usd',
+      refunds: [],
+      netRevenue: 299200,
+      customerCount: 23,
+      disputes: [],
+      openInvoices: [],
+      recentPayouts: [
+        {
+          id: 'po_1',
+          amount: 15600,
+          arrival_date: now + 2 * 86400,
+          status: 'in_transit',
+          currency: 'usd',
+          created: now - 86400,
+        },
+      ],
+    }
+  }
+
   const now = Math.floor(Date.now() / 1000)
   const thirtyDaysAgo = now - 30 * 86400
 

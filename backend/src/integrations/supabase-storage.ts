@@ -91,6 +91,87 @@ async function fetchStorageForProject(project: SupabaseProject): Promise<Project
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const d = (daysAgo: number) => new Date(Date.now() - daysAgo * 86400_000).toISOString()
+    const prodProject: SupabaseProject = {
+      ref: 'ref_prod',
+      name: 'prod-app',
+      status: 'ACTIVE_HEALTHY',
+      region: 'us-east-1',
+      dbVersion: '15.1.1.131',
+      serviceKey: 'mock-service-key-prod',
+    }
+    const stgProject: SupabaseProject = {
+      ref: 'ref_stg',
+      name: 'staging-app',
+      status: 'ACTIVE_HEALTHY',
+      region: 'us-east-1',
+      dbVersion: '15.1.1.131',
+      serviceKey: 'mock-service-key-stg',
+    }
+    const devProject: SupabaseProject = {
+      ref: 'ref_dev',
+      name: 'dev-sandbox',
+      status: 'ACTIVE_HEALTHY',
+      region: 'us-east-1',
+      dbVersion: '15.1.1.131',
+      serviceKey: 'mock-service-key-dev',
+    }
+    return {
+      projects: [
+        {
+          project: prodProject,
+          buckets: [
+            {
+              id: 'bkt_1',
+              name: 'avatars',
+              public: true,
+              file_size_limit: 2097152,
+              allowed_mime_types: ['image/jpeg', 'image/png', 'image/webp'],
+              created_at: d(60),
+            },
+            {
+              id: 'bkt_2',
+              name: 'documents',
+              public: false,
+              file_size_limit: 10485760,
+              allowed_mime_types: null,
+              created_at: d(45),
+            },
+            {
+              id: 'bkt_3',
+              name: 'exports',
+              public: false,
+              file_size_limit: null,
+              allowed_mime_types: null,
+              created_at: d(14),
+            },
+          ],
+          projectStatus: 'active',
+        },
+        {
+          project: stgProject,
+          buckets: [
+            {
+              id: 'bkt_4',
+              name: 'test-uploads',
+              public: true,
+              file_size_limit: null,
+              allowed_mime_types: null,
+              created_at: d(30),
+            },
+          ],
+          projectStatus: 'active',
+        },
+        {
+          project: devProject,
+          buckets: [],
+          projectStatus: 'active',
+        },
+      ],
+    }
+  }
+
   const allProjects = await fetchProjectsWithKeys(config.managementKey)
   const results = await Promise.all(allProjects.map(fetchStorageForProject))
   return { projects: results }

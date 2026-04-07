@@ -15,6 +15,7 @@ import * as supabaseStorage from '../integrations/supabase-storage.js'
 import * as neon from '../integrations/neon.js'
 import * as sentry from '../integrations/sentry.js'
 import * as stripe from '../integrations/stripe.js'
+import * as blotato from '../integrations/blotato.js'
 import * as selfMonitoring from '../integrations/self-monitoring.js'
 
 export function envOrSkip(key: string): string | null {
@@ -273,6 +274,12 @@ export function buildConfiguredIntegrations(): Promise<IntegrationResult>[] {
         }),
       )
     }
+  }
+
+  // Blotato — social media scheduling
+  const blotatoKey = envOrSkip('BLOTATO_API_KEY')
+  if (blotatoKey) {
+    integrations.push(runIntegration(blotato, { apiKey: blotatoKey }))
   }
 
   // Self-monitoring — always enabled, polls own /health

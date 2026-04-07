@@ -65,7 +65,7 @@ export function getHealthStatus(raw: RawData): 'ok' | 'warn' | 'error' {
 
 ### Required Files Checklist
 
-- [ ] `backend/src/integrations/your-service.ts` — exports all 7 contract items
+- [ ] `backend/src/integrations/your-service.ts` — exports required contract items (ID, name, TTL, config schema, fetchData, parsePanel, getCacheKey, getHealthStatus)
 - [ ] `tests/unit/backend/integrations/your-service.test.ts` — 6+ tests
 - [ ] `tests/fixtures/mock-responses/your-service.json` — ok, error, empty fixtures
 - [ ] `.env.example` updated with new env vars

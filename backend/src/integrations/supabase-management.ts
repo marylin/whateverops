@@ -125,6 +125,82 @@ async function fetchHealth(
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const healthChecks = [
+      { name: 'auth', status: 'ACTIVE_HEALTHY' },
+      { name: 'realtime', status: 'ACTIVE_HEALTHY' },
+      { name: 'rest', status: 'ACTIVE_HEALTHY' },
+      { name: 'storage', status: 'ACTIVE_HEALTHY' },
+    ]
+    return {
+      projects: [
+        {
+          project: {
+            ref: 'ref_prod',
+            name: 'prod-app',
+            status: 'ACTIVE_HEALTHY',
+            region: 'us-east-1',
+            dbVersion: '15.1.1.131',
+            serviceKey: 'mock-service-key-prod',
+          },
+          health: healthChecks,
+          readOnly: false,
+          advisors: {
+            performance: [
+              {
+                name: 'Missing index on foreign key',
+                description: 'Table orders.user_id has no index',
+              },
+              {
+                name: 'Sequential scan on large table',
+                description: 'Consider adding index to events.created_at',
+              },
+            ],
+            security: [
+              {
+                name: 'RLS not enabled on table',
+                description: 'Table user_sessions has no Row Level Security policy',
+              },
+            ],
+          },
+          edgeFunctions: [
+            { name: 'send-email', status: 'ACTIVE' },
+            { name: 'process-webhook', status: 'ACTIVE' },
+            { name: 'resize-image', status: 'ACTIVE' },
+          ],
+        },
+        {
+          project: {
+            ref: 'ref_stg',
+            name: 'staging-app',
+            status: 'ACTIVE_HEALTHY',
+            region: 'us-east-1',
+            dbVersion: '15.1.1.131',
+            serviceKey: 'mock-service-key-stg',
+          },
+          health: healthChecks,
+          readOnly: false,
+          advisors: { performance: [], security: [] },
+          edgeFunctions: [],
+        },
+        {
+          project: {
+            ref: 'ref_dev',
+            name: 'dev-sandbox',
+            status: 'ACTIVE_HEALTHY',
+            region: 'us-east-1',
+            dbVersion: '15.1.1.131',
+            serviceKey: 'mock-service-key-dev',
+          },
+          health: healthChecks,
+          readOnly: false,
+          advisors: { performance: [], security: [] },
+          edgeFunctions: [],
+        },
+      ],
+    }
+  }
+
   const projects = await fetchProjectsWithKeys(config.managementKey)
 
   const enriched = await Promise.all(

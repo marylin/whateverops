@@ -74,6 +74,34 @@ export interface PanelData {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  // TODO: Remove mock data — temporary for card preview
+  if (process.env.MOCK_PREVIEW === 'true') {
+    return {
+      models: ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'o3', 'o4-mini', 'dall-e-3'],
+      keyValid: true,
+      rateLimits: {
+        tokensRemaining: 450000,
+        tokensLimit: 500000,
+        requestsRemaining: 9500,
+        requestsLimit: 10000,
+        resetTokens: null,
+        resetRequests: null,
+      },
+      usage: {
+        totalCost30d: 84.21,
+        dailyCosts: Array.from({ length: 30 }, (_, i) => ({
+          date: new Date(Date.now() - (29 - i) * 86400_000).toISOString().split('T')[0]!,
+          costUsd: 1.5 + Math.random() * 4,
+        })),
+        modelUsage: [
+          { model: 'gpt-4.1', inputTokens: 2400000, outputTokens: 800000 },
+          { model: 'gpt-4.1-mini', inputTokens: 5000000, outputTokens: 1500000 },
+          { model: 'dall-e-3', inputTokens: 0, outputTokens: 0 },
+        ],
+      },
+    }
+  }
+
   const headers: Record<string, string> = {
     Authorization: `Bearer ${config.apiKey}`,
   }

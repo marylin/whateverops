@@ -43,6 +43,15 @@ function formatUptime(seconds: number): string {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    return {
+      status: 'ok',
+      uptime: 432000,
+      timestamp: new Date().toISOString(),
+      responseTimeMs: 12,
+    }
+  }
+
   const start = Date.now()
   const res = await fetch(config.healthUrl, {
     signal: AbortSignal.timeout(10_000),
