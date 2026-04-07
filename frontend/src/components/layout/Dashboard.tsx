@@ -20,6 +20,7 @@ import { SupabaseMgmtPanel } from '../panels/SupabaseMgmtPanel'
 import { SupabaseAuthPanel } from '../panels/SupabaseAuthPanel'
 import { SupabaseStoragePanel } from '../panels/SupabaseStoragePanel'
 import { SelfMonitoringPanel } from '../panels/SelfMonitoringPanel'
+import { BlotatoPanel } from '../panels/BlotatoPanel'
 import { DailyDigest, DailyDigestSkeleton } from './DailyDigest'
 import type { IntegrationResult } from '../../lib/api'
 
@@ -30,6 +31,7 @@ const WIDE_PANELS = new Set([
   'sentry',
   'supabase-management',
   'supabase-storage',
+  'blotato',
 ])
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -50,6 +52,7 @@ const PANEL_MAP: Record<string, React.ComponentType<{ data: any }>> = {
   'supabase-auth': SupabaseAuthPanel,
   'supabase-storage': SupabaseStoragePanel,
   'self-monitoring': SelfMonitoringPanel,
+  blotato: BlotatoPanel,
 }
 
 function renderPanelContent(panel: IntegrationResult) {
@@ -128,7 +131,7 @@ const FOUNDER_GROUPS: Array<{
     id: 'attention',
     label: 'Attention',
     question: 'What needs my attention today?',
-    integrations: ['linear', 'github', 'resend'],
+    integrations: ['linear', 'github', 'resend', 'blotato'],
   },
 ]
 

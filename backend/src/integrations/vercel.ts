@@ -106,6 +106,88 @@ export interface PanelData {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const now = Date.now()
+    const d = (minutesAgo: number) => now - minutesAgo * 60_000
+    const buildReady = (startMs: number) => startMs + 95_000
+    const deploy1: RawDeployment = {
+      uid: 'dpl_1',
+      name: 'dashboard-app',
+      state: 'READY',
+      created: d(30),
+      buildingAt: d(32),
+      ready: buildReady(d(32)),
+      url: 'dashboard-app-abc123.vercel.app',
+      target: 'production',
+      meta: { githubCommitMessage: 'feat: add analytics panel' },
+    }
+    const deploy2: RawDeployment = {
+      uid: 'dpl_2',
+      name: 'marketing-site',
+      state: 'READY',
+      created: d(120),
+      buildingAt: d(122),
+      ready: buildReady(d(122)),
+      url: 'marketing-site-xyz456.vercel.app',
+      target: 'production',
+      meta: { githubCommitMessage: 'fix: update hero copy' },
+    }
+    const deploy3: RawDeployment = {
+      uid: 'dpl_3',
+      name: 'api-gateway',
+      state: 'BUILDING',
+      created: d(5),
+      buildingAt: d(5),
+      ready: undefined,
+      url: null,
+      target: 'production',
+      meta: { githubCommitMessage: 'chore: bump node version' },
+    }
+    return {
+      deployments: [deploy3, deploy1, deploy2],
+      projects: [
+        {
+          id: 'prj_1',
+          name: 'dashboard-app',
+          framework: 'nextjs',
+          latestUrl: 'https://app.acme.dev',
+        },
+        {
+          id: 'prj_2',
+          name: 'marketing-site',
+          framework: 'nextjs',
+          latestUrl: 'https://www.acme.dev',
+        },
+        { id: 'prj_3', name: 'api-gateway', framework: null, latestUrl: null },
+      ],
+      projectDeployments: {
+        prj_1: deploy1,
+        prj_2: deploy2,
+        prj_3: deploy3,
+      },
+      domains: [
+        {
+          name: 'app.acme.dev',
+          projectId: 'prj_1',
+          projectName: 'dashboard-app',
+          configured: true,
+          verified: true,
+          sslReady: true,
+          misconfigured: false,
+        },
+        {
+          name: 'www.acme.dev',
+          projectId: 'prj_2',
+          projectName: 'marketing-site',
+          configured: true,
+          verified: true,
+          sslReady: true,
+          misconfigured: false,
+        },
+      ],
+    }
+  }
+
   const headers = { Authorization: `Bearer ${config.apiKey}` }
   const base = 'https://api.vercel.com'
 

@@ -198,6 +198,88 @@ function computeProjectStats(raw: ProjectAuthRaw): ProjectAuthPanel {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const now = new Date()
+    const d = (daysAgo: number) => new Date(now.getTime() - daysAgo * 86400_000).toISOString()
+    const prodProject: SupabaseProject = {
+      ref: 'ref_prod',
+      name: 'prod-app',
+      status: 'ACTIVE_HEALTHY',
+      region: 'us-east-1',
+      dbVersion: '15.1.1.131',
+      serviceKey: 'mock-service-key-prod',
+    }
+    const stgProject: SupabaseProject = {
+      ref: 'ref_stg',
+      name: 'staging-app',
+      status: 'ACTIVE_HEALTHY',
+      region: 'us-east-1',
+      dbVersion: '15.1.1.131',
+      serviceKey: 'mock-service-key-stg',
+    }
+    const devProject: SupabaseProject = {
+      ref: 'ref_dev',
+      name: 'dev-sandbox',
+      status: 'ACTIVE_HEALTHY',
+      region: 'us-east-1',
+      dbVersion: '15.1.1.131',
+      serviceKey: 'mock-service-key-dev',
+    }
+    // Build 1,247 total users with a sample of 50 for trend analysis
+    const prodUsers: UserRecord[] = Array.from({ length: 23 }, (_, i) => ({
+      id: `user_${i + 1}`,
+      created_at: d(i % 7),
+      last_sign_in_at: i < 12 ? d(0) : d(3),
+      email: `user${i + 1}@example.com`,
+      app_metadata: { providers: i % 3 === 0 ? ['google'] : ['email'] },
+    }))
+    return {
+      projects: [
+        { project: prodProject, totalUsers: 1247, users: prodUsers, projectStatus: 'active' },
+        {
+          project: stgProject,
+          totalUsers: 45,
+          users: Array.from({ length: 45 }, (_, i) => ({
+            id: `stg_user_${i + 1}`,
+            created_at: d(i * 2),
+            last_sign_in_at: i < 5 ? d(1) : null,
+            email: `stg${i + 1}@example.com`,
+            app_metadata: { providers: ['email'] },
+          })),
+          projectStatus: 'active',
+        },
+        {
+          project: devProject,
+          totalUsers: 3,
+          users: [
+            {
+              id: 'dev_user_1',
+              created_at: d(10),
+              last_sign_in_at: d(1),
+              email: 'dev1@example.com',
+              app_metadata: { providers: ['email'] },
+            },
+            {
+              id: 'dev_user_2',
+              created_at: d(20),
+              last_sign_in_at: d(5),
+              email: 'dev2@example.com',
+              app_metadata: { providers: ['email'] },
+            },
+            {
+              id: 'dev_user_3',
+              created_at: d(30),
+              last_sign_in_at: null,
+              email: 'dev3@example.com',
+              app_metadata: { providers: ['email'] },
+            },
+          ],
+          projectStatus: 'active',
+        },
+      ],
+    }
+  }
+
   const allProjects = await fetchProjectsWithKeys(config.managementKey)
   const results = await Promise.all(allProjects.map(fetchAuthForProject))
   return { projects: results }

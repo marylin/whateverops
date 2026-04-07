@@ -78,6 +78,52 @@ export interface PanelData {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  // TODO: Remove mock data — temporary for card preview
+  if (process.env.MOCK_PREVIEW === 'true') {
+    return {
+      keyValid: true,
+      models: ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-4-5-20251001'],
+      rateLimits: {
+        tokensRemaining: 850000,
+        tokensLimit: 1000000,
+        tokensReset: null,
+        requestsRemaining: 3800,
+        requestsLimit: 4000,
+        requestsReset: null,
+      },
+      usage: {
+        totalCost30d: 127.43,
+        dailyCosts: Array.from({ length: 30 }, (_, i) => ({
+          date: new Date(Date.now() - (29 - i) * 86400_000).toISOString().split('T')[0]!,
+          costUsd: 2.0 + Math.random() * 6,
+        })),
+        modelUsage: [
+          {
+            model: 'claude-sonnet-4-6',
+            inputTokens: 4200000,
+            outputTokens: 1800000,
+            cachedInputTokens: 500000,
+            cacheCreationTokens: 100000,
+          },
+          {
+            model: 'claude-opus-4-6',
+            inputTokens: 800000,
+            outputTokens: 400000,
+            cachedInputTokens: 200000,
+            cacheCreationTokens: 50000,
+          },
+          {
+            model: 'claude-haiku-4-5-20251001',
+            inputTokens: 12000000,
+            outputTokens: 3000000,
+            cachedInputTokens: 2000000,
+            cacheCreationTokens: 300000,
+          },
+        ],
+      },
+    }
+  }
+
   // Validate key by listing models
   const res = await fetch('https://api.anthropic.com/v1/models', {
     headers: {
