@@ -14,6 +14,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT" /></a>
   <a href="https://github.com/marylin/whateverops/stargazers"><img src="https://img.shields.io/github/stars/marylin/whateverops?style=flat-square" alt="Stars" /></a>
   <a href="https://github.com/marylin/whateverops/issues"><img src="https://img.shields.io/github/issues/marylin/whateverops?style=flat-square" alt="Issues" /></a>
+  <a href="https://github.com/marylin/whateverops/commits"><img src="https://img.shields.io/github/last-commit/marylin/whateverops?style=flat-square" alt="Last Commit" /></a>
+  <img src="https://img.shields.io/badge/TypeScript-strict-blue?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <a href="https://github.com/marylin/whateverops/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome" /></a>
 </p>
 
 <p align="center">
