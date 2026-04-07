@@ -36,6 +36,14 @@ interface ApiScheduleItem {
   } | null
 }
 
+interface ApiSlot {
+  id: string
+  hour: number
+  minute: number
+  day: string
+  selectedTargets: Array<{ platform: string; accountId: string }>
+}
+
 export interface RawData {
   subscriptionStatus: string | null
   accounts: ApiAccount[]
@@ -43,6 +51,7 @@ export interface RawData {
     items: ApiScheduleItem[]
     count: number
   }
+  slots: ApiSlot[]
 }
 
 export interface PanelData {
@@ -56,6 +65,8 @@ export interface PanelData {
     text: string
     scheduledAt: string
   }>
+  slotsByDay: Record<string, number>
+  totalSlots: number
 }
 
 const BASE_URL = 'https://backend.blotato.com/v2'
@@ -68,10 +79,11 @@ async function blotatoFetch(path: string, apiKey: string): Promise<Response> {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
-  const [userRes, accountsRes, schedulesRes] = await Promise.all([
+  const [userRes, accountsRes, schedulesRes, slotsRes] = await Promise.all([
     blotatoFetch('/users/me', config.apiKey),
     blotatoFetch('/users/me/accounts', config.apiKey),
     blotatoFetch('/schedules?limit=10', config.apiKey),
+    blotatoFetch('/schedule/slots', config.apiKey),
   ])
 
   if (!userRes.ok) {
@@ -97,6 +109,8 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       })
     : { items: [], count: 0 }
 
+  const slots: ApiSlot[] = slotsRes.ok ? (((await slotsRes.json()) as ApiSlot[]) ?? []) : []
+
   return {
     subscriptionStatus: user.subscriptionStatus ?? null,
     accounts,
@@ -104,6 +118,7 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
       items: schedulesBody.items ?? [],
       count: Number(schedulesBody.count) || 0,
     },
+    slots: Array.isArray(slots) ? slots : [],
   }
 }
 
@@ -122,12 +137,19 @@ export function parsePanel(raw: RawData): PanelData {
     scheduledAt: item.scheduledAt ?? '',
   }))
 
+  const slotsByDay: Record<string, number> = {}
+  for (const slot of raw.slots ?? []) {
+    slotsByDay[slot.day] = (slotsByDay[slot.day] ?? 0) + 1
+  }
+
   return {
     subscriptionStatus: raw.subscriptionStatus ?? null,
     connectedAccounts,
     platformCount: platforms.size,
     queuedCount: raw.schedules?.count ?? 0,
     nextPosts,
+    slotsByDay,
+    totalSlots: (raw.slots ?? []).length,
   }
 }
 

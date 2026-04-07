@@ -32,18 +32,50 @@
         }
       ],
       "count": 8
-    }
+    },
+    "slots": [
+      {
+        "id": "slot-1",
+        "hour": 9,
+        "minute": 0,
+        "day": "monday",
+        "selectedTargets": [{ "platform": "twitter", "accountId": "acc-1" }]
+      },
+      {
+        "id": "slot-2",
+        "hour": 14,
+        "minute": 0,
+        "day": "monday",
+        "selectedTargets": [{ "platform": "linkedin", "accountId": "acc-2" }]
+      },
+      {
+        "id": "slot-3",
+        "hour": 9,
+        "minute": 0,
+        "day": "wednesday",
+        "selectedTargets": [{ "platform": "twitter", "accountId": "acc-1" }]
+      },
+      {
+        "id": "slot-4",
+        "hour": 9,
+        "minute": 0,
+        "day": "friday",
+        "selectedTargets": [{ "platform": "instagram", "accountId": "acc-3" }]
+      }
+    ]
   },
   "error": {
     "subscriptionStatus": null,
     "accounts": [],
-    "schedules": { "items": [], "count": 0 }
+    "schedules": { "items": [], "count": 0 },
+    "slots": []
   },
   "empty": {
     "subscriptionStatus": "active",
     "accounts": [
       { "id": "acc-1", "platform": "twitter", "fullname": "Test User", "username": "testuser" }
     ],
-    "schedules": { "items": [], "count": 0 }
+    "schedules": { "items": [], "count": 0 },
+    "slots": []
   }
 }

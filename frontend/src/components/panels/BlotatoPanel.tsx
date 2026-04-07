@@ -12,6 +12,8 @@ interface BlotatoPanelData {
     text: string
     scheduledAt: string
   }>
+  slotsByDay: Record<string, number>
+  totalSlots: number
 }
 
 function formatScheduledTime(iso: string): string {
@@ -82,6 +84,30 @@ export function BlotatoPanel({ data }: { data: BlotatoPanelData }) {
             {uniquePlatforms.map((p) => platformLabel(p)).join(', ')} — {data.platformCount}{' '}
             connected
           </div>
+
+          {/* Weekly schedule slots */}
+          {data.totalSlots > 0 && (
+            <div className="flex items-center gap-1">
+              {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(
+                (day) => {
+                  const count = data.slotsByDay[day] ?? 0
+                  return (
+                    <div key={day} className="flex flex-col items-center gap-1 flex-1">
+                      <span className="text-[8px] text-[#606070] uppercase">{day.slice(0, 2)}</span>
+                      <div
+                        className={`w-full h-1.5 rounded-full ${
+                          count > 0 ? 'bg-[#0EA5E9]' : 'bg-[#1E1E2E]'
+                        }`}
+                        title={`${day}: ${count} slot${count !== 1 ? 's' : ''}`}
+                      />
+                      {count > 0 && <span className="text-[8px] text-[#9090A0]">{count}</span>}
+                    </div>
+                  )
+                },
+              )}
+              <span className="text-[10px] text-[#606070] ml-2">{data.totalSlots} slots/wk</span>
+            </div>
+          )}
 
           {hasQueue ? (
             <div className="space-y-2">

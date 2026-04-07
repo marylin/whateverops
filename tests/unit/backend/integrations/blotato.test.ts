@@ -20,6 +20,10 @@ describe('blotato integration', () => {
     expect(panel.nextPosts).toHaveLength(2)
     expect(panel.nextPosts[0].platform).toBe('twitter')
     expect(panel.nextPosts[0].text.length).toBeLessThanOrEqual(80)
+    expect(panel.totalSlots).toBe(4)
+    expect(panel.slotsByDay['monday']).toBe(2)
+    expect(panel.slotsByDay['wednesday']).toBe(1)
+    expect(panel.slotsByDay['friday']).toBe(1)
   })
 
   it('parsePanel() handles empty queue', () => {
