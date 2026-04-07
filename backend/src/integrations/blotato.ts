@@ -111,6 +111,154 @@ export async function fetchData(config: IntegrationConfig): Promise<RawData> {
 
   const slots: ApiSlot[] = slotsRes.ok ? (((await slotsRes.json()) as ApiSlot[]) ?? []) : []
 
+  // TODO: Remove mock data — temporary for card preview while Blotato account is empty
+  if (process.env.MOCK_PREVIEW === 'true') {
+    return {
+      subscriptionStatus: user.subscriptionStatus ?? 'active',
+      accounts:
+        accounts.length > 0
+          ? accounts
+          : [
+              {
+                id: 'mock-1',
+                platform: 'twitter',
+                fullname: 'Alex Founder',
+                username: 'alexfounder',
+              },
+              {
+                id: 'mock-2',
+                platform: 'threads',
+                fullname: 'Alex Founder',
+                username: 'alexfounder.dev',
+              },
+              {
+                id: 'mock-3',
+                platform: 'linkedin',
+                fullname: 'Alex Founder',
+                username: 'alex-founder',
+              },
+            ],
+      schedules: {
+        items: [
+          {
+            id: 'mock-s1',
+            scheduledAt: new Date(Date.now() + 2 * 3600_000).toISOString(),
+            account: { name: 'Alex Founder', username: 'alexfounder', platform: 'twitter' },
+            draft: {
+              content: {
+                text: 'Just shipped a new feature — 16 integrations in one ops dashboard',
+                platform: 'twitter',
+              },
+            },
+          },
+          {
+            id: 'mock-s2',
+            scheduledAt: new Date(Date.now() + 5 * 3600_000).toISOString(),
+            account: { name: 'Alex Founder', username: 'alexfounder.dev', platform: 'threads' },
+            draft: {
+              content: {
+                text: 'Building in public update: Supabase cards redesign is live',
+                platform: 'threads',
+              },
+            },
+          },
+          {
+            id: 'mock-s3',
+            scheduledAt: new Date(Date.now() + 24 * 3600_000).toISOString(),
+            account: { name: 'Alex Founder', username: 'alex-founder', platform: 'linkedin' },
+            draft: {
+              content: {
+                text: 'How I built a unified ops dashboard as a solo founder — lessons from 6 months of shipping',
+                platform: 'linkedin',
+              },
+            },
+          },
+          {
+            id: 'mock-s4',
+            scheduledAt: new Date(Date.now() + 48 * 3600_000).toISOString(),
+            account: { name: 'Alex Founder', username: 'alexfounder', platform: 'twitter' },
+            draft: {
+              content: {
+                text: 'Telemetry is live — anonymous heartbeats to understand adoption without tracking users',
+                platform: 'twitter',
+              },
+            },
+          },
+          {
+            id: 'mock-s5',
+            scheduledAt: new Date(Date.now() + 72 * 3600_000).toISOString(),
+            account: { name: 'Alex Founder', username: 'alexfounder.dev', platform: 'threads' },
+            draft: {
+              content: {
+                text: 'New integration dropped: social media queue right on your ops dashboard',
+                platform: 'threads',
+              },
+            },
+          },
+        ],
+        count: 12,
+      },
+      slots: [
+        {
+          id: 'mock-sl1',
+          hour: 9,
+          minute: 0,
+          day: 'monday',
+          selectedTargets: [{ platform: 'twitter', accountId: 'mock-1' }],
+        },
+        {
+          id: 'mock-sl2',
+          hour: 14,
+          minute: 0,
+          day: 'monday',
+          selectedTargets: [{ platform: 'linkedin', accountId: 'mock-3' }],
+        },
+        {
+          id: 'mock-sl3',
+          hour: 9,
+          minute: 0,
+          day: 'tuesday',
+          selectedTargets: [{ platform: 'threads', accountId: 'mock-2' }],
+        },
+        {
+          id: 'mock-sl4',
+          hour: 9,
+          minute: 0,
+          day: 'wednesday',
+          selectedTargets: [{ platform: 'twitter', accountId: 'mock-1' }],
+        },
+        {
+          id: 'mock-sl5',
+          hour: 14,
+          minute: 0,
+          day: 'wednesday',
+          selectedTargets: [{ platform: 'threads', accountId: 'mock-2' }],
+        },
+        {
+          id: 'mock-sl6',
+          hour: 9,
+          minute: 0,
+          day: 'thursday',
+          selectedTargets: [{ platform: 'linkedin', accountId: 'mock-3' }],
+        },
+        {
+          id: 'mock-sl7',
+          hour: 9,
+          minute: 0,
+          day: 'friday',
+          selectedTargets: [{ platform: 'twitter', accountId: 'mock-1' }],
+        },
+        {
+          id: 'mock-sl8',
+          hour: 14,
+          minute: 0,
+          day: 'friday',
+          selectedTargets: [{ platform: 'threads', accountId: 'mock-2' }],
+        },
+      ],
+    }
+  }
+
   return {
     subscriptionStatus: user.subscriptionStatus ?? null,
     accounts,

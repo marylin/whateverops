@@ -72,6 +72,130 @@ export interface PanelData {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  // TODO: Remove mock data — temporary for card preview
+  if (process.env.MOCK_PREVIEW === 'true') {
+    // Use explicit dates anchored to local today/yesterday to match frontend's midnight cutoff
+    const todayNoon = new Date()
+    todayNoon.setHours(12, 0, 0, 0)
+    const yesterdayNoon = new Date(todayNoon)
+    yesterdayNoon.setDate(yesterdayNoon.getDate() - 1)
+    const twoDaysAgo = new Date(todayNoon)
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+
+    return {
+      domains: [
+        {
+          id: 'd1',
+          name: 'mail.acme.dev',
+          status: 'verified',
+          created_at: new Date(Date.now() - 30 * 86400_000).toISOString(),
+        },
+        {
+          id: 'd2',
+          name: 'updates.acme.dev',
+          status: 'verified',
+          created_at: new Date(Date.now() - 20 * 86400_000).toISOString(),
+        },
+      ],
+      apiKeys: [
+        { id: 'k1', name: 'Production' },
+        { id: 'k2', name: 'Development' },
+      ],
+      recentEmails: [
+        // 7 emails today
+        {
+          id: 'e1',
+          to: ['user@example.com'],
+          from: 'hi@mail.acme.dev',
+          subject: 'Welcome to the app',
+          status: 'delivered',
+          created_at: new Date(todayNoon.getTime() - 1800_000).toISOString(),
+        },
+        {
+          id: 'e2',
+          to: ['dev@company.io'],
+          from: 'updates@updates.acme.dev',
+          subject: 'Your weekly digest',
+          status: 'delivered',
+          created_at: new Date(todayNoon.getTime() - 3600_000).toISOString(),
+        },
+        {
+          id: 'e3',
+          to: ['founder@startup.co'],
+          from: 'updates@updates.acme.dev',
+          subject: 'New feature: storage integration',
+          status: 'delivered',
+          created_at: new Date(todayNoon.getTime() - 5400_000).toISOString(),
+        },
+        {
+          id: 'e4',
+          to: ['sarah@corp.io'],
+          from: 'hi@mail.acme.dev',
+          subject: 'Your trial is ending soon',
+          status: 'delivered',
+          created_at: new Date(todayNoon.getTime() - 7200_000).toISOString(),
+        },
+        {
+          id: 'e5',
+          to: ['mike@devshop.io'],
+          from: 'hi@mail.acme.dev',
+          subject: 'Invoice #1042 - $299.00',
+          status: 'delivered',
+          created_at: new Date(todayNoon.getTime() - 9000_000).toISOString(),
+        },
+        {
+          id: 'e6',
+          to: ['team@bigcorp.com'],
+          from: 'updates@updates.acme.dev',
+          subject: 'Dashboard redesign is live',
+          status: 'delivered',
+          created_at: new Date(todayNoon.getTime() - 10800_000).toISOString(),
+        },
+        {
+          id: 'e7',
+          to: ['alex@freelance.dev'],
+          from: 'hi@mail.acme.dev',
+          subject: 'Welcome to the app',
+          status: 'delivered',
+          created_at: new Date(todayNoon.getTime() - 12600_000).toISOString(),
+        },
+        // 4 emails yesterday
+        {
+          id: 'e8',
+          to: ['chris@devtools.com'],
+          from: 'hi@mail.acme.dev',
+          subject: 'Password reset',
+          status: 'delivered',
+          created_at: new Date(yesterdayNoon.getTime()).toISOString(),
+        },
+        {
+          id: 'e9',
+          to: ['beta@tester.dev'],
+          from: 'updates@updates.acme.dev',
+          subject: 'Beta access granted',
+          status: 'delivered',
+          created_at: new Date(yesterdayNoon.getTime() - 3600_000).toISOString(),
+        },
+        {
+          id: 'e10',
+          to: ['jen@startup.co'],
+          from: 'updates@updates.acme.dev',
+          subject: 'Q1 changelog',
+          status: 'delivered',
+          created_at: new Date(yesterdayNoon.getTime() - 7200_000).toISOString(),
+        },
+        {
+          id: 'e11',
+          to: ['luke@indie.dev'],
+          from: 'hi@mail.acme.dev',
+          subject: 'Your API key is ready',
+          status: 'delivered',
+          created_at: new Date(yesterdayNoon.getTime() - 10800_000).toISOString(),
+        },
+      ],
+    }
+  }
+
   const headers = { Authorization: `Bearer ${config.apiKey}` }
   const base = 'https://api.resend.com'
 

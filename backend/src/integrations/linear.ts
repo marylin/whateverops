@@ -91,6 +91,61 @@ async function gql(apiKey: string, query: string, variables: Record<string, unkn
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const cycleEnd = new Date(Date.now() + 7 * 86400_000).toISOString()
+    const cycleStart = new Date(Date.now() - 7 * 86400_000).toISOString()
+    return {
+      teamName: 'Engineering',
+      teamKey: 'ENG',
+      totalIssues: 42,
+      openCount: 2,
+      inProgressIssues: [
+        {
+          identifier: 'ENG-101',
+          title: 'Implement OAuth flow',
+          priority: 1,
+          priorityLabel: 'Urgent',
+          stateName: 'In Progress',
+          labels: ['feature'],
+          projectName: 'Auth v2',
+          url: 'https://linear.app/acme/issue/ENG-101',
+        },
+        {
+          identifier: 'ENG-98',
+          title: 'Fix rate limiter memory leak',
+          priority: 2,
+          priorityLabel: 'High',
+          stateName: 'In Progress',
+          labels: ['bug'],
+          projectName: null,
+          url: 'https://linear.app/acme/issue/ENG-98',
+        },
+        {
+          identifier: 'ENG-95',
+          title: 'Add Stripe webhook handler',
+          priority: 2,
+          priorityLabel: 'High',
+          stateName: 'In Review',
+          labels: ['feature'],
+          projectName: 'Billing',
+          url: 'https://linear.app/acme/issue/ENG-95',
+        },
+      ],
+      priorityBreakdown: { Urgent: 1, High: 2 },
+      labelBreakdown: { feature: 2, bug: 1 },
+      projects: [
+        { name: 'Auth v2', state: 'started', progress: 65 },
+        { name: 'Billing', state: 'started', progress: 40 },
+      ],
+      activeCycleName: 'Sprint 14',
+      activeCycleProgress: 60,
+      cycleStartsAt: cycleStart,
+      cycleEndsAt: cycleEnd,
+      completedThisCycle: 5,
+      cycleTotalIssues: 10,
+    }
+  }
+
   // Auto-detect team if not specified
   let teamId = config.teamId
   if (!teamId) {

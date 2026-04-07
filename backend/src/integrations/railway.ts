@@ -96,6 +96,77 @@ async function gql(apiKey: string, query: string, variables: Record<string, unkn
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const d = (daysAgo: number) => new Date(Date.now() - daysAgo * 86400_000).toISOString()
+    return {
+      projects: [
+        {
+          id: 'proj_1',
+          name: 'Production',
+          services: [
+            { id: 'svc_1', name: 'api-server' },
+            { id: 'svc_2', name: 'worker' },
+            { id: 'svc_3', name: 'redis' },
+          ],
+          environments: [{ id: 'env_1', name: 'production' }],
+        },
+        {
+          id: 'proj_2',
+          name: 'Staging',
+          services: [{ id: 'svc_4', name: 'api-server' }],
+          environments: [{ id: 'env_2', name: 'staging' }],
+        },
+      ],
+      deployments: [
+        { id: 'dpl_1', status: 'SUCCESS', createdAt: d(0), serviceName: 'api-server' },
+        { id: 'dpl_2', status: 'SUCCESS', createdAt: d(1), serviceName: 'worker' },
+        { id: 'dpl_3', status: 'SUCCESS', createdAt: d(2), serviceName: 'redis' },
+      ],
+      serviceInstances: [
+        {
+          serviceId: 'svc_1',
+          serviceName: 'api-server',
+          projectName: 'Production',
+          latestDeployStatus: 'SUCCESS',
+          healthcheckPath: '/health',
+          numReplicas: 2,
+          restartCount: 0,
+          upSince: d(14),
+        },
+        {
+          serviceId: 'svc_2',
+          serviceName: 'worker',
+          projectName: 'Production',
+          latestDeployStatus: 'SUCCESS',
+          healthcheckPath: null,
+          numReplicas: 1,
+          restartCount: 0,
+          upSince: d(14),
+        },
+        {
+          serviceId: 'svc_3',
+          serviceName: 'redis',
+          projectName: 'Production',
+          latestDeployStatus: 'SUCCESS',
+          healthcheckPath: null,
+          numReplicas: 1,
+          restartCount: 0,
+          upSince: d(30),
+        },
+        {
+          serviceId: 'svc_4',
+          serviceName: 'api-server',
+          projectName: 'Staging',
+          latestDeployStatus: 'SUCCESS',
+          healthcheckPath: '/health',
+          numReplicas: 1,
+          restartCount: 0,
+          upSince: d(7),
+        },
+      ],
+    }
+  }
+
   const data = (await gql(
     config.apiKey,
     `query {

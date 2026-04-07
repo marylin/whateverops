@@ -75,6 +75,84 @@ export interface PanelData {
 }
 
 export async function fetchData(config: IntegrationConfig): Promise<RawData> {
+  if (process.env.MOCK_PREVIEW === 'true') {
+    const d = (daysAgo: number) => new Date(Date.now() - daysAgo * 86400_000).toISOString()
+    return {
+      projects: [
+        {
+          id: 'proj_1',
+          name: 'prod-db',
+          region_id: 'aws-us-east-2',
+          created_at: d(90),
+          updated_at: d(0),
+          pg_version: 17,
+        },
+        {
+          id: 'proj_2',
+          name: 'staging-db',
+          region_id: 'aws-us-east-2',
+          created_at: d(60),
+          updated_at: d(1),
+          pg_version: 17,
+        },
+      ],
+      branches: {
+        proj_1: [
+          {
+            id: 'br_1',
+            name: 'main',
+            primary: true,
+            currentState: 'ready',
+            logicalSize: 524288000,
+          },
+        ],
+        proj_2: [
+          { id: 'br_2', name: 'main', primary: true, currentState: 'ready', logicalSize: 52428800 },
+        ],
+      },
+      endpoints: {
+        proj_1: [
+          {
+            id: 'ep_1',
+            branchId: 'br_1',
+            type: 'read_write',
+            currentState: 'active',
+            host: 'ep_1.us-east-2.aws.neon.tech',
+            autoscalingMinCu: 0.25,
+            autoscalingMaxCu: 4,
+          },
+        ],
+        proj_2: [
+          {
+            id: 'ep_2',
+            branchId: 'br_2',
+            type: 'read_write',
+            currentState: 'idle',
+            host: 'ep_2.us-east-2.aws.neon.tech',
+            autoscalingMinCu: 0.25,
+            autoscalingMaxCu: 2,
+          },
+        ],
+      },
+      consumption: {
+        proj_1: {
+          activeTimeSeconds: 72000,
+          computeTimeSeconds: 68000,
+          dataStorageBytesHour: 1073741824,
+          writtenDataBytes: 209715200,
+          dataTransferBytes: 52428800,
+        },
+        proj_2: {
+          activeTimeSeconds: 3600,
+          computeTimeSeconds: 3400,
+          dataStorageBytesHour: 104857600,
+          writtenDataBytes: 10485760,
+          dataTransferBytes: 1048576,
+        },
+      },
+    }
+  }
+
   const orgId = process.env.NEON_ORG_ID
   const url = orgId
     ? `https://console.neon.tech/api/v2/projects?org_id=${encodeURIComponent(orgId)}`
