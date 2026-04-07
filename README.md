@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Unified ops dashboard for solo developer-founders.</strong><br/>
-  15 integrations. One real-time view. Self-host in 5 minutes.
+  16 integrations. One real-time view. Self-host in 5 minutes.
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 ## Why WhateverOPS?
 
-You're a solo founder. You have 15 tabs open: Vercel, Railway, Stripe, Sentry, PostHog, GitHub, Linear... You check each one every morning. Some have dashboards, some have email alerts, none of them talk to each other.
+You're a solo founder. You have 16 tabs open: Vercel, Railway, Stripe, Sentry, PostHog, GitHub, Linear... You check each one every morning. Some have dashboards, some have email alerts, none of them talk to each other.
 
 WhateverOPS pulls all 15 services into a single, real-time dashboard. One glance tells you if something is broken. One API key per service — no OAuth dance, no hosted SaaS dependency. Self-host it on your own infra and own your data.
 
@@ -68,8 +68,9 @@ That's it. Add more API keys to `.env` to light up more panels. Each integration
 | **Neon**             | Projects, regions, PG versions                      | ![Neon](https://img.shields.io/badge/Neon-00E5A0?style=flat-square&logoColor=black)                             |
 | **Sentry**           | Unresolved issues, events, error levels             | ![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat-square&logo=sentry&logoColor=white)             |
 | **Stripe**           | MRR, active subs, failed payments                   | ![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=flat-square&logo=stripe&logoColor=white)             |
+| **Blotato**          | Scheduled posts, connected accounts, queue          | ![Blotato](https://img.shields.io/badge/Blotato-000000?style=flat-square&logoColor=white)                       |
 
-All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
+All 16 integrations are fetched in parallel via `Promise.all()` — no waterfall, no slow dashboards.
 
 ## Architecture
 
@@ -82,7 +83,7 @@ All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall
                    │ REST
 ┌──────────────────▼──────────────────────────┐
 │  Hono.js on Bun (Railway)                   │
-│  15 integrations via Promise.all()          │
+│  16 integrations via Promise.all()          │
 │  Error retry (2x backoff, 10s timeout)      │
 │  Cache: in-memory or Upstash Redis          │
 └──────────────────┬──────────────────────────┘
