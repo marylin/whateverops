@@ -10,10 +10,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/whateverops-dev/whateverops/actions"><img src="https://img.shields.io/github/actions/workflow/status/whateverops-dev/whateverops/ci.yml?branch=master&label=CI&style=flat-square" alt="CI" /></a>
+  <a href="https://github.com/marylin/whateverops/actions"><img src="https://img.shields.io/github/actions/workflow/status/marylin/whateverops/ci.yml?branch=master&label=CI&style=flat-square" alt="CI" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT" /></a>
-  <a href="https://github.com/whateverops-dev/whateverops/stargazers"><img src="https://img.shields.io/github/stars/whateverops-dev/whateverops?style=flat-square" alt="Stars" /></a>
-  <a href="https://github.com/whateverops-dev/whateverops/issues"><img src="https://img.shields.io/github/issues/whateverops-dev/whateverops?style=flat-square" alt="Issues" /></a>
+  <a href="https://github.com/marylin/whateverops/stargazers"><img src="https://img.shields.io/github/stars/marylin/whateverops?style=flat-square" alt="Stars" /></a>
+  <a href="https://github.com/marylin/whateverops/issues"><img src="https://img.shields.io/github/issues/marylin/whateverops?style=flat-square" alt="Issues" /></a>
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@ WhateverOPS pulls all 15 services into a single, real-time dashboard. One glance
 ## Quick Start
 
 ```bash
-git clone https://github.com/whateverops-dev/whateverops.git
+git clone https://github.com/marylin/whateverops.git
 cd whateverops
 pnpm install
 cp .env.example .env
@@ -84,10 +84,10 @@ All 15 integrations are fetched in parallel via `Promise.all()` — no waterfall
 │  Cache: in-memory or Upstash Redis          │
 └──────────────────┬──────────────────────────┘
                    │
-       ┌───────────┼───────────┐
-       ▼           ▼           ▼
-   External    Upstash      n8n
-    APIs       Redis       Automations
+       ┌───────────┴───────────┐
+       ▼                     ▼
+   External              Upstash
+    APIs                  Redis
 ```
 
 ## Self-Hosting
@@ -136,12 +136,6 @@ For production use, we recommend:
 
 - **HTTPS**: Use a reverse proxy like [Caddy](https://caddyserver.com) (automatic TLS) or nginx with Let's Encrypt
 - **Process manager**: Run via Docker with `restart: unless-stopped` or use Railway/Fly.io managed hosting
-
-## Building in Public
-
-WhateverOPS is built with automation for building in public — deploy changelogs, star milestones, weekly metrics digests, payment celebrations, and error transparency posts.
-
-These automations run on a self-hosted [n8n](https://n8n.io) instance and are not included in the repository. See the [n8n docs](https://docs.n8n.io/hosting/) to set up your own instance.
 
 ## Telemetry
 
