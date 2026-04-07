@@ -61,6 +61,9 @@ export const INTEGRATION_ENV_MAP: Record<string, Record<string, string>> = {
   stripe: {
     apiKey: 'STRIPE_SECRET_KEY',
   },
+  blotato: {
+    apiKey: 'BLOTATO_API_KEY',
+  },
   'self-monitoring': {
     apiKey: 'SELF_MONITOR_URL',
     healthUrl: 'SELF_MONITOR_URL',
@@ -84,5 +87,6 @@ export const INTEGRATION_NAMES: Record<string, string> = {
   neon: 'Neon',
   sentry: 'Sentry',
   stripe: 'Stripe',
+  blotato: 'Blotato',
   'self-monitoring': 'WhateverOPS',
 }
