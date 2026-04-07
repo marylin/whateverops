@@ -23,6 +23,13 @@ async function main() {
   console.log('Taking viewport screenshot...')
   await page.screenshot({ path: `${OUT_DIR}/dashboard-viewport.png`, fullPage: false })
 
+  // Remove sticky header to prevent overlap in card screenshots
+  await page.evaluate(() => {
+    const header = document.querySelector('header')
+    if (header) header.remove()
+  })
+  await page.waitForTimeout(200)
+
   // Section screenshots — each group is a <section role="region" aria-label="X group">
   const sectionLabels = ['Revenue', 'Health', 'Users', 'Costs', 'Attention']
   for (const label of sectionLabels) {
@@ -65,10 +72,8 @@ async function main() {
       continue
     }
 
-    // Card wrapper: PanelCard uses rounded-xl + border
-    const card = heading
-      .locator('xpath=ancestor::div[contains(@class, "rounded-xl") and contains(@class, "border")]')
-      .last()
+    // Card wrapper: PanelCard uses rounded-xl (first ancestor = direct card)
+    const card = heading.locator('xpath=ancestor::div[contains(@class, "rounded-xl")]').first()
     if ((await card.count()) === 0) {
       console.log(`Card container not found: ${name}`)
       continue
