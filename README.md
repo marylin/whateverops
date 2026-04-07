@@ -22,6 +22,7 @@
 <p align="center">
   <a href="#quick-start">Quick Start</a> •
   <a href="#integrations">Integrations</a> •
+  <a href="GALLERY.md">Screenshots</a> •
   <a href="#self-hosting">Self-Hosting</a> •
   <a href="#contributing">Contributing</a>
 </p>
@@ -33,6 +34,12 @@
 You're a solo founder. You have 16 tabs open: Vercel, Railway, Stripe, Sentry, PostHog, GitHub, Linear... You check each one every morning. Some have dashboards, some have email alerts, none of them talk to each other.
 
 WhateverOPS pulls all 16 services into a single, real-time dashboard. One glance tells you if something is broken. One API key per service — no OAuth dance, no hosted SaaS dependency. Self-host it on your own infra and own your data.
+
+<p align="center">
+  <img src=".github/screenshots/dashboard-viewport.png" alt="WhateverOPS Dashboard" width="100%" />
+</p>
+
+> See every card in detail: **[Screenshots](GALLERY.md)**
 
 ## Quick Start
 
