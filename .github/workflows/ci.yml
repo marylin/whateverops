@@ -19,7 +19,7 @@ jobs:
     name: Lint · Typecheck · Test · Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # For dependabot PRs: checkout PR head so we can push lockfile updates
           # For push events: github.head_ref is empty, use github.ref (the pushed branch)
@@ -112,7 +112,7 @@ jobs:
     needs: quality
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v5
         with:
